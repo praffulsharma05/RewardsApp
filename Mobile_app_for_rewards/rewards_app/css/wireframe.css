@@ -291,6 +291,96 @@ body {
   background: var(--bw-gray-100);
 }
 
+/* Readonly / Locked Form Fields (Strictly Protected by Settings) */
+.locked-input,
+.wf-input[readonly],
+.wf-input:disabled {
+  background-color: var(--bw-gray-100) !important;
+  border-style: dashed !important;
+  color: var(--bw-black) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  opacity: 0.9 !important;
+}
+
+/* Policy Status Box & Lock Badges */
+.policy-status-card {
+  border-left: 3px solid var(--bw-black) !important;
+  background: var(--bw-gray-100);
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.policy-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.lock-pill {
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  background: var(--bw-white);
+  border: 1px solid var(--bw-black);
+  border-radius: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+/* Compact Optimized Form Elements */
+.wf-input-compact {
+  padding: 3px 6px !important;
+  font-size: 0.76rem !important;
+  height: 28px !important;
+}
+
+.form-section-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--bw-gray-700);
+  border-bottom: 1px solid var(--bw-gray-300);
+  padding-bottom: 1px;
+  margin-top: 4px;
+  margin-bottom: 3px;
+}
+
+.compact-photo-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.compact-thumb-box {
+  width: 40px;
+  height: 28px;
+  border: 1px dashed var(--bw-black);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  font-weight: 800;
+  background: var(--bw-gray-100);
+  color: var(--bw-gray-700);
+  flex-shrink: 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.compact-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Chrome Autofill fix */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 

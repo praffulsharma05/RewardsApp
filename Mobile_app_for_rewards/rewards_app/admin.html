@@ -32,138 +32,105 @@
 
       <!-- SCREEN 1: GRANT REWARD POINTS (FORM) -->
       <section class="admin-screen active" id="screen-grant">
-        <div class="wf-card highlight">
-          <div class="wf-card-header">
-            <span class="wf-title-sm">Reward Grant Tool</span>
-            <button type="button" id="btnSampleData" class="wf-btn wf-btn-sm wf-btn-secondary">
-              ⚡ Fill 15k / 10% / 50% cap
+        
+        <!-- Compact Header -->
+        <div class="wf-card highlight" style="padding: 6px 10px; margin-bottom: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="wf-title-sm" style="font-size: 0.84rem;">Grant Reward Points</span>
+            <button type="button" id="btnSampleData" class="wf-btn wf-btn-sm wf-btn-secondary" style="padding: 3px 8px; font-size: 0.68rem; width: auto; white-space: nowrap;">
+              ⚡ Sample (15k)
             </button>
           </div>
-          <p class="wf-meta">Allocate customer reward points, set custom expiration timestamp and redemption capping rules.</p>
         </div>
 
         <form id="adminRewardForm">
-          <!-- Customer Info -->
-          <div class="wf-card">
-            <strong class="wf-title-sm" style="display: block; margin-bottom: 8px;">1. Customer Details:</strong>
-            <div class="wf-form-group">
-              <label class="wf-label" for="customerName">Customer Name *</label>
-              <input type="text" id="customerName" name="customerName" class="wf-input" placeholder="e.g. Rahul Sharma" required>
+          <!-- All-In-One Compact Unified Form Card -->
+          <div class="wf-card" style="padding: 8px; margin-bottom: 6px;">
+            
+            <!-- 1. Customer Details -->
+            <div class="form-section-title">1. Customer Information</div>
+            <div class="wf-row-2" style="margin-bottom: 4px;">
+              <div class="wf-form-group" style="margin-bottom: 0;">
+                <label class="wf-label" for="customerName">Name *</label>
+                <input type="text" id="customerName" name="customerName" class="wf-input wf-input-compact" placeholder="Rahul Sharma" required>
+              </div>
+              <div class="wf-form-group" style="margin-bottom: 0;">
+                <label class="wf-label" for="customerPhone">Phone No. *</label>
+                <input type="tel" id="customerPhone" name="customerPhone" class="wf-input wf-input-compact" placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required>
+              </div>
             </div>
-            <div class="wf-form-group">
-              <label class="wf-label" for="customerPhone">Customer Phone No. *</label>
-              <input type="tel" id="customerPhone" name="customerPhone" class="wf-input" placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required>
-            </div>
-          </div>
 
-          <!-- Order & Product Details -->
-          <div class="wf-card">
-            <div class="wf-card-header" style="margin-bottom: 6px;">
-              <strong class="wf-title-sm">2. Order &amp; Rewards:</strong>
-              <span class="header-pill" id="badgeDefaultPercent">Default: 10%</span>
-            </div>
-            <div class="wf-row-2">
-              <div class="wf-form-group">
+            <!-- 2. Order Details -->
+            <div class="form-section-title">2. Order Details</div>
+            <div class="wf-row-2" style="margin-bottom: 4px;">
+              <div class="wf-form-group" style="margin-bottom: 0;">
                 <label class="wf-label" for="orderId">Order ID *</label>
-                <input type="text" id="orderId" name="orderId" class="wf-input" placeholder="ORD-15099" required>
+                <input type="text" id="orderId" name="orderId" class="wf-input wf-input-compact" placeholder="ORD-15099" required>
               </div>
-              <div class="wf-form-group">
-                <label class="wf-label" for="orderDate">Order Date *</label>
-                <input type="date" id="orderDate" name="orderDate" class="wf-input" required>
+              <div class="wf-form-group" style="margin-bottom: 0;">
+                <label class="wf-label" for="orderDate">Date *</label>
+                <input type="date" id="orderDate" name="orderDate" class="wf-input wf-input-compact" required>
               </div>
             </div>
 
-            <div class="wf-form-group">
-              <label class="wf-label" for="productName">Product Name *</label>
-              <input type="text" id="productName" name="productName" class="wf-input" placeholder="e.g. Smartphone 5G" required>
-            </div>
-
-            <div class="wf-row-2">
-              <div class="wf-form-group">
+            <div class="wf-row-2" style="margin-bottom: 4px;">
+              <div class="wf-form-group" style="flex: 1.2; margin-bottom: 0;">
+                <label class="wf-label" for="productName">Product Name *</label>
+                <input type="text" id="productName" name="productName" class="wf-input wf-input-compact" placeholder="e.g. Smartphone 5G" required>
+              </div>
+              <div class="wf-form-group" style="flex: 0.8; margin-bottom: 0;">
                 <label class="wf-label" for="orderAmount">Amount (₹) *</label>
-                <input type="number" id="orderAmount" name="orderAmount" class="wf-input" placeholder="15000" min="0" required>
-              </div>
-              <div class="wf-form-group">
-                <label class="wf-label" for="rewardPercent">Reward %</label>
-                <input type="number" id="rewardPercent" name="rewardPercent" class="wf-input" placeholder="10" value="10" min="0" max="100" step="0.5">
+                <input type="number" id="orderAmount" name="orderAmount" class="wf-input wf-input-compact" placeholder="15000" min="0" required style="font-weight: 700;">
               </div>
             </div>
 
-            <!-- Quick Presets ("Set at once / some for others") -->
-            <div class="wf-form-group" style="margin-bottom: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label class="wf-label" style="margin-bottom: 0;">Quick Presets (Set At Once):</label>
-                <button type="button" id="btnSetAsDefault" class="wf-link-btn" title="Save current reward % as system default">★ Set as Default</button>
-              </div>
-              <div class="preset-pill-group" id="presetPillGroup">
-                <button type="button" class="preset-pill" data-pct="5">5% (Low)</button>
-                <button type="button" class="preset-pill active" data-pct="10">10% (Default)</button>
-                <button type="button" class="preset-pill" data-pct="15">15% (VIP)</button>
-                <button type="button" class="preset-pill" data-pct="20">20% (Promo)</button>
-                <button type="button" class="preset-pill" data-pct="25">25% (Special)</button>
-              </div>
-            </div>
+            <!-- 3. Reward & Policy Parameters -->
+            <div class="form-section-title">3. Reward Policy</div>
 
-            <!-- Admin Default Config Strip -->
-            <div class="default-config-strip" id="defaultConfigStrip" style="margin-bottom: 10px; padding: 6px 8px; background: var(--bw-gray-100); border: var(--bw-border-thin); border-radius: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
-              <span><strong>Default Rate:</strong> Sets by default for new orders</span>
-              <div style="display: flex; gap: 4px; align-items: center;">
-                <input type="number" id="adminDefaultSettingInput" class="wf-input" style="width: 52px; padding: 2px 4px; font-size: 0.75rem; height: 24px; text-align: center;" min="0" max="100" step="0.5" value="10">
-                <button type="button" id="btnSaveAdminDefault" class="wf-btn wf-btn-sm" style="padding: 2px 6px; height: 24px; line-height: 1;">Save</button>
+            <div class="wf-row-2" style="margin-bottom: 4px;">
+              <div class="wf-form-group" style="flex: 0.7; margin-bottom: 0;">
+                <label class="wf-label" for="rewardPercent">Rate %</label>
+                <input type="number" id="rewardPercent" name="rewardPercent" class="wf-input wf-input-compact locked-input" value="10" min="0" max="100" step="0.5" disabled readonly>
+              </div>
+              <div class="wf-form-group" style="flex: 1.3; margin-bottom: 0;">
+                <label class="wf-label" for="rewardPoints" id="rewardPointsLabel">Points Given *</label>
+                <input type="number" id="rewardPoints" name="rewardPoints" class="wf-input wf-input-compact locked-input" placeholder="0" min="1" required disabled readonly style="font-weight: 800;">
               </div>
             </div>
 
-            <div class="wf-form-group">
-              <label class="wf-label" for="rewardPoints" id="rewardPointsLabel">Points Given (10% of Order) *</label>
-              <input type="number" id="rewardPoints" name="rewardPoints" class="wf-input" placeholder="1500" min="1" required>
-            </div>
-          </div>
-
-          <!-- Expiry & Capping Rules -->
-          <div class="wf-card">
-            <div class="wf-card-header" style="margin-bottom: 6px;">
-              <strong class="wf-title-sm">3. Expiry &amp; Capping:</strong>
-              <span class="header-pill" id="badgeDefaultExpiry">Default: 2 Months</span>
-            </div>
-
-            <div class="wf-form-group">
-              <label class="wf-label" for="expiryDate">Reward Expire Date &amp; Time *</label>
-              <input type="datetime-local" id="expiryDate" name="expiryDate" class="wf-input" required>
-            </div>
-
-            <!-- Quick Presets for Expiry Validity -->
-            <div class="wf-form-group" style="margin-bottom: 10px;">
-              <label class="wf-label" style="margin-bottom: 4px;">Quick Expiry Validity (Set At Once):</label>
-              <div class="preset-pill-group" id="expiryPresetGroup">
-                <button type="button" class="preset-pill" data-months="1">1 Month (30d)</button>
-                <button type="button" class="preset-pill active" data-months="2">2 Months (Default)</button>
-                <button type="button" class="preset-pill" data-months="3">3 Months (90d)</button>
-                <button type="button" class="preset-pill" data-months="6">6 Months</button>
-                <button type="button" class="preset-pill" data-months="12">1 Year</button>
+            <div class="wf-form-group" style="margin-bottom: 4px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px;">
+                <label class="wf-label" for="expiryDate" style="margin-bottom: 0;">Expiry Date &amp; Time *</label>
+                <small class="wf-meta" id="grantExpiryMeta" style="margin: 0; font-size: 0.62rem;">Auto-set to 2 Months</small>
               </div>
+              <input type="datetime-local" id="expiryDate" name="expiryDate" class="wf-input wf-input-compact locked-input" required disabled readonly>
             </div>
 
-            <div class="wf-row-2">
-              <div class="wf-form-group">
-                <label class="wf-label" for="cappingPercent">Capping % Limit *</label>
-                <input type="number" id="cappingPercent" name="cappingPercent" class="wf-input" placeholder="50" min="1" max="100" value="50" required>
+            <div class="wf-row-2" style="margin-bottom: 4px;">
+              <div class="wf-form-group" style="flex: 1; margin-bottom: 0;">
+                <label class="wf-label" for="cappingPercent">Cap %</label>
+                <input type="number" id="cappingPercent" name="cappingPercent" class="wf-input wf-input-compact locked-input" value="50" min="1" max="100" required disabled readonly>
               </div>
-              <div class="wf-form-group">
+              <div class="wf-form-group" style="flex: 1; margin-bottom: 0;">
                 <label class="wf-label" for="minOrderAmount">Min Order (₹)</label>
-                <input type="number" id="minOrderAmount" name="minOrderAmount" class="wf-input" placeholder="10000" min="0" value="10000">
+                <input type="number" id="minOrderAmount" name="minOrderAmount" class="wf-input wf-input-compact locked-input" value="10000" min="0" disabled readonly>
               </div>
             </div>
 
-            <div class="wf-form-group">
-              <label class="wf-label" for="productPhoto">Attach Photo of Product</label>
-              <input type="file" id="productPhoto" name="productPhoto" class="wf-input" accept="image/*" style="padding: 4px;">
-              <div id="photoPreview" class="photo-preview-box">
-                <span>NO PHOTO ATTACHED</span>
+            <!-- 4. Slim Photo Upload Row -->
+            <div class="wf-form-group" style="margin-bottom: 0; margin-top: 4px;">
+              <label class="wf-label" for="productPhoto">Product Photo / Receipt (Optional)</label>
+              <div class="compact-photo-row">
+                <input type="file" id="productPhoto" name="productPhoto" class="wf-input wf-input-compact" accept="image/*" style="padding: 2px 4px; font-size: 0.7rem; flex: 1;">
+                <div id="photoPreview" class="compact-thumb-box">
+                  <span>NO PHOTO</span>
+                </div>
               </div>
             </div>
+
           </div>
 
-          <button type="submit" class="wf-btn" style="margin-bottom: 10px;">
+          <button type="submit" class="wf-btn" id="btnSubmitReward" style="margin-bottom: 6px; padding: 8px; font-size: 0.8rem;">
             Save &amp; Issue Reward Points
           </button>
         </form>
@@ -184,7 +151,100 @@
         </div>
       </section>
 
-      <!-- SCREEN 3: SYSTEM OVERVIEW -->
+      <!-- SCREEN 3: GLOBAL POLICY SETTINGS -->
+      <section class="admin-screen" id="screen-settings">
+        <div class="wf-card highlight">
+          <div class="wf-card-header">
+            <span class="wf-title-sm">&#9881; Default Policy Settings</span>
+            <span class="header-pill">GLOBAL CONFIG</span>
+          </div>
+          <p class="wf-meta">
+            Configure default Reward %, Expiry duration, and Capping rules once. Fixed values apply directly to the Grant page to prevent accidental errors.
+          </p>
+        </div>
+
+        <form id="adminSettingsForm">
+          <!-- 1. Reward Rate % Setting -->
+          <div class="wf-card">
+            <div class="wf-card-header" style="margin-bottom: 6px;">
+              <strong class="wf-title-sm">1. Default Reward Rate %</strong>
+              <span class="header-pill" id="settingsBadgeReward">10%</span>
+            </div>
+            <p class="wf-meta">Sets the standard percentage of order amount granted as points.</p>
+            <div class="wf-form-group">
+              <label class="wf-label" for="settingRewardPercent">Default Reward Rate (%) *</label>
+              <input type="number" id="settingRewardPercent" class="wf-input" min="0" max="100" step="0.5" value="10" required>
+            </div>
+            <div class="wf-form-group" style="margin-bottom: 0;">
+              <label class="wf-label" style="margin-bottom: 4px;">Quick Rate Presets:</label>
+              <div class="preset-pill-group" id="settingsRewardPresets">
+                <button type="button" class="preset-pill" data-pct="5">5% (Low)</button>
+                <button type="button" class="preset-pill active" data-pct="10">10% (Default)</button>
+                <button type="button" class="preset-pill" data-pct="15">15% (VIP)</button>
+                <button type="button" class="preset-pill" data-pct="20">20% (Promo)</button>
+                <button type="button" class="preset-pill" data-pct="25">25% (Special)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Expiry Duration Setting -->
+          <div class="wf-card">
+            <div class="wf-card-header" style="margin-bottom: 6px;">
+              <strong class="wf-title-sm">2. Expiry Duration</strong>
+              <span class="header-pill" id="settingsBadgeExpiry">2 Months</span>
+            </div>
+            <p class="wf-meta">Default point validity duration from the date of issuance.</p>
+            <div class="wf-form-group">
+              <label class="wf-label" for="settingExpiryMonths">Validity Period (Months) *</label>
+              <input type="number" id="settingExpiryMonths" class="wf-input" min="1" max="60" value="2" required>
+            </div>
+            <div class="wf-form-group" style="margin-bottom: 0;">
+              <label class="wf-label" style="margin-bottom: 4px;">Quick Duration Presets:</label>
+              <div class="preset-pill-group" id="settingsExpiryPresets">
+                <button type="button" class="preset-pill" data-months="1">1 Month (30d)</button>
+                <button type="button" class="preset-pill active" data-months="2">2 Months (Default)</button>
+                <button type="button" class="preset-pill" data-months="3">3 Months (90d)</button>
+                <button type="button" class="preset-pill" data-months="6">6 Months</button>
+                <button type="button" class="preset-pill" data-months="12">1 Year</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Capping & Minimum Order Setting -->
+          <div class="wf-card">
+            <div class="wf-card-header" style="margin-bottom: 6px;">
+              <strong class="wf-title-sm">3. Redemption Capping &amp; Min Order</strong>
+              <span class="header-pill" id="settingsBadgeCapping">50% / ₹10,000</span>
+            </div>
+            <p class="wf-meta">Redemption rules protecting against excessive point usage per order.</p>
+            <div class="wf-row-2">
+              <div class="wf-form-group">
+                <label class="wf-label" for="settingCappingPercent">Max Capping % *</label>
+                <input type="number" id="settingCappingPercent" class="wf-input" min="1" max="100" value="50" required>
+              </div>
+              <div class="wf-form-group">
+                <label class="wf-label" for="settingMinOrderAmount">Min Order (₹) *</label>
+                <input type="number" id="settingMinOrderAmount" class="wf-input" min="0" value="10000" required>
+              </div>
+            </div>
+            <div class="wf-form-group" style="margin-bottom: 0;">
+              <label class="wf-label" style="margin-bottom: 4px;">Quick Capping Presets:</label>
+              <div class="preset-pill-group" id="settingsCappingPresets">
+                <button type="button" class="preset-pill" data-cap="25">25% Cap</button>
+                <button type="button" class="preset-pill active" data-cap="50">50% Cap (Default)</button>
+                <button type="button" class="preset-pill" data-cap="75">75% Cap</button>
+                <button type="button" class="preset-pill" data-cap="100">100% (No Cap)</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="wf-btn" style="margin-bottom: 12px;">
+            &#128190; Save &amp; Apply All Settings
+          </button>
+        </form>
+      </section>
+
+      <!-- SCREEN 4: SYSTEM OVERVIEW -->
       <section class="admin-screen" id="screen-overview">
         <div class="wf-card highlight">
           <div class="wf-card-header">
@@ -229,6 +289,10 @@
       <button type="button" class="nav-tab-item" data-screen="screen-issued">
         <span class="tab-icon">&#128221;</span>
         <span>Issued</span>
+      </button>
+      <button type="button" class="nav-tab-item" data-screen="screen-settings">
+        <span class="tab-icon">&#9881;</span>
+        <span>Settings</span>
       </button>
       <button type="button" class="nav-tab-item" data-screen="screen-overview">
         <span class="tab-icon">&#128202;</span>

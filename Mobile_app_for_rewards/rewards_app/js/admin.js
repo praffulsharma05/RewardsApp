@@ -63,63 +63,162 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Default Reward Percentage Configuration & Persistence
-  const DEFAULT_PCT_KEY = 'rewards_app_admin_default_percent';
+  // Navigation shortcuts to Settings
+  document.querySelectorAll('.btn-nav-settings').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchScreen('screen-settings');
+    });
+  });
 
-  function getAdminDefaultPercent() {
-    const saved = localStorage.getItem(DEFAULT_PCT_KEY);
-    if (saved !== null && !isNaN(parseFloat(saved))) {
-      return parseFloat(saved);
-    }
-    return 10; // User specification: by default set 10%
-  }
+  // Global Settings Storage & State
+  const SETTINGS_KEY = 'rewards_app_admin_settings_v1';
+  const defaultSettings = {
+    rewardPercent: 10,
+    expiryMonths: 2,
+    cappingPercent: 50,
+    minOrderAmount: 10000,
+    lockGrantForm: true
+  };
 
-  function applyAdminDefaultUI(pct) {
-    const badge = document.getElementById('badgeDefaultPercent');
-    const defaultInput = document.getElementById('adminDefaultSettingInput');
-    if (badge) badge.textContent = `Default: ${pct}%`;
-    if (defaultInput) defaultInput.value = pct;
-
-    // Update pill text if 10% is default or changed
-    document.querySelectorAll('.preset-pill').forEach(pill => {
-      const p = parseFloat(pill.dataset.pct);
-      if (p === 10) {
-        pill.textContent = pct === 10 ? '10% (Default)' : '10%';
-      } else if (p === pct) {
-        pill.textContent = `${pct}% (Default)`;
+  function getAdminSettings() {
+    try {
+      const stored = localStorage.getItem(SETTINGS_KEY);
+      if (stored) {
+        return { ...defaultSettings, ...JSON.parse(stored) };
       }
+    } catch (e) {
+      console.error('Error reading settings:', e);
+    }
+    return { ...defaultSettings };
+  }
+
+  function saveAdminSettings(settings) {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {
+      console.error('Error saving settings:', e);
+    }
+  }
+
+  // Format local datetime string for datetime-local inputs
+  function formatLocalDatetime(date) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const y = date.getFullYear();
+    const m = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    return `${y}-${m}-${d}T${hh}:${mm}`;
+  }
+
+  function calculateExpiryDate(months) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + months);
+    return formatLocalDatetime(d);
+  }
+
+  const cappingPercentInput = document.getElementById('cappingPercent');
+  const minOrderAmountInput = document.getElementById('minOrderAmount');
+  const expiryDateInput = document.getElementById('expiryDate');
+  const adminSettingsForm = document.getElementById('adminSettingsForm');
+
+  // Lock protection state on Grant form - strictly locked to Settings
+  function applyGrantFormLockState(settings) {
+    if (rewardPercentInput) {
+      rewardPercentInput.disabled = true;
+      rewardPercentInput.readOnly = true;
+    }
+    if (rewardPointsInput) {
+      rewardPointsInput.disabled = true;
+      rewardPointsInput.readOnly = true;
+    }
+    if (expiryDateInput) {
+      expiryDateInput.disabled = true;
+      expiryDateInput.readOnly = true;
+    }
+    if (cappingPercentInput) {
+      cappingPercentInput.disabled = true;
+      cappingPercentInput.readOnly = true;
+    }
+    if (minOrderAmountInput) {
+      minOrderAmountInput.disabled = true;
+      minOrderAmountInput.readOnly = true;
+    }
+  }
+
+  // Apply settings across Settings page and Grant page
+  function applySettingsToUI(settings) {
+    // 1. Update Settings Form Fields & Badges
+    const settingReward = document.getElementById('settingRewardPercent');
+    const settingExpiry = document.getElementById('settingExpiryMonths');
+    const settingCap = document.getElementById('settingCappingPercent');
+    const settingMin = document.getElementById('settingMinOrderAmount');
+
+    const badgeReward = document.getElementById('settingsBadgeReward');
+    const badgeExpiry = document.getElementById('settingsBadgeExpiry');
+    const badgeCap = document.getElementById('settingsBadgeCapping');
+
+    if (settingReward) settingReward.value = settings.rewardPercent;
+    if (settingExpiry) settingExpiry.value = settings.expiryMonths;
+    if (settingCap) settingCap.value = settings.cappingPercent;
+    if (settingMin) settingMin.value = settings.minOrderAmount;
+
+    if (badgeReward) badgeReward.textContent = `${settings.rewardPercent}%`;
+    if (badgeExpiry) badgeExpiry.textContent = `${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
+    if (badgeCap) badgeCap.textContent = `${settings.cappingPercent}% / ₹${Number(settings.minOrderAmount).toLocaleString()}`;
+
+    // Update Settings Presets active states
+    document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(p => {
+      p.classList.toggle('active', parseFloat(p.dataset.pct) === settings.rewardPercent);
     });
-  }
-
-  function saveAdminDefaultPercent(val) {
-    const num = Math.max(0, Math.min(100, parseFloat(val) || 10));
-    localStorage.setItem(DEFAULT_PCT_KEY, num.toString());
-    applyAdminDefaultUI(num);
-    showToast(`Default reward rate updated to ${num}%`);
-  }
-
-  function syncPresetPills(currentPct) {
-    document.querySelectorAll('.preset-pill').forEach(pill => {
-      const p = parseFloat(pill.dataset.pct);
-      pill.classList.toggle('active', p === currentPct);
+    document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(p => {
+      p.classList.toggle('active', parseInt(p.dataset.months) === settings.expiryMonths);
     });
+    document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(p => {
+      p.classList.toggle('active', parseInt(p.dataset.cap) === settings.cappingPercent);
+    });
+
+    // 2. Update Grant Form Banner (Clearly shows values set by Settings)
+    const bannerRate = document.getElementById('grantBannerRate');
+    const bannerExpiry = document.getElementById('grantBannerExpiry');
+    const bannerCapping = document.getElementById('grantBannerCapping');
+    if (bannerRate) bannerRate.textContent = `★ Rate: ${settings.rewardPercent}%`;
+    if (bannerExpiry) bannerExpiry.textContent = `⏳ Expiry: ${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
+    if (bannerCapping) bannerCapping.textContent = `🛡 Cap: ${settings.cappingPercent}% (Min ₹${Number(settings.minOrderAmount).toLocaleString()})`;
+
+    // 3. Populate Grant Form Fields with Fixed Settings Values
+    if (rewardPercentInput) rewardPercentInput.value = settings.rewardPercent;
+    if (cappingPercentInput) cappingPercentInput.value = settings.cappingPercent;
+    if (minOrderAmountInput) minOrderAmountInput.value = settings.minOrderAmount;
+
+    if (expiryDateInput) {
+      expiryDateInput.value = calculateExpiryDate(settings.expiryMonths);
+    }
+    const grantExpiryMeta = document.getElementById('grantExpiryMeta');
+    if (grantExpiryMeta) {
+      grantExpiryMeta.textContent = `Auto-set to ${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
+    }
+
+    // 4. Update Overview Tab Stat
+    const statDefaultCap = document.getElementById('stat-default-cap');
+    if (statDefaultCap) statDefaultCap.textContent = `${settings.cappingPercent}%`;
+
+    // 5. Update Lock Protection State
+    applyGrantFormLockState(settings);
+
+    // 6. Recalculate Points Given
+    updatePointsFromPercent();
   }
 
-  // Auto-calculation
+  // Compact auto-calculation for Points Given
   function updatePointsFromPercent() {
     const amount = parseFloat(orderAmountInput.value) || 0;
     const percent = parseFloat(rewardPercentInput.value) || 0;
-    syncPresetPills(percent);
 
-    const rewardPointsLabel = document.getElementById('rewardPointsLabel');
     if (amount > 0 && percent >= 0) {
       const points = Math.round((amount * percent) / 100);
       rewardPointsInput.value = points;
-      if (rewardPointsLabel) {
-        rewardPointsLabel.textContent = `Points Given (${percent}% of ₹${amount.toLocaleString()} = ${points.toLocaleString()}) *`;
-      }
-    } else if (rewardPointsLabel) {
-      rewardPointsLabel.textContent = `Points Given (${percent}% of Order) *`;
     }
   }
 
@@ -129,11 +228,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (amount > 0 && points >= 0) {
       const pct = parseFloat(((points / amount) * 100).toFixed(1));
       rewardPercentInput.value = pct;
-      syncPresetPills(pct);
-      const rewardPointsLabel = document.getElementById('rewardPointsLabel');
-      if (rewardPointsLabel) {
-        rewardPointsLabel.textContent = `Points Given (${pct}% of ₹${amount.toLocaleString()} = ${points.toLocaleString()}) *`;
-      }
     }
   }
 
@@ -141,50 +235,74 @@ document.addEventListener('DOMContentLoaded', async () => {
   rewardPercentInput.addEventListener('input', updatePointsFromPercent);
   rewardPointsInput.addEventListener('input', updatePercentFromPoints);
 
-  // Setup Quick Presets Click Handlers ("Set at once")
-  document.querySelectorAll('.preset-pill').forEach(pill => {
+
+
+  // Setup Settings Presets Click Handlers
+  document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       const pct = parseFloat(pill.dataset.pct);
-      rewardPercentInput.value = pct;
-      updatePointsFromPercent();
-      syncPresetPills(pct);
+      const input = document.getElementById('settingRewardPercent');
+      if (input) input.value = pct;
+      document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
     });
   });
 
-  // Setup "★ Set as Default" and "Save" controls
-  const btnSetAsDefault = document.getElementById('btnSetAsDefault');
-  if (btnSetAsDefault) {
-    btnSetAsDefault.addEventListener('click', () => {
-      const currentPct = parseFloat(rewardPercentInput.value) || 10;
-      saveAdminDefaultPercent(currentPct);
+  document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const months = parseInt(pill.dataset.months);
+      const input = document.getElementById('settingExpiryMonths');
+      if (input) input.value = months;
+      document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
+    });
+  });
+
+  document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const cap = parseInt(pill.dataset.cap);
+      const input = document.getElementById('settingCappingPercent');
+      if (input) input.value = cap;
+      document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
+    });
+  });
+
+  // Settings Form Submit Handler
+  if (adminSettingsForm) {
+    adminSettingsForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newSettings = {
+        rewardPercent: parseFloat(document.getElementById('settingRewardPercent').value) || 10,
+        expiryMonths: parseInt(document.getElementById('settingExpiryMonths').value) || 2,
+        cappingPercent: parseFloat(document.getElementById('settingCappingPercent').value) || 50,
+        minOrderAmount: parseFloat(document.getElementById('settingMinOrderAmount').value) || 0
+      };
+
+      saveAdminSettings(newSettings);
+      applySettingsToUI(newSettings);
+      showToast('✅ Global settings saved & applied to Grant form!');
+
+      // Smooth switch back to Grant screen after 600ms
+      setTimeout(() => {
+        switchScreen('screen-grant');
+      }, 600);
     });
   }
 
-  const btnSaveAdminDefault = document.getElementById('btnSaveAdminDefault');
-  const adminDefaultSettingInput = document.getElementById('adminDefaultSettingInput');
-  if (btnSaveAdminDefault && adminDefaultSettingInput) {
-    btnSaveAdminDefault.addEventListener('click', () => {
-      const val = parseFloat(adminDefaultSettingInput.value) || 10;
-      saveAdminDefaultPercent(val);
-      rewardPercentInput.value = val;
-      updatePointsFromPercent();
-      syncPresetPills(val);
-    });
-  }
+  // Initialize Settings & UI
+  const initialSettings = getAdminSettings();
+  applySettingsToUI(initialSettings);
 
-  // Initialize Default Reward %
-  const initialDefaultPct = getAdminDefaultPercent();
-  applyAdminDefaultUI(initialDefaultPct);
-  rewardPercentInput.value = initialDefaultPct;
-  syncPresetPills(initialDefaultPct);
-  updatePointsFromPercent();
+  // Auto-fill today's date if empty
+  const orderDateInput = document.getElementById('orderDate');
+  if (orderDateInput && !orderDateInput.value) {
+    orderDateInput.value = new Date().toISOString().split('T')[0];
+  }
 
   // Photo Attachment with Canvas Auto-Resizing (Prevents Quota & Payload Limits)
   photoInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) {
       base64PhotoData = '';
-      photoPreview.innerHTML = '<span>NO PHOTO ATTACHED</span>';
+      photoPreview.innerHTML = '<span>NO PHOTO</span>';
       return;
     }
 
@@ -215,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Compact JPEG data URL (~20KB)
         base64PhotoData = canvas.toDataURL('image/jpeg', 0.82);
-        photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Product Preview" />`;
+        photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Thumb" />`;
       };
       img.src = event.target.result;
     };
@@ -228,26 +346,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('customerPhone').value = '9876543210';
     document.getElementById('orderId').value = 'ORD-' + Math.floor(10000 + Math.random() * 90000);
     document.getElementById('productName').value = 'Android 5G Smartphone';
-    document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
+    if (orderDateInput) orderDateInput.value = new Date().toISOString().split('T')[0];
 
-    // Order: ₹15,000, 10% = 1,500 pts
+    // Order: ₹15,000
     orderAmountInput.value = '15000';
-    rewardPercentInput.value = '10';
-    rewardPointsInput.value = '1500';
-    syncPresetPills(10);
-    updatePointsFromPercent();
-
-    // Expiry: Default 2 months (60 days)
-    setExpiryMonths(2);
-
-    // Capping: 50% on ₹10,000
-    document.getElementById('cappingPercent').value = '50';
-    document.getElementById('minOrderAmount').value = '10000';
+    const settings = getAdminSettings();
+    applySettingsToUI(settings);
 
     base64PhotoData = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ededed"/><text x="50" y="52" font-family="sans-serif" font-size="11" font-weight="bold" fill="%23444" text-anchor="middle">PRODUCT</text></svg>';
     photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Preview" />`;
 
-    showToast('Loaded sample: ₹15,000 order -> 10% (1,500 pts), 50% capping on ₹10k product.');
+    showToast(`Loaded sample ₹15,000 order (${settings.rewardPercent}% / ${settings.expiryMonths}M / ${settings.cappingPercent}% cap)`);
   });
 
   // Submit Handler: Saves to IndexedDB
@@ -261,11 +370,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const productName = document.getElementById('productName').value.trim();
     const orderDate = document.getElementById('orderDate').value;
     const orderAmount = parseFloat(orderAmountInput.value) || 0;
-    const rewardPercent = parseFloat(rewardPercentInput.value) || 0;
-    const rewardPoints = parseFloat(rewardPointsInput.value) || 0;
-    const expiryDate = document.getElementById('expiryDate').value;
-    const cappingPercent = parseFloat(document.getElementById('cappingPercent').value) || 50;
-    const minOrderAmount = parseFloat(document.getElementById('minOrderAmount').value) || 0;
+    
+    // Policy values are strictly and exclusively enforced from Settings
+    const settings = getAdminSettings();
+    const rewardPercent = settings.rewardPercent;
+    const rewardPoints = Math.round((orderAmount * rewardPercent) / 100);
+    const expiryDate = expiryDateInput.value || calculateExpiryDate(settings.expiryMonths);
+    const cappingPercent = settings.cappingPercent;
+    const minOrderAmount = settings.minOrderAmount;
 
     if (!customerName || !customerPhone || !orderId || !productName || !orderAmount || !rewardPoints || !expiryDate) {
       showToast('Please fill all required fields');
@@ -299,13 +411,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast(`✅ Saved! Granted ${rewardPoints.toLocaleString()} pts to ${customerName}`);
 
       adminForm.reset();
-      const currentDefaultPct = getAdminDefaultPercent();
-      rewardPercentInput.value = currentDefaultPct;
-      syncPresetPills(currentDefaultPct);
-      updatePointsFromPercent();
+      const currentSettings = getAdminSettings();
+      applySettingsToUI(currentSettings);
+      if (orderDateInput) orderDateInput.value = new Date().toISOString().split('T')[0];
       base64PhotoData = '';
-      photoPreview.innerHTML = '<span>NO PHOTO ATTACHED</span>';
-      setDefaultExpiry(true);
+      photoPreview.innerHTML = '<span>NO PHOTO</span>';
       
       await loadRewardsAndStats();
       
@@ -407,47 +517,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Local datetime formatter for datetime-local input
-  function formatLocalDatetime(date) {
-    const pad = (n) => String(n).padStart(2, '0');
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    const hh = pad(date.getHours());
-    const mm = pad(date.getMinutes());
-    return `${y}-${m}-${d}T${hh}:${mm}`;
-  }
-
-  // Set expiry date to N months in future (default: 2 months)
-  function setExpiryMonths(months = 2) {
-    const d = new Date();
-    d.setMonth(d.getMonth() + months);
-    const expInput = document.getElementById('expiryDate');
-    if (expInput) {
-      expInput.value = formatLocalDatetime(d);
-    }
-    // Update active state on expiry preset pills
-    document.querySelectorAll('#expiryPresetGroup .preset-pill').forEach(pill => {
-      const pMonths = parseInt(pill.dataset.months);
-      pill.classList.toggle('active', pMonths === months);
-    });
-  }
-
-  function setDefaultExpiry(force = false) {
-    const expInput = document.getElementById('expiryDate');
-    if (expInput && (!expInput.value || force)) {
-      setExpiryMonths(2); // By default set 2 months
-    }
-  }
-
-  // Setup Expiry Preset Pills Click Handlers
-  document.querySelectorAll('#expiryPresetGroup .preset-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const months = parseInt(pill.dataset.months) || 2;
-      setExpiryMonths(months);
-    });
-  });
-
-  setDefaultExpiry(true);
   await loadRewardsAndStats();
 });
