@@ -1,11 +1,11 @@
 {
-  "name": "rewards-points-app",
+  "name": "rewards-points-collection-for-customers",
   "version": "1.0.0",
-  "description": "Rewards Points collection for customers with MongoDB Atlas & Netlify Functions",
+  "description": "Rewards Points collection for customers - Wireframe Mobile App using Browser IndexedDB",
   "scripts": {
-    "start": "npx serve ."
+    "test": "node test_app_logic.js"
   },
-  "dependencies": {
-    "mongodb": "^6.22.0"
-  }
+  "keywords": ["wireframe", "rewards", "indexeddb", "mobile-app"],
+  "author": "",
+  "license": "ISC"
 }
