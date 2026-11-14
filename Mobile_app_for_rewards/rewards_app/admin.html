@@ -58,7 +58,10 @@
 
           <!-- Order & Product Details -->
           <div class="wf-card">
-            <strong class="wf-title-sm" style="display: block; margin-bottom: 8px;">2. Order &amp; Rewards:</strong>
+            <div class="wf-card-header" style="margin-bottom: 6px;">
+              <strong class="wf-title-sm">2. Order &amp; Rewards:</strong>
+              <span class="header-pill" id="badgeDefaultPercent">Default: 10%</span>
+            </div>
             <div class="wf-row-2">
               <div class="wf-form-group">
                 <label class="wf-label" for="orderId">Order ID *</label>
@@ -82,22 +85,62 @@
               </div>
               <div class="wf-form-group">
                 <label class="wf-label" for="rewardPercent">Reward %</label>
-                <input type="number" id="rewardPercent" name="rewardPercent" class="wf-input" placeholder="10" min="0" max="100" step="0.5">
+                <input type="number" id="rewardPercent" name="rewardPercent" class="wf-input" placeholder="10" value="10" min="0" max="100" step="0.5">
+              </div>
+            </div>
+
+            <!-- Quick Presets ("Set at once / some for others") -->
+            <div class="wf-form-group" style="margin-bottom: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="wf-label" style="margin-bottom: 0;">Quick Presets (Set At Once):</label>
+                <button type="button" id="btnSetAsDefault" class="wf-link-btn" title="Save current reward % as system default">★ Set as Default</button>
+              </div>
+              <div class="preset-pill-group" id="presetPillGroup">
+                <button type="button" class="preset-pill" data-pct="5">5% (Low)</button>
+                <button type="button" class="preset-pill active" data-pct="10">10% (Default)</button>
+                <button type="button" class="preset-pill" data-pct="15">15% (VIP)</button>
+                <button type="button" class="preset-pill" data-pct="20">20% (Promo)</button>
+                <button type="button" class="preset-pill" data-pct="25">25% (Special)</button>
+              </div>
+            </div>
+
+            <!-- Admin Default Config Strip -->
+            <div class="default-config-strip" id="defaultConfigStrip" style="margin-bottom: 10px; padding: 6px 8px; background: var(--bw-gray-100); border: var(--bw-border-thin); border-radius: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
+              <span><strong>Default Rate:</strong> Sets by default for new orders</span>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <input type="number" id="adminDefaultSettingInput" class="wf-input" style="width: 52px; padding: 2px 4px; font-size: 0.75rem; height: 24px; text-align: center;" min="0" max="100" step="0.5" value="10">
+                <button type="button" id="btnSaveAdminDefault" class="wf-btn wf-btn-sm" style="padding: 2px 6px; height: 24px; line-height: 1;">Save</button>
               </div>
             </div>
 
             <div class="wf-form-group">
-              <label class="wf-label" for="rewardPoints">Points Given (10% of 15k = 1500) *</label>
+              <label class="wf-label" for="rewardPoints" id="rewardPointsLabel">Points Given (10% of Order) *</label>
               <input type="number" id="rewardPoints" name="rewardPoints" class="wf-input" placeholder="1500" min="1" required>
             </div>
           </div>
 
           <!-- Expiry & Capping Rules -->
           <div class="wf-card">
-            <strong class="wf-title-sm" style="display: block; margin-bottom: 8px;">3. Expiry &amp; Capping:</strong>
+            <div class="wf-card-header" style="margin-bottom: 6px;">
+              <strong class="wf-title-sm">3. Expiry &amp; Capping:</strong>
+              <span class="header-pill" id="badgeDefaultExpiry">Default: 2 Months</span>
+            </div>
+
             <div class="wf-form-group">
               <label class="wf-label" for="expiryDate">Reward Expire Date &amp; Time *</label>
               <input type="datetime-local" id="expiryDate" name="expiryDate" class="wf-input" required>
+            </div>
+
+            <!-- Quick Presets for Expiry Validity -->
+            <div class="wf-form-group" style="margin-bottom: 10px;">
+              <label class="wf-label" style="margin-bottom: 4px;">Quick Expiry Validity (Set At Once):</label>
+              <div class="preset-pill-group" id="expiryPresetGroup">
+                <button type="button" class="preset-pill" data-months="1">1 Month (30d)</button>
+                <button type="button" class="preset-pill active" data-months="2">2 Months (Default)</button>
+                <button type="button" class="preset-pill" data-months="3">3 Months (90d)</button>
+                <button type="button" class="preset-pill" data-months="6">6 Months</button>
+                <button type="button" class="preset-pill" data-months="12">1 Year</button>
+              </div>
             </div>
 
             <div class="wf-row-2">

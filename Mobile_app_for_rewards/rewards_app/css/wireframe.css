@@ -337,6 +337,50 @@ input:-webkit-autofill:focus {
   width: auto;
 }
 
+/* Preset Pills & Quick Selectors */
+.preset-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.preset-pill {
+  background: var(--bw-white);
+  color: var(--bw-black);
+  border: var(--bw-border);
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  line-height: 1.2;
+}
+
+.preset-pill:hover {
+  background: var(--bw-gray-200);
+}
+
+.preset-pill.active {
+  background: var(--bw-black);
+  color: var(--bw-white);
+}
+
+.wf-link-btn {
+  background: none;
+  border: none;
+  color: var(--bw-black);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.wf-link-btn:hover {
+  color: var(--bw-gray-700);
+}
+
 /* Overview Stat Grid */
 .stat-grid-2 {
   display: grid;

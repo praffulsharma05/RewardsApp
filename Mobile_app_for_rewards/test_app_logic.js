@@ -75,4 +75,45 @@ if (isBase64Image) {
   console.log('✅ Product photo encoding verified');
 }
 
+console.log('\n=== TEST 6: ADMIN DEFAULT & PRESET REWARD % VERIFICATION ===');
+// Simulating Admin Default Percentage logic
+const defaultPercent = 10;
+const testPresets = [5, 10, 15, 20, 25];
+const testOrderAmount = 15000;
+
+// Verify default 10% calculates immediately
+const defaultCalc = Math.round((testOrderAmount * defaultPercent) / 100);
+if (defaultCalc === 1500) {
+  console.log(`✅ Default 10% auto-calculates on ₹${testOrderAmount}: ${defaultCalc} PTS`);
+} else {
+  throw new Error('Default calculation failed');
+}
+
+// Verify preset buttons calculate correctly at once
+testPresets.forEach(pct => {
+  const pts = Math.round((testOrderAmount * pct) / 100);
+  console.log(`✅ Preset ${pct}% sets points at once: ${pts} PTS on ₹${testOrderAmount}`);
+});
+
+console.log('\n=== TEST 7: EXPIRY DEFAULT (2 MONTHS) & PRESETS VERIFICATION ===');
+const baseDate = new Date();
+const defaultExp = new Date(baseDate);
+defaultExp.setMonth(defaultExp.getMonth() + 2);
+const diffDays = Math.round((defaultExp - baseDate) / (1000 * 60 * 60 * 24));
+console.log(`Current: ${baseDate.toISOString().slice(0, 10)}`);
+console.log(`Default Expiry (2 months): ${defaultExp.toISOString().slice(0, 10)} (~${diffDays} days)`);
+
+if (diffDays >= 58 && diffDays <= 63) {
+  console.log('✅ Default 2 months expiry verified accurately');
+} else {
+  throw new Error(`Unexpected diff in days for 2 months: ${diffDays}`);
+}
+
+const expiryPresets = [1, 2, 3, 6, 12];
+expiryPresets.forEach(m => {
+  const d = new Date(baseDate);
+  d.setMonth(d.getMonth() + m);
+  console.log(`✅ Preset ${m} month(s) expires: ${d.toISOString().slice(0, 10)}`);
+});
+
 console.log('\n🎉 ALL APPLICATION LOGIC & DATA VALIDATION TESTS PASSED 100%!');

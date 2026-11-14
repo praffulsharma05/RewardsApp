@@ -63,26 +63,121 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Default Reward Percentage Configuration & Persistence
+  const DEFAULT_PCT_KEY = 'rewards_app_admin_default_percent';
+
+  function getAdminDefaultPercent() {
+    const saved = localStorage.getItem(DEFAULT_PCT_KEY);
+    if (saved !== null && !isNaN(parseFloat(saved))) {
+      return parseFloat(saved);
+    }
+    return 10; // User specification: by default set 10%
+  }
+
+  function applyAdminDefaultUI(pct) {
+    const badge = document.getElementById('badgeDefaultPercent');
+    const defaultInput = document.getElementById('adminDefaultSettingInput');
+    if (badge) badge.textContent = `Default: ${pct}%`;
+    if (defaultInput) defaultInput.value = pct;
+
+    // Update pill text if 10% is default or changed
+    document.querySelectorAll('.preset-pill').forEach(pill => {
+      const p = parseFloat(pill.dataset.pct);
+      if (p === 10) {
+        pill.textContent = pct === 10 ? '10% (Default)' : '10%';
+      } else if (p === pct) {
+        pill.textContent = `${pct}% (Default)`;
+      }
+    });
+  }
+
+  function saveAdminDefaultPercent(val) {
+    const num = Math.max(0, Math.min(100, parseFloat(val) || 10));
+    localStorage.setItem(DEFAULT_PCT_KEY, num.toString());
+    applyAdminDefaultUI(num);
+    showToast(`Default reward rate updated to ${num}%`);
+  }
+
+  function syncPresetPills(currentPct) {
+    document.querySelectorAll('.preset-pill').forEach(pill => {
+      const p = parseFloat(pill.dataset.pct);
+      pill.classList.toggle('active', p === currentPct);
+    });
+  }
+
   // Auto-calculation
   function updatePointsFromPercent() {
     const amount = parseFloat(orderAmountInput.value) || 0;
     const percent = parseFloat(rewardPercentInput.value) || 0;
-    if (amount > 0 && percent > 0) {
-      rewardPointsInput.value = Math.round((amount * percent) / 100);
+    syncPresetPills(percent);
+
+    const rewardPointsLabel = document.getElementById('rewardPointsLabel');
+    if (amount > 0 && percent >= 0) {
+      const points = Math.round((amount * percent) / 100);
+      rewardPointsInput.value = points;
+      if (rewardPointsLabel) {
+        rewardPointsLabel.textContent = `Points Given (${percent}% of ₹${amount.toLocaleString()} = ${points.toLocaleString()}) *`;
+      }
+    } else if (rewardPointsLabel) {
+      rewardPointsLabel.textContent = `Points Given (${percent}% of Order) *`;
     }
   }
 
   function updatePercentFromPoints() {
     const amount = parseFloat(orderAmountInput.value) || 0;
     const points = parseFloat(rewardPointsInput.value) || 0;
-    if (amount > 0 && points > 0) {
-      rewardPercentInput.value = ((points / amount) * 100).toFixed(1);
+    if (amount > 0 && points >= 0) {
+      const pct = parseFloat(((points / amount) * 100).toFixed(1));
+      rewardPercentInput.value = pct;
+      syncPresetPills(pct);
+      const rewardPointsLabel = document.getElementById('rewardPointsLabel');
+      if (rewardPointsLabel) {
+        rewardPointsLabel.textContent = `Points Given (${pct}% of ₹${amount.toLocaleString()} = ${points.toLocaleString()}) *`;
+      }
     }
   }
 
   orderAmountInput.addEventListener('input', updatePointsFromPercent);
   rewardPercentInput.addEventListener('input', updatePointsFromPercent);
   rewardPointsInput.addEventListener('input', updatePercentFromPoints);
+
+  // Setup Quick Presets Click Handlers ("Set at once")
+  document.querySelectorAll('.preset-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const pct = parseFloat(pill.dataset.pct);
+      rewardPercentInput.value = pct;
+      updatePointsFromPercent();
+      syncPresetPills(pct);
+    });
+  });
+
+  // Setup "★ Set as Default" and "Save" controls
+  const btnSetAsDefault = document.getElementById('btnSetAsDefault');
+  if (btnSetAsDefault) {
+    btnSetAsDefault.addEventListener('click', () => {
+      const currentPct = parseFloat(rewardPercentInput.value) || 10;
+      saveAdminDefaultPercent(currentPct);
+    });
+  }
+
+  const btnSaveAdminDefault = document.getElementById('btnSaveAdminDefault');
+  const adminDefaultSettingInput = document.getElementById('adminDefaultSettingInput');
+  if (btnSaveAdminDefault && adminDefaultSettingInput) {
+    btnSaveAdminDefault.addEventListener('click', () => {
+      const val = parseFloat(adminDefaultSettingInput.value) || 10;
+      saveAdminDefaultPercent(val);
+      rewardPercentInput.value = val;
+      updatePointsFromPercent();
+      syncPresetPills(val);
+    });
+  }
+
+  // Initialize Default Reward %
+  const initialDefaultPct = getAdminDefaultPercent();
+  applyAdminDefaultUI(initialDefaultPct);
+  rewardPercentInput.value = initialDefaultPct;
+  syncPresetPills(initialDefaultPct);
+  updatePointsFromPercent();
 
   // Photo Attachment with Canvas Auto-Resizing (Prevents Quota & Payload Limits)
   photoInput.addEventListener('change', (e) => {
@@ -139,11 +234,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     orderAmountInput.value = '15000';
     rewardPercentInput.value = '10';
     rewardPointsInput.value = '1500';
+    syncPresetPills(10);
+    updatePointsFromPercent();
 
-    // Expiry: 45 days
-    const exp = new Date();
-    exp.setDate(exp.getDate() + 45);
-    document.getElementById('expiryDate').value = exp.toISOString().slice(0, 16);
+    // Expiry: Default 2 months (60 days)
+    setExpiryMonths(2);
 
     // Capping: 50% on ₹10,000
     document.getElementById('cappingPercent').value = '50';
@@ -204,9 +299,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast(`✅ Saved! Granted ${rewardPoints.toLocaleString()} pts to ${customerName}`);
 
       adminForm.reset();
+      const currentDefaultPct = getAdminDefaultPercent();
+      rewardPercentInput.value = currentDefaultPct;
+      syncPresetPills(currentDefaultPct);
+      updatePointsFromPercent();
       base64PhotoData = '';
       photoPreview.innerHTML = '<span>NO PHOTO ATTACHED</span>';
-      setDefaultExpiry();
+      setDefaultExpiry(true);
       
       await loadRewardsAndStats();
       
@@ -308,15 +407,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  function setDefaultExpiry() {
+  // Local datetime formatter for datetime-local input
+  function formatLocalDatetime(date) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const y = date.getFullYear();
+    const m = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    return `${y}-${m}-${d}T${hh}:${mm}`;
+  }
+
+  // Set expiry date to N months in future (default: 2 months)
+  function setExpiryMonths(months = 2) {
     const d = new Date();
-    d.setDate(d.getDate() + 30);
+    d.setMonth(d.getMonth() + months);
     const expInput = document.getElementById('expiryDate');
-    if (expInput && !expInput.value) {
-      expInput.value = d.toISOString().slice(0, 16);
+    if (expInput) {
+      expInput.value = formatLocalDatetime(d);
+    }
+    // Update active state on expiry preset pills
+    document.querySelectorAll('#expiryPresetGroup .preset-pill').forEach(pill => {
+      const pMonths = parseInt(pill.dataset.months);
+      pill.classList.toggle('active', pMonths === months);
+    });
+  }
+
+  function setDefaultExpiry(force = false) {
+    const expInput = document.getElementById('expiryDate');
+    if (expInput && (!expInput.value || force)) {
+      setExpiryMonths(2); // By default set 2 months
     }
   }
 
-  setDefaultExpiry();
+  // Setup Expiry Preset Pills Click Handlers
+  document.querySelectorAll('#expiryPresetGroup .preset-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const months = parseInt(pill.dataset.months) || 2;
+      setExpiryMonths(months);
+    });
+  });
+
+  setDefaultExpiry(true);
   await loadRewardsAndStats();
 });
