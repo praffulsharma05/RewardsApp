@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btnAdminRefresh) {
     btnAdminRefresh.addEventListener('click', () => {
       loadRewardsAndStats();
-      showToast('Database synced from MongoDB Atlas / Local Storage');
+      showToast('Database refreshed from IndexedDB');
     });
   }
 
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Loaded sample: ₹15,000 order -> 10% (1,500 pts), 50% capping on ₹10k product.');
   });
 
-  // Submit Handler: Saves to MongoDB Atlas / IndexedDB
+  // Submit Handler: Saves to IndexedDB
   adminForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 

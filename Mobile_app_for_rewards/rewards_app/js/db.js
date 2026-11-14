@@ -1,7 +1,7 @@
 /**
- * db.js - Dual-Layer Database Manager:
- * 1. Cloud Mode: MongoDB Atlas via Netlify Serverless API (/api)
- * 2. Local Fallback: IndexedDB + LocalStorage (offline / local preview)
+ * db.js - Client-Side Database Manager using Browser IndexedDB
+ * Primary Store: IndexedDB (RewardsDB v2)
+ * Fallback: LocalStorage (if IndexedDB is restricted or in private browsing)
  */
 
 const DB_NAME = 'RewardsDB';
@@ -10,39 +10,10 @@ const DB_VERSION = 2;
 class UnifiedDatabaseService {
   constructor() {
     this.db = null;
-    this.isCloudAvailable = false;
-    this.apiBase = this.detectApiBase();
     this.initPromise = this.init();
   }
 
-  detectApiBase() {
-    if (window.location.protocol.startsWith('http')) {
-      return '/api';
-    }
-    return null;
-  }
-
   async init() {
-    // 1. Quick probe to check if Cloud API is responding (max 1.5s timeout)
-    if (this.apiBase) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500);
-        const res = await fetch(`${this.apiBase}/status`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.status === 'connected') {
-            this.isCloudAvailable = true;
-            console.log('✅ Connected to MongoDB Atlas Cloud Database:', data.dbName);
-          }
-        }
-      } catch (e) {
-        console.warn('MongoDB Atlas API not reachable, falling back to local storage.');
-      }
-    }
-
-    // 2. Initialize local IndexedDB with safety timeout to prevent tab blocking
     return new Promise((resolve) => {
       let resolved = false;
       const safeResolve = (val) => {
@@ -52,19 +23,27 @@ class UnifiedDatabaseService {
         }
       };
 
-      // 2-second safety timeout so init never hangs
-      setTimeout(() => safeResolve(this.db), 2000);
+      // 1.5-second safety timeout so init never hangs under tab lock
+      setTimeout(() => safeResolve(this.db), 1500);
 
       try {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        if (!window.indexedDB) {
+          console.warn('IndexedDB not supported in this browser. Using LocalStorage fallback.');
+          safeResolve(null);
+          return;
+        }
+
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onblocked = () => {
-          console.warn('IndexedDB blocked by another open tab. Using fallback.');
+          console.warn('IndexedDB blocked by another open tab. Proceeding with fallback.');
           safeResolve(null);
         };
 
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
+
+          // Users Store (keyed by phone number)
           if (!db.objectStoreNames.contains('users')) {
             db.createObjectStore('users', { keyPath: 'phone' });
           } else {
@@ -74,6 +53,7 @@ class UnifiedDatabaseService {
             }
           }
 
+          // Rewards Store (auto-incrementing ID)
           if (!db.objectStoreNames.contains('rewards')) {
             const rewardStore = db.createObjectStore('rewards', { keyPath: 'id', autoIncrement: true });
             rewardStore.createIndex('customerPhone', 'customerPhone', { unique: false });
@@ -87,22 +67,24 @@ class UnifiedDatabaseService {
           this.db.onversionchange = () => {
             if (this.db) this.db.close();
           };
-          await this.seedInitialLocalData();
+          console.log('✅ IndexedDB Initialized Successfully (RewardsDB v2)');
+          await this.seedInitialData();
           safeResolve(this.db);
         };
 
         request.onerror = (event) => {
-          console.error('IndexedDB error:', event.target.error);
+          console.error('IndexedDB open error:', event.target.error);
           safeResolve(null);
         };
       } catch (err) {
-        console.warn('IndexedDB unavailable, using localStorage fallback');
+        console.warn('IndexedDB initialization failed. Using LocalStorage fallback.', err);
         safeResolve(null);
       }
     });
   }
 
-  async seedInitialLocalData() {
+  // Pre-seed demo customer & reward if database is empty
+  async seedInitialData() {
     try {
       const users = await this.getAllUsers();
       if (users.length === 0) {
@@ -134,48 +116,31 @@ class UnifiedDatabaseService {
         };
         await this.createReward(initialReward);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Could not seed initial data:', e);
+    }
   }
 
-  // 1. Customer Registration
+  // 1. Customer Registration (IndexedDB)
   async registerUser(userData) {
     await this.initPromise;
+    const cleanPhone = String(userData.phone || '').replace(/\D/g, '').slice(-10);
 
-    // Try Cloud MongoDB Atlas first
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userData)
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error || 'Registration failed');
-        return result;
-      } catch (err) {
-        if (err.message && err.message.includes('already registered')) {
-          throw err;
-        }
-        console.warn('Cloud register failed, falling back to local DB:', err.message);
-      }
-    }
-
-    // Local IndexedDB Fallback
     if (this.db) {
       return new Promise((resolve, reject) => {
         try {
           const tx = this.db.transaction(['users'], 'readwrite');
           const store = tx.objectStore('users');
-          const checkReq = store.get(userData.phone);
+          const checkReq = store.get(cleanPhone);
 
           checkReq.onsuccess = () => {
             if (checkReq.result) {
-              reject(new Error(`Phone number ${userData.phone} is already registered. Please Sign In.`));
+              reject(new Error(`Phone number ${cleanPhone} is already registered. Please Sign In.`));
               return;
             }
             const cleanUser = {
               name: userData.name,
-              phone: userData.phone,
+              phone: cleanPhone,
               password: userData.password,
               createdAt: new Date().toISOString()
             };
@@ -190,14 +155,14 @@ class UnifiedDatabaseService {
       });
     }
 
-    // LocalStorage Fallback (if IndexedDB is blocked)
+    // LocalStorage Fallback
     const localUsers = JSON.parse(localStorage.getItem('wf_local_users') || '[]');
-    if (localUsers.some(u => u.phone === userData.phone)) {
-      throw new Error(`Phone number ${userData.phone} is already registered. Please Sign In.`);
+    if (localUsers.some(u => u.phone === cleanPhone)) {
+      throw new Error(`Phone number ${cleanPhone} is already registered. Please Sign In.`);
     }
     const cleanUser = {
       name: userData.name,
-      phone: userData.phone,
+      phone: cleanPhone,
       password: userData.password,
       createdAt: new Date().toISOString()
     };
@@ -206,50 +171,37 @@ class UnifiedDatabaseService {
     return cleanUser;
   }
 
-  // 2. Customer Login
+  // 2. Customer Login (IndexedDB)
   async loginUser(phone, password) {
     await this.initPromise;
+    const cleanPhone = String(phone || '').replace(/\D/g, '').slice(-10);
 
-    // Try Cloud MongoDB Atlas
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone, password })
-        });
-        const user = await res.json();
-        if (!res.ok) throw new Error(user.error || 'Invalid phone number or password');
-        this.setCurrentUser(user);
-        return user;
-      } catch (err) {
-        console.warn('Cloud login failed, checking local DB:', err.message);
-      }
-    }
-
-    // Local IndexedDB Fallback
     if (this.db) {
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        const req = store.get(phone);
+        try {
+          const tx = this.db.transaction(['users'], 'readonly');
+          const store = tx.objectStore('users');
+          const req = store.get(cleanPhone);
 
-        req.onsuccess = () => {
-          const user = req.result;
-          if (user && user.password === password) {
-            this.setCurrentUser(user);
-            resolve(user);
-          } else {
-            reject(new Error('Invalid phone number or password.'));
-          }
-        };
-        req.onerror = () => reject(req.error);
+          req.onsuccess = () => {
+            const user = req.result;
+            if (user && user.password === password) {
+              this.setCurrentUser(user);
+              resolve(user);
+            } else {
+              reject(new Error('Invalid phone number or password.'));
+            }
+          };
+          req.onerror = () => reject(req.error);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
 
     // LocalStorage Fallback
     const localUsers = JSON.parse(localStorage.getItem('wf_local_users') || '[]');
-    const found = localUsers.find(u => u.phone === phone && u.password === password);
+    const found = localUsers.find(u => u.phone === cleanPhone && u.password === password);
     if (found) {
       this.setCurrentUser(found);
       return found;
@@ -257,190 +209,162 @@ class UnifiedDatabaseService {
     throw new Error('Invalid phone number or password.');
   }
 
-  // 3. Create Reward Points (Admin)
+  // 3. Create Reward Points (Admin -> IndexedDB)
   async createReward(rewardData) {
     await this.initPromise;
+    const cleanPhone = String(rewardData.customerPhone || '').replace(/\D/g, '').slice(-10);
 
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/rewards`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(rewardData)
-        });
-        const created = await res.json();
-        if (!res.ok) throw new Error(created.error || 'Failed to issue reward');
-        return created;
-      } catch (err) {
-        console.warn('Cloud create reward failed, saving locally:', err.message);
-      }
-    }
-
-    // Local IndexedDB Fallback
-    if (this.db) {
-      return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['rewards'], 'readwrite');
-        const store = tx.objectStore('rewards');
-        const payload = {
-          ...rewardData,
-          orderAmount: Number(rewardData.orderAmount) || 0,
-          rewardPoints: Number(rewardData.rewardPoints) || 0,
-          rewardPercent: Number(rewardData.rewardPercent) || 0,
-          cappingPercent: Number(rewardData.cappingPercent) || 50,
-          minOrderAmount: Number(rewardData.minOrderAmount) || 0,
-          createdAt: new Date().toISOString()
-        };
-        const req = store.add(payload);
-        req.onsuccess = () => {
-          payload.id = req.result;
-          resolve(payload);
-        };
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    // LocalStorage Fallback
-    const localRewards = JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
     const payload = {
       ...rewardData,
-      id: Date.now(),
+      customerPhone: cleanPhone,
       orderAmount: Number(rewardData.orderAmount) || 0,
       rewardPoints: Number(rewardData.rewardPoints) || 0,
       rewardPercent: Number(rewardData.rewardPercent) || 0,
       cappingPercent: Number(rewardData.cappingPercent) || 50,
       minOrderAmount: Number(rewardData.minOrderAmount) || 0,
+      productImage: rewardData.productImage || '',
+      status: 'ACTIVE',
       createdAt: new Date().toISOString()
     };
+
+    if (this.db) {
+      return new Promise((resolve, reject) => {
+        try {
+          const tx = this.db.transaction(['rewards'], 'readwrite');
+          const store = tx.objectStore('rewards');
+          const req = store.add(payload);
+
+          req.onsuccess = () => {
+            payload.id = req.result;
+            resolve(payload);
+          };
+          req.onerror = () => reject(req.error || new Error('Could not save reward'));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+
+    // LocalStorage Fallback
+    const localRewards = JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
+    payload.id = Date.now();
     localRewards.push(payload);
     localStorage.setItem('wf_local_rewards', JSON.stringify(localRewards));
     return payload;
   }
 
-  // 4. Get Customer Rewards
+  // 4. Get Customer Rewards by Phone (Customer Wallet -> IndexedDB)
   async getRewardsByPhone(phone) {
     await this.initPromise;
     const cleanPhone = String(phone || '').replace(/\D/g, '').slice(-10);
 
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/rewards?phone=${encodeURIComponent(cleanPhone)}`);
-        if (res.ok) {
-          return await res.json();
-        }
-      } catch (err) {
-        console.warn('Cloud fetch rewards failed, reading local DB:', err.message);
-      }
-    }
-
     if (this.db) {
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['rewards'], 'readonly');
-        const store = tx.objectStore('rewards');
-        const index = store.index('customerPhone');
-        const req = index.getAll(cleanPhone);
+        try {
+          const tx = this.db.transaction(['rewards'], 'readonly');
+          const store = tx.objectStore('rewards');
+          const index = store.index('customerPhone');
+          const req = index.getAll(cleanPhone);
 
-        req.onsuccess = () => {
-          const rewards = req.result || [];
-          rewards.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-          resolve(rewards);
-        };
-        req.onerror = () => reject(req.error);
+          req.onsuccess = () => {
+            const rewards = req.result || [];
+            rewards.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            resolve(rewards);
+          };
+          req.onerror = () => reject(req.error);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
 
+    // LocalStorage Fallback
     const localRewards = JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
-    return localRewards.filter(r => (String(r.customerPhone || '').replace(/\D/g, '').slice(-10)) === cleanPhone);
+    return localRewards
+      .filter(r => (String(r.customerPhone || '').replace(/\D/g, '').slice(-10)) === cleanPhone)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }
 
-  // 5. Get All Rewards (Admin Feed)
+  // 5. Get All Rewards (Admin Feed -> IndexedDB)
   async getAllRewards() {
     await this.initPromise;
 
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/rewards`);
-        if (res.ok) {
-          return await res.json();
-        }
-      } catch (err) {
-        console.warn('Cloud fetch all rewards failed, reading local DB:', err.message);
-      }
-    }
-
     if (this.db) {
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['rewards'], 'readonly');
-        const store = tx.objectStore('rewards');
-        const req = store.getAll();
+        try {
+          const tx = this.db.transaction(['rewards'], 'readonly');
+          const store = tx.objectStore('rewards');
+          const req = store.getAll();
 
-        req.onsuccess = () => {
-          const list = req.result || [];
-          list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-          resolve(list);
-        };
-        req.onerror = () => reject(req.error);
+          req.onsuccess = () => {
+            const list = req.result || [];
+            list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            resolve(list);
+          };
+          req.onerror = () => reject(req.error);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
 
-    return JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
+    // LocalStorage Fallback
+    const localRewards = JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
+    return localRewards.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }
 
-  // 6. Delete Reward
+  // 6. Delete Reward (Admin -> IndexedDB)
   async deleteReward(id) {
     await this.initPromise;
 
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/rewards?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
-        if (res.ok) return true;
-      } catch (err) {
-        console.warn('Cloud delete failed, deleting locally:', err.message);
-      }
-    }
-
     if (this.db) {
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['rewards'], 'readwrite');
-        const store = tx.objectStore('rewards');
-        const req = store.delete(Number(id) || id);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
+        try {
+          const tx = this.db.transaction(['rewards'], 'readwrite');
+          const store = tx.objectStore('rewards');
+          const req = store.delete(Number(id) || id);
+
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
 
+    // LocalStorage Fallback
     let localRewards = JSON.parse(localStorage.getItem('wf_local_rewards') || '[]');
     localRewards = localRewards.filter(r => r.id != id);
     localStorage.setItem('wf_local_rewards', JSON.stringify(localRewards));
     return true;
   }
 
-  // 7. Get All Users
+  // 7. Get All Users (Admin User Count -> IndexedDB)
   async getAllUsers() {
     await this.initPromise;
 
-    if (this.isCloudAvailable) {
-      try {
-        const res = await fetch(`${this.apiBase}/users`);
-        if (res.ok) return await res.json();
-      } catch (e) {}
-    }
-
     if (this.db) {
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
+        try {
+          const tx = this.db.transaction(['users'], 'readonly');
+          const store = tx.objectStore('users');
+          const req = store.getAll();
+
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => reject(req.error);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
 
     return JSON.parse(localStorage.getItem('wf_local_users') || '[]');
   }
 
-  // Session
+  // Session Management (Active Customer)
   setCurrentUser(user) {
-    const safeUser = { name: user.name, phone: user.phone };
+    const cleanPhone = String(user.phone || '').replace(/\D/g, '').slice(-10);
+    const safeUser = { name: user.name, phone: cleanPhone };
     localStorage.setItem('active_customer', JSON.stringify(safeUser));
   }
 
@@ -461,5 +385,5 @@ class UnifiedDatabaseService {
   }
 }
 
-// Global database instance
+// Global database instance available to all screens
 window.rewardsDB = new UnifiedDatabaseService();
