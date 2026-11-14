@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Customer Login - Rewards Points collection for customers</title>
+  <link rel="stylesheet" href="css/wireframe.css">
+</head>
+<body>
+  <!-- Mobile Prototype Device Shell -->
+  <div class="mobile-device-shell">
+    
+    <!-- Status Bar -->
+    <header class="mobile-status-bar">
+      <span>9:41</span>
+      <div class="notch-pill"></div>
+      <span class="header-pill">USER</span>
+    </header>
+
+    <!-- Top Action Bar -->
+    <div class="mobile-header">
+      <span class="header-pill">&#9733; LOGIN</span>
+      <span class="header-title">Customer Login</span>
+      <a href="register.html" class="header-btn">Register</a>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="wf-toast" id="notification"></div>
+
+    <!-- Scrollable Screen Content Viewport -->
+    <main class="mobile-viewport">
+      <div class="wf-card highlight" style="text-align: center; padding: 18px 12px; margin-bottom: 14px;">
+        <span class="wf-title-sm" style="display: block; margin-bottom: 4px;">Rewards Points Wallet</span>
+        <p class="wf-meta">Sign in with your registered phone number to view your rewards balance, expiration dates, and capping percentage.</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="wf-card">
+          <div class="wf-form-group">
+            <label class="wf-label" for="identifier">Mobile Phone Number *</label>
+            <input type="tel" id="identifier" name="username" inputmode="numeric" class="wf-input" placeholder="e.g. 9876543210" required>
+          </div>
+
+          <div class="wf-form-group" style="margin-bottom: 0;">
+            <label class="wf-label" for="password">Password *</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" class="wf-input" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="wf-btn" style="margin-bottom: 10px;">
+          Sign In to Wallet
+        </button>
+      </form>
+
+      <button type="button" id="btnDemoLogin" class="wf-btn wf-btn-secondary wf-btn-sm" style="width: 100%; margin-bottom: 14px;">
+        ⚡ Fill Demo Customer (Rahul: 9876543210)
+      </button>
+
+      <div class="wf-card dashed" style="text-align: center;">
+        <span class="wf-title-sm" style="font-size: 0.78rem; display: block; margin-bottom: 4px;">New Customer?</span>
+        <p class="wf-meta" style="margin-bottom: 8px;">Create an account with your mobile number</p>
+        <a href="register.html" class="wf-btn wf-btn-secondary wf-btn-sm" style="display: inline-block;">Register Account</a>
+      </div>
+    </main>
+
+    <!-- Customer Bottom Tab Navigation -->
+    <nav class="mobile-bottom-nav">
+      <a href="wallet.html" class="nav-tab-item">
+        <span class="tab-icon">&#128157;</span>
+        <span>My Wallet</span>
+      </a>
+      <a href="login.html" class="nav-tab-item active">
+        <span class="tab-icon">&#128100;</span>
+        <span>Sign In</span>
+      </a>
+      <a href="register.html" class="nav-tab-item">
+        <span class="tab-icon">&#128221;</span>
+        <span>Register</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

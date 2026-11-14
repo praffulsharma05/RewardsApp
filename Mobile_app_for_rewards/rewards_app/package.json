@@ -1,0 +1,11 @@
+{
+  "name": "rewards-points-app",
+  "version": "1.0.0",
+  "description": "Rewards Points collection for customers with MongoDB Atlas & Netlify Functions",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "mongodb": "^6.5.0"
+  }
+}

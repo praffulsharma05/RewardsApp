@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Customer Wallet - Rewards Points collection for customers</title>
+  <link rel="stylesheet" href="css/wireframe.css">
+</head>
+<body>
+  <!-- Mobile Prototype Device Shell -->
+  <div class="mobile-device-shell">
+    
+    <!-- Status Bar -->
+    <header class="mobile-status-bar">
+      <span>9:41</span>
+      <div class="notch-pill"></div>
+      <span class="header-pill">WALLET</span>
+    </header>
+
+    <!-- Top Action Bar -->
+    <div class="mobile-header">
+      <span class="header-pill">&#9733; REWARDS</span>
+      <span class="header-title">Customer Wallet</span>
+      <button class="header-btn" id="btnLogout">Exit</button>
+    </div>
+
+    <!-- Scrollable Screen Content Viewport -->
+    <main class="mobile-viewport">
+      
+      <!-- Customer Information Card -->
+      <div class="wf-card highlight" style="margin-bottom: 10px;">
+        <div class="wf-card-header">
+          <div>
+            <strong class="wf-title-sm" id="customerName">Rahul Sharma</strong>
+            <small class="wf-meta" id="customerPhone" style="display: block;">9876543210</small>
+          </div>
+          <span class="user-balance-pill">Verified</span>
+        </div>
+      </div>
+
+      <!-- Hero Points Balance Box -->
+      <div class="wallet-hero-box">
+        <span class="wf-label" style="margin-bottom: 0;">Total Available Reward Points</span>
+        <div class="wallet-hero-points" id="totalPoints">0</div>
+        <div style="display: flex; justify-content: center; gap: 6px; margin-top: 6px;">
+          <span class="header-pill" id="activeCount">0 Active</span>
+          <span class="header-pill" id="expiredCount" style="background: #fff; color: #000; border-style: dashed;">0 Expired</span>
+        </div>
+
+        <!-- Capping & Expiration Policy Strip -->
+        <div class="policy-strip" id="cappingSummary" style="text-align: left; margin-top: 10px;">
+          Loading rewards capping rules...
+        </div>
+      </div>
+
+      <!-- Section Title -->
+      <div class="wf-card-header" style="margin: 12px 0 6px 0;">
+        <span class="wf-title-sm">Rewards Granted to You</span>
+        <small class="wf-meta">Points History</small>
+      </div>
+
+      <!-- Rewards Stream -->
+      <div id="rewardsListContainer">
+        <!-- Dynamically populated by wallet.js -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="wf-card dashed" style="display: none; text-align: center; padding: 24px;">
+        <strong class="wf-title-sm">No Rewards in Wallet</strong>
+        <p class="wf-meta" style="margin-top: 6px;">You do not have any reward points in your wallet yet. Rewards earned on orders will appear here.</p>
+      </div>
+    </main>
+
+    <!-- Customer Bottom Tab Navigation -->
+    <nav class="mobile-bottom-nav">
+      <a href="wallet.html" class="nav-tab-item active">
+        <span class="tab-icon">&#128157;</span>
+        <span>My Wallet</span>
+      </a>
+      <a href="login.html" class="nav-tab-item">
+        <span class="tab-icon">&#128100;</span>
+        <span>Sign In</span>
+      </a>
+      <a href="register.html" class="nav-tab-item">
+        <span class="tab-icon">&#128221;</span>
+        <span>Register</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/wallet.js"></script>
+</body>
+</html>
