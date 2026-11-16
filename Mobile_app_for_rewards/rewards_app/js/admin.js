@@ -55,11 +55,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 4000);
   }
 
-  // Refresh
+  // Reset Grant Form Functionality
+  function resetGrantForm() {
+    if (adminForm) {
+      adminForm.reset();
+    }
+    const customerNameInput = document.getElementById('customerName');
+    const customerPhoneInput = document.getElementById('customerPhone');
+    const orderIdInput = document.getElementById('orderId');
+    const productNameInput = document.getElementById('productName');
+    if (customerNameInput) customerNameInput.value = '';
+    if (customerPhoneInput) customerPhoneInput.value = '';
+    if (orderIdInput) orderIdInput.value = '';
+    if (productNameInput) productNameInput.value = '';
+    if (orderAmountInput) orderAmountInput.value = '';
+
+    if (orderDateInput) {
+      orderDateInput.value = new Date().toISOString().split('T')[0];
+    }
+    base64PhotoData = '';
+    if (photoInput) {
+      photoInput.value = '';
+    }
+    if (photoPreview) {
+      photoPreview.innerHTML = '<span>NO PHOTO</span>';
+    }
+    const currentSettings = getAdminSettings();
+    applySettingsToUI(currentSettings);
+    const pointsGroup = document.getElementById('pointsGivenContainer');
+    if (pointsGroup) {
+      pointsGroup.style.display = 'none';
+    }
+    if (rewardPointsInput) {
+      rewardPointsInput.value = '';
+    }
+  }
+
+  // Header Reset / Refresh button
   if (btnAdminRefresh) {
     btnAdminRefresh.addEventListener('click', () => {
+      resetGrantForm();
       loadRewardsAndStats();
-      showToast('Database refreshed from IndexedDB');
+      showToast('Form reset & database refreshed');
+    });
+  }
+
+  // Grant card Reset button
+  const btnResetForm = document.getElementById('btnResetForm');
+  if (btnResetForm) {
+    btnResetForm.addEventListener('click', () => {
+      resetGrantForm();
+      showToast('Form fields cleared');
     });
   }
 
