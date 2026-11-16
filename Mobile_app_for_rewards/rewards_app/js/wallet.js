@@ -1,8 +1,8 @@
 /**
- * wallet.js - Mobile Customer Wallet Controller
- * Name: Rewards Points collection for customers
+ * wallet.js - Customer Mobile Wallet Controller
+ * Gained Rewards & Applied Rewards screens, Nearest Expiry & Collapsible Views
+ * Strict line limit: <= 300 lines
  */
-
 document.addEventListener('DOMContentLoaded', async () => {
   const customerNameEl = document.getElementById('customerName');
   const customerPhoneEl = document.getElementById('customerPhone');
@@ -11,15 +11,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   const expiredCountEl = document.getElementById('expiredCount');
   const cappingSummaryEl = document.getElementById('cappingSummary');
   const rewardsListContainer = document.getElementById('rewardsListContainer');
+  const appliedRewardsListContainer = document.getElementById('appliedRewardsListContainer');
+  const emptyGainedState = document.getElementById('emptyGainedState');
+  const emptyAppliedState = document.getElementById('emptyAppliedState');
+  const gainedBadge = document.getElementById('gainedCountBadge');
+  const appliedBadge = document.getElementById('appliedCountBadge');
   const btnLogout = document.getElementById('btnLogout');
-  const emptyState = document.getElementById('emptyState');
 
-  // Load active customer
+  const tabGained = document.getElementById('tabGainedRewards');
+  const tabApplied = document.getElementById('tabAppliedRewards');
+  const viewGained = document.getElementById('viewGainedRewards');
+  const viewApplied = document.getElementById('viewAppliedRewards');
+
   const currentUser = window.rewardsDB.getCurrentUser();
-  if (!currentUser) {
-    window.location.href = 'login.html';
-    return;
-  }
+  if (!currentUser) { window.location.href = 'login.html'; return; }
 
   customerNameEl.textContent = currentUser.name || 'Valued Customer';
   customerPhoneEl.textContent = `+91 ${currentUser.phone}`;
@@ -32,289 +37,216 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Load and render rewards
-  async function loadCustomerWallet() {
-    try {
-      const rewards = await window.rewardsDB.getRewardsByPhone(currentUser.phone);
-      renderRewards(rewards);
-    } catch (err) {
-      console.error('Error loading wallet rewards:', err);
-      rewardsListContainer.innerHTML = `<div class="wf-card dashed">Error loading rewards: ${err.message}</div>`;
-    }
+  // Segment Tab Switcher
+  function switchWalletView(isApplied) {
+    tabGained.style.background = isApplied ? 'transparent' : '#fff';
+    tabGained.style.color = isApplied ? '#64748b' : 'var(--brand-primary)';
+    tabGained.style.boxShadow = isApplied ? 'none' : '0 1px 3px rgba(0,0,0,0.08)';
+
+    tabApplied.style.background = isApplied ? '#fff' : 'transparent';
+    tabApplied.style.color = isApplied ? 'var(--brand-primary)' : '#64748b';
+    tabApplied.style.boxShadow = isApplied ? '0 1px 3px rgba(0,0,0,0.08)' : 'none';
+
+    viewGained.style.display = isApplied ? 'none' : 'block';
+    viewApplied.style.display = isApplied ? 'block' : 'none';
   }
 
-  // Helper function to toggle card expansion (accordion behavior: only one open at a time)
-  function toggleCard(card) {
+  tabGained.addEventListener('click', () => switchWalletView(false));
+  tabApplied.addEventListener('click', () => switchWalletView(true));
+
+  function toggleCard(card, container) {
     const isExpanded = card.classList.contains('is-expanded');
-    if (isExpanded) {
-      collapseCard(card);
-    } else {
-      // Auto-collapse any other card that is currently open
-      const otherExpandedCards = rewardsListContainer.querySelectorAll('.reward-card.is-expanded');
-      otherExpandedCards.forEach(otherCard => {
-        if (otherCard !== card) {
-          collapseCard(otherCard);
-        }
-      });
-      // Expand the clicked card
+    container.querySelectorAll('.reward-card.is-expanded').forEach(c => {
+      c.classList.remove('is-expanded');
+      const h = c.querySelector('.reward-card-header');
+      if (h) h.setAttribute('aria-expanded', 'false');
+    });
+    if (!isExpanded) {
       card.classList.add('is-expanded');
-      const header = card.querySelector('.reward-card-header');
-      if (header) header.setAttribute('aria-expanded', 'true');
+      const h = card.querySelector('.reward-card-header');
+      if (h) h.setAttribute('aria-expanded', 'true');
     }
   }
 
-  function collapseCard(card) {
-    card.classList.remove('is-expanded');
-    const header = card.querySelector('.reward-card-header');
-    if (header) header.setAttribute('aria-expanded', 'false');
-  }
-
-  function renderRewards(rewards) {
+  // Render 1: Gained Rewards (Collapsible view with points & expiry date)
+  function renderGainedRewards(rewards) {
     rewardsListContainer.innerHTML = '';
     const now = new Date();
-
-    let totalActivePoints = 0;
-    let activeRewardsCount = 0;
-    let expiredRewardsCount = 0;
-    let defaultCappingPercent = 50;
-    let defaultMinOrder = 10000;
+    let totalActivePoints = 0, activeCount = 0, expiredCount = 0;
+    let nearestExpReward = null;
 
     if (!rewards || rewards.length === 0) {
-      emptyState.style.display = 'block';
+      emptyGainedState.style.display = 'block';
       totalPointsEl.textContent = '0';
       activeCountEl.textContent = '0 ACTIVE';
       expiredCountEl.textContent = '0 EXPIRED';
-      cappingSummaryEl.textContent = 'No rewards allocated yet by Admin.';
-      return;
+      if (gainedBadge) gainedBadge.textContent = '0';
+      return { totalActivePoints: 0, nearestExpReward: null };
     }
 
-    emptyState.style.display = 'none';
+    emptyGainedState.style.display = 'none';
+    if (gainedBadge) gainedBadge.textContent = rewards.length;
 
-    rewards.forEach((reward, index) => {
-      const isExpired = reward.expiryDate ? new Date(reward.expiryDate) < now : false;
-      const points = Number(reward.rewardPoints) || 0;
-      const cappingPercent = Number(reward.cappingPercent) || 50;
-      const minOrder = Number(reward.minOrderAmount) || 10000;
-      const orderAmount = Number(reward.orderAmount) || 0;
-      const maxDiscountValue = Math.floor(points * (cappingPercent / 100));
+    rewards.forEach(r => {
+      const pts = Number(r.rewardPoints) || 0;
+      const isExp = r.expiryDate ? new Date(r.expiryDate) < now : false;
 
-      if (!isExpired) {
-        totalActivePoints += points;
-        activeRewardsCount++;
-        defaultCappingPercent = cappingPercent;
-        defaultMinOrder = minOrder;
-      } else {
-        expiredRewardsCount++;
-      }
-
-      // Format Expiry display and relative text
-      let expiryDisplay = 'No Expiry Set';
-      let miniExpiryText = 'No Expiry';
-      if (reward.expiryDate) {
-        const expDate = new Date(reward.expiryDate);
-        const formattedDate = expDate.toLocaleString('en-IN', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        if (isExpired) {
-          expiryDisplay = `Expired: ${formattedDate}`;
-          miniExpiryText = 'Expired';
-        } else {
-          const diffMs = expDate - now;
-          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-          miniExpiryText = diffDays > 1 ? `${diffDays}d left` : (diffDays === 1 ? '1d left' : 'Today');
-          expiryDisplay = `Valid Until: ${formattedDate} (${miniExpiryText})`;
+      if (!isExp && pts > 0) {
+        totalActivePoints += pts;
+        activeCount++;
+        if (r.expiryDate) {
+          const expTime = new Date(r.expiryDate).getTime();
+          if (!nearestExpReward || expTime < new Date(nearestExpReward.expiryDate).getTime()) {
+            nearestExpReward = r;
+          }
         }
-      }
+      } else { expiredCount++; }
 
-      // Product image thumbnail with robust fallback
-      const safeTitle = (reward.productName || 'Order Item').replace(/"/g, '&quot;');
-      const fallbackSvg = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
-      const imgHtml = (reward.productImage && reward.productImage.trim())
-        ? `<img src="${reward.productImage}" alt="${safeTitle}" onerror="this.onerror=null; this.parentElement.innerHTML='${fallbackSvg.replace(/'/g, "\\'")}';">`
-        : fallbackSvg;
+      let miniExp = 'No Expiry';
+      if (r.expiryDate) {
+        const expD = new Date(r.expiryDate);
+        const dateStr = expD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        miniExp = isExp ? 'Expired' : `Exp: ${dateStr}`;
+      }
 
       const card = document.createElement('div');
-      card.className = `reward-card is-expandable ${isExpired ? 'is-expired' : ''}`;
-      card.setAttribute('data-reward-id', reward.id || index);
-
+      card.className = `reward-card is-expandable ${isExp ? 'is-expired' : ''}`;
       card.innerHTML = `
-        <!-- Collapsed List View: Product info and '>' indicator -->
-        <div class="reward-card-header" role="button" tabindex="0" aria-expanded="false" aria-label="Toggle reward details for ${safeTitle}">
+        <div class="reward-card-header reward-card-header-btn" role="button" tabindex="0" aria-expanded="false">
           <div class="reward-card-item">
-            <div class="thumb-box">${imgHtml}</div>
+            <div class="thumb-box">${r.productImage ? `<img src="${r.productImage}" alt="" />` : '🎁'}</div>
             <div class="reward-card-info">
-              <div class="reward-card-title">${reward.productName || 'Order Item'}</div>
+              <div class="reward-card-title">${r.productName || 'Order Reward'}</div>
+              <div class="reward-card-subrow">
+                <span class="reward-pts-grant ${isExp ? 'is-expired-pts' : ''}">+${pts.toLocaleString()} PTS</span>
+                <span class="header-pill card-pill-mini ${isExp ? 'pill-expired' : 'pill-active'}">${miniExp}</span>
+              </div>
             </div>
-            <div class="reward-card-chevron-box">
-              <span class="chevron-icon" aria-hidden="true" title="Click to view details">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </span>
-            </div>
+            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="8.5 17 13.5 12 8.5 7"></polyline></svg></span></div>
           </div>
         </div>
 
-        <!-- Smooth Expandable Drawer: Shows full reward details, points, capping, and breakdown -->
         <div class="reward-card-drawer">
-          <div class="reward-drawer-inner">
-
-            <!-- Reward Points & Status (Shown inside expanded view) -->
-            <div class="drawer-reward-header">
-              <div>
-                <span class="reward-card-points">+${points.toLocaleString()} PTS</span>
-                <div class="reward-card-meta">${reward.rewardPercent ? reward.rewardPercent + '% Reward on ' : ''}Order ₹${orderAmount.toLocaleString()}</div>
-              </div>
-              <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
-                ${isExpired ? 'EXPIRED' : 'ACTIVE'}
-              </span>
-            </div>
-
-            <!-- Capping & Expiry Unified Policy Box -->
-            <div class="drawer-policy-box ${isExpired ? 'is-expired' : ''}">
-              <div class="policy-row">
-                <span class="policy-icon">🛡</span>
-                <span><strong>Capping Rule:</strong> Max ${cappingPercent}% redeemable</span>
-              </div>
-              ${minOrder ? `
-              <div class="policy-row">
-                <span class="policy-icon">🛒</span>
-                <span><strong>Min Order:</strong> ₹${minOrder.toLocaleString()}</span>
-              </div>` : ''}
-              <div class="policy-row policy-validity">
-                <span class="policy-icon">⏳</span>
-                <span><strong>Valid Until:</strong> ${expiryDisplay}</span>
-              </div>
-            </div>
-
-            <!-- Order & Points Breakdown Card -->
+          <div class="reward-drawer-inner reward-drawer-pad">
             <div class="reward-breakdown-card">
-              <div class="breakdown-row">
-                <span class="breakdown-label">Order Reference:</span>
-                <span class="breakdown-val">
-                  <code class="val-order-code">#${reward.orderId || 'N/A'}</code>
-                  <button type="button" class="btn-copy-order" data-order="${reward.orderId || ''}" title="Copy Order ID">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    <span class="copy-text">Copy</span>
-                  </button>
-                </span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">Order Date:</span>
-                <span class="breakdown-val breakdown-bold">${reward.orderDate || 'N/A'}</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">Order Total Amount:</span>
-                <span class="breakdown-val breakdown-bold">₹${orderAmount.toLocaleString()}</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">Reward Calculation:</span>
-                <span class="breakdown-val font-brand-blue">${reward.rewardPercent || 0}% of ₹${orderAmount.toLocaleString()} = ${points.toLocaleString()} PTS</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">Max Usable Discount:</span>
-                <span class="breakdown-val font-emerald-save">Save up to ₹${maxDiscountValue.toLocaleString()} (${cappingPercent}% Cap)</span>
-              </div>
+              <div class="breakdown-row"><span class="breakdown-label">Order ID:</span><span class="breakdown-val"><code class="val-order-code">#${r.orderId || 'N/A'}</code></span></div>
+              <div class="breakdown-row"><span class="breakdown-label">Order Total:</span><span class="breakdown-val breakdown-bold">₹${Number(r.orderAmount || 0).toLocaleString()}</span></div>
+              <div class="breakdown-row"><span class="breakdown-label">Reward Rate:</span><span class="breakdown-val font-brand-blue">${r.rewardPercent || 10}%</span></div>
+              <div class="breakdown-row"><span class="breakdown-label">Expiry Date:</span><span class="breakdown-val breakdown-exp-val ${isExp ? 'is-expired' : ''}">${r.expiryDate ? r.expiryDate.replace('T', ' ') : 'No expiry'}</span></div>
             </div>
-
-            <!-- Drawer Footer Collapse Helper -->
-            <div class="reward-drawer-footer">
-              <button type="button" class="btn-collapse-card">
-                <span>Show Less</span>
-                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-              </button>
-            </div>
-
           </div>
-        </div>
-      `;
+        </div>`;
 
-      // Wire up card toggle interactions
-      const cardHeader = card.querySelector('.reward-card-header');
-      cardHeader.addEventListener('click', (e) => {
-        // Prevent toggle if clicking interactive elements inside header
-        if (e.target.closest('button') || e.target.closest('a')) return;
-        toggleCard(card);
-      });
-
-      cardHeader.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleCard(card);
-        }
-      });
-
-      // Wire up Show Less button
-      const btnCollapse = card.querySelector('.btn-collapse-card');
-      if (btnCollapse) {
-        btnCollapse.addEventListener('click', (e) => {
-          e.stopPropagation();
-          collapseCard(card);
-        });
-      }
-
-      // Wire up Copy Order ID button
-      const btnCopy = card.querySelector('.btn-copy-order');
-      if (btnCopy) {
-        btnCopy.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const orderId = btnCopy.getAttribute('data-order');
-          if (orderId && navigator.clipboard) {
-            navigator.clipboard.writeText(orderId).then(() => {
-              const textSpan = btnCopy.querySelector('.copy-text');
-              if (textSpan) {
-                const orig = textSpan.textContent;
-                textSpan.textContent = 'Copied!';
-                btnCopy.classList.add('copied');
-                setTimeout(() => {
-                  textSpan.textContent = orig;
-                  btnCopy.classList.remove('copied');
-                }, 1600);
-              }
-            }).catch(() => {
-              // Fallback
-              const textSpan = btnCopy.querySelector('.copy-text');
-              if (textSpan) textSpan.textContent = 'Copied!';
-            });
-          }
-        });
-      }
-
+      card.querySelector('.reward-card-header').addEventListener('click', () => toggleCard(card, rewardsListContainer));
       rewardsListContainer.appendChild(card);
     });
 
     totalPointsEl.textContent = totalActivePoints.toLocaleString();
-    activeCountEl.textContent = `${activeRewardsCount} ACTIVE`;
-    expiredCountEl.textContent = `${expiredRewardsCount} EXPIRED`;
+    activeCountEl.textContent = `${activeCount} ACTIVE`;
+    expiredCountEl.textContent = `${expiredCount} EXPIRED`;
+    return { totalActivePoints, nearestExpReward };
+  }
 
-    // Optimized Glass Capping & Redemption Summary
-    const maxRedeemableSample = Math.floor((totalActivePoints * (defaultCappingPercent / 100)));
+  // Render 2: Applied Rewards on Products (Separate list screen)
+  function renderAppliedRewards(appliedList) {
+    appliedRewardsListContainer.innerHTML = '';
+    if (!appliedList || appliedList.length === 0) {
+      emptyAppliedState.style.display = 'block';
+      if (appliedBadge) appliedBadge.textContent = '0';
+      return;
+    }
+
+    emptyAppliedState.style.display = 'none';
+    if (appliedBadge) appliedBadge.textContent = appliedList.length;
+
+    appliedList.forEach(a => {
+      const orderRef = (a.orderId && a.orderId !== 'N/A' && a.orderId.trim()) ? a.orderId : ('ORD-' + (a.id || 101));
+      const card = document.createElement('div');
+      card.className = 'reward-card is-expandable';
+      card.innerHTML = `
+        <div class="reward-card-header reward-card-header-btn" role="button" tabindex="0" aria-expanded="false">
+          <div class="reward-card-item">
+            <div class="thumb-box thumb-box-applied">
+              ${a.productImage ? `<img src="${a.productImage}" alt="" />` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`}
+            </div>
+            <div class="reward-card-info">
+              <div class="reward-card-title">${a.productName}</div>
+              <div class="reward-card-subrow">
+                <span class="card-date-sub">${a.date || '2026-11-16'}</span>
+                <span class="pill-order-ref">#${orderRef}</span>
+              </div>
+            </div>
+            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="8.5 17 13.5 12 8.5 7"></polyline></svg></span></div>
+          </div>
+        </div>
+
+        <div class="reward-card-drawer">
+          <div class="reward-drawer-inner reward-drawer-pad">
+            <div class="reward-breakdown-card">
+              <div class="breakdown-row"><span class="breakdown-label">Date:</span><span class="breakdown-val">${a.date || 'Today'}</span></div>
+              <div class="breakdown-row"><span class="breakdown-label">Product Price:</span><span class="breakdown-val breakdown-bold">₹${Number(a.productPrice).toLocaleString()}</span></div>
+              <div class="breakdown-row"><span class="breakdown-label">Rewards Applied:</span><span class="breakdown-val font-brand-blue">-${Number(a.pointsApplied).toLocaleString()} PTS</span></div>
+              <div class="breakdown-row breakdown-row-due">
+                <span class="breakdown-label breakdown-due-label">Due Paid to Shopkeeper:</span>
+                <span class="breakdown-val breakdown-due-amount">₹${Number(a.dueAmount).toLocaleString()}</span>
+              </div>
+              <div class="breakdown-row"><span class="breakdown-label">Order Reference:</span><span class="breakdown-val"><code class="val-order-code">#${orderRef}</code></span></div>
+            </div>
+          </div>
+        </div>`;
+
+      card.querySelector('.reward-card-header').addEventListener('click', () => toggleCard(card, appliedRewardsListContainer));
+      appliedRewardsListContainer.appendChild(card);
+    });
+  }
+
+  // Update Redemption Policy section with Nearest Expiring Points
+  function renderRedemptionPolicy(totalActive, nearest) {
+    let capPct = 50, maxCap = 10000;
+    try {
+      const s = localStorage.getItem('rewards_app_admin_settings_v1');
+      if (s) {
+        const p = JSON.parse(s);
+        if (p.cappingPercent) capPct = p.cappingPercent;
+        if (p.minOrderAmount) maxCap = p.minOrderAmount;
+      }
+    } catch(e){}
+    const maxRedeem = Math.floor(totalActive * (capPct / 100));
+    let nearestHtml = '<span class="policy-nearest-valid">All points currently valid</span>';
+    if (nearest && nearest.expiryDate) {
+      const expD = new Date(nearest.expiryDate);
+      const dateStr = expD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      nearestHtml = `<strong class="policy-nearest-warning">⚠️ Nearest Expire:</strong> ${Number(nearest.rewardPoints).toLocaleString()} PTS on ${dateStr}`;
+    }
+
     cappingSummaryEl.innerHTML = `
       <div class="glass-policy-header">
         <span class="glass-policy-title">Redemption Policy</span>
-        <span class="glass-redeem-pill">
-          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-1px; margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>
-          ${maxRedeemableSample.toLocaleString()} Pts Usable Now
-        </span>
+        <span class="glass-redeem-pill">${maxRedeem.toLocaleString()} Pts Usable Now</span>
       </div>
-      <div class="glass-policy-rules">
-        <div class="glass-rule-chip chip-cap">
-          <span class="rule-icon">🛡</span>
-          <span>Max <strong>${defaultCappingPercent}%</strong> cap / order</span>
-        </div>
-        <div class="glass-rule-chip chip-min">
-          <span class="rule-icon">🛒</span>
-          <span>Min order <strong>₹${Number(defaultMinOrder).toLocaleString()}</strong></span>
-        </div>
+      <div class="glass-policy-rules policy-rules-row">
+        <div class="glass-rule-chip chip-cap"><span class="rule-icon">🛡</span><span>Max <strong>${capPct}%</strong> cap / order</span></div>
+        <div class="glass-rule-chip chip-min"><span class="rule-icon">🛒</span><span>Max cap <strong>₹${Number(maxCap).toLocaleString()}</strong></span></div>
       </div>
-    `;
+      <div class="policy-nearest-expire-box">
+        ${nearestHtml}
+      </div>`;
   }
 
-  // Load wallet on init
-  await loadCustomerWallet();
+  // Load All Data
+  async function loadWallet() {
+    try {
+      const rewards = await window.rewardsDB.getRewardsByPhone(currentUser.phone);
+      const applied = await window.rewardsDB.getAppliedRewardsByPhone(currentUser.phone);
+
+      const { totalActivePoints, nearestExpReward } = renderGainedRewards(rewards);
+      renderAppliedRewards(applied);
+      renderRedemptionPolicy(totalActivePoints, nearestExpReward);
+    } catch (err) {
+      console.error('Wallet load error:', err);
+      rewardsListContainer.innerHTML = `<div class="wf-card dashed">Error loading wallet: ${err.message}</div>`;
+    }
+  }
+
+  await loadWallet();
 });

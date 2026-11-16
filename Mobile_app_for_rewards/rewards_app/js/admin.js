@@ -1,667 +1,324 @@
 /**
- * admin.js - Mobile Prototype Device Shell Admin Controller
- * Reference Model: D:\Project Office\wireFram\mobile_app\admin.html
+ * admin.js - Admin Panel Core Controller
+ * Handles Grant Form, Settings, Feed & Navigation | STRICT: <= 300 lines
  */
-
 document.addEventListener('DOMContentLoaded', async () => {
-  const adminForm = document.getElementById('adminRewardForm');
-  const orderAmountInput = document.getElementById('orderAmount');
-  const rewardPercentInput = document.getElementById('rewardPercent');
-  const rewardPointsInput = document.getElementById('rewardPoints');
-  const photoInput = document.getElementById('productPhoto');
-  const photoPreview = document.getElementById('photoPreview');
-  const btnSampleData = document.getElementById('btnSampleData');
-  const adminRewardsList = document.getElementById('adminRewardsList');
-  const adminToast = document.getElementById('admin-toast');
-  const btnAdminRefresh = document.getElementById('btn-admin-refresh');
+  const adminForm = document.getElementById('adminRewardForm'), orderAmountInput = document.getElementById('orderAmount');
+  const rewardPercentInput = document.getElementById('rewardPercent'), rewardPointsInput = document.getElementById('rewardPoints');
+  const photoInput = document.getElementById('productPhoto'), photoPreview = document.getElementById('photoPreview');
+  const btnSampleData = document.getElementById('btnSampleData'), adminRewardsList = document.getElementById('adminRewardsList');
+  const adminToast = document.getElementById('admin-toast'), btnAdminRefresh = document.getElementById('btn-admin-refresh'), btnResetForm = document.getElementById('btnResetForm');
+  const statIssuedPoints = document.getElementById('stat-issued-points'), statRewardsCount = document.getElementById('stat-rewards-count');
+  const statUsersCount = document.getElementById('stat-users-count'), statAppliedCount = document.getElementById('stat-applied-count');
 
-  // Stats
-  const statIssuedPoints = document.getElementById('stat-issued-points');
-  const statRewardsCount = document.getElementById('stat-rewards-count');
-  const statUsersCount = document.getElementById('stat-users-count');
-
-  // Screen Tabs
   const navTabItems = document.querySelectorAll('.nav-tab-item[data-screen]');
   const adminScreens = document.querySelectorAll('.admin-screen');
+  let base64PhotoData = '', activeFeedTab = 'all';
 
-  let base64PhotoData = '';
+  window.switchAdminScreen = function(targetId) {
+    adminScreens.forEach(s => s.classList.toggle('active', s.id === targetId));
+    navTabItems.forEach(t => t.classList.toggle('active', t.dataset.screen === targetId));
+    if (targetId === 'screen-issued' || targetId === 'screen-overview') loadRewardsAndStats();
+    if (targetId === 'screen-apply' && window.initApplyRewardsScreen) window.initApplyRewardsScreen();
+  };
 
-  function switchScreen(targetScreenId) {
-    adminScreens.forEach(screen => {
-      screen.classList.toggle('active', screen.id === targetScreenId);
-    });
-    navTabItems.forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.screen === targetScreenId);
-    });
-    if (targetScreenId === 'screen-issued' || targetScreenId === 'screen-overview') {
-      loadRewardsAndStats();
-    }
-  }
+  navTabItems.forEach(tab => tab.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.switchAdminScreen(tab.dataset.screen);
+  }));
 
-  navTabItems.forEach(tab => {
-    tab.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchScreen(tab.dataset.screen);
-    });
-  });
-
-  // Toast message
-  function showToast(msg) {
+  window.showAdminToast = function(msg) {
     if (!adminToast) return;
     adminToast.textContent = msg;
     adminToast.style.display = 'block';
-    setTimeout(() => {
-      adminToast.style.display = 'none';
-    }, 4000);
-  }
-
-  // Reset Grant Form Functionality
-  function resetGrantForm() {
-    if (adminForm) {
-      adminForm.reset();
-    }
-    const customerNameInput = document.getElementById('customerName');
-    const customerPhoneInput = document.getElementById('customerPhone');
-    const orderIdInput = document.getElementById('orderId');
-    const productNameInput = document.getElementById('productName');
-    if (customerNameInput) customerNameInput.value = '';
-    if (customerPhoneInput) customerPhoneInput.value = '';
-    if (orderIdInput) orderIdInput.value = '';
-    if (productNameInput) productNameInput.value = '';
-    if (orderAmountInput) orderAmountInput.value = '';
-
-    if (orderDateInput) {
-      orderDateInput.value = new Date().toISOString().split('T')[0];
-    }
-    base64PhotoData = '';
-    if (photoInput) {
-      photoInput.value = '';
-    }
-    if (photoPreview) {
-      photoPreview.innerHTML = '<span>NO PHOTO</span>';
-    }
-    const currentSettings = getAdminSettings();
-    applySettingsToUI(currentSettings);
-    const pointsGroup = document.getElementById('pointsGivenContainer');
-    if (pointsGroup) {
-      pointsGroup.style.display = 'none';
-    }
-    if (rewardPointsInput) {
-      rewardPointsInput.value = '';
-    }
-  }
-
-  // Header Reset / Refresh button
-  if (btnAdminRefresh) {
-    btnAdminRefresh.addEventListener('click', () => {
-      resetGrantForm();
-      loadRewardsAndStats();
-      showToast('Form reset & database refreshed');
-    });
-  }
-
-  // Grant card Reset button
-  const btnResetForm = document.getElementById('btnResetForm');
-  if (btnResetForm) {
-    btnResetForm.addEventListener('click', () => {
-      resetGrantForm();
-      showToast('Form fields cleared');
-    });
-  }
-
-  // Navigation shortcuts to Settings
-  document.querySelectorAll('.btn-nav-settings').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchScreen('screen-settings');
-    });
-  });
-
-  // Global Settings Storage & State
-  const SETTINGS_KEY = 'rewards_app_admin_settings_v1';
-  const defaultSettings = {
-    rewardPercent: 10,
-    expiryMonths: 2,
-    cappingPercent: 50,
-    minOrderAmount: 10000,
-    lockGrantForm: true
+    setTimeout(() => { adminToast.style.display = 'none'; }, 3500);
   };
 
-  function getAdminSettings() {
+  const SETTINGS_KEY = 'rewards_app_admin_settings_v1';
+  const defaultSettings = { rewardPercent: 10, expiryMonths: 2, cappingPercent: 50, minOrderAmount: 10000 };
+
+  window.getAdminSettings = function() {
     try {
-      const stored = localStorage.getItem(SETTINGS_KEY);
-      if (stored) {
-        return { ...defaultSettings, ...JSON.parse(stored) };
-      }
-    } catch (e) {
-      console.error('Error reading settings:', e);
-    }
+      const s = localStorage.getItem(SETTINGS_KEY);
+      if (s) return { ...defaultSettings, ...JSON.parse(s) };
+    } catch (e) {}
     return { ...defaultSettings };
-  }
+  };
 
-  function saveAdminSettings(settings) {
-    try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch (e) {
-      console.error('Error saving settings:', e);
-    }
-  }
-
-  // Format local datetime string for datetime-local inputs
-  function formatLocalDatetime(date) {
-    const pad = (n) => String(n).padStart(2, '0');
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    const hh = pad(date.getHours());
-    const mm = pad(date.getMinutes());
-    return `${y}-${m}-${d}T${hh}:${mm}`;
-  }
+  function saveAdminSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
 
   function calculateExpiryDate(months) {
     const d = new Date();
     d.setMonth(d.getMonth() + months);
-    return formatLocalDatetime(d);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
-  const cappingPercentInput = document.getElementById('cappingPercent');
-  const minOrderAmountInput = document.getElementById('minOrderAmount');
-  const expiryDateInput = document.getElementById('expiryDate');
-  const adminSettingsForm = document.getElementById('adminSettingsForm');
-
-  // Lock protection state on Grant form - strictly locked to Settings
-  function applyGrantFormLockState(settings) {
-    if (rewardPercentInput) {
-      rewardPercentInput.readOnly = true;
-    }
-    if (rewardPointsInput) {
-      rewardPointsInput.readOnly = true;
-    }
-    if (expiryDateInput) {
-      expiryDateInput.readOnly = true;
-    }
-    if (cappingPercentInput) {
-      cappingPercentInput.readOnly = true;
-    }
-    if (minOrderAmountInput) {
-      minOrderAmountInput.readOnly = true;
-    }
-  }
-
-  // Apply settings across Settings page and Grant page
-  function applySettingsToUI(settings) {
-    // 1. Update Settings Form Fields & Badges
-    const settingReward = document.getElementById('settingRewardPercent');
-    const settingExpiry = document.getElementById('settingExpiryMonths');
-    const settingCap = document.getElementById('settingCappingPercent');
-    const settingMin = document.getElementById('settingMinOrderAmount');
-
-    const badgeReward = document.getElementById('settingsBadgeReward');
-    const badgeExpiry = document.getElementById('settingsBadgeExpiry');
-    const badgeCap = document.getElementById('settingsBadgeCapping');
-
-    if (settingReward) settingReward.value = settings.rewardPercent;
-    if (settingExpiry) settingExpiry.value = settings.expiryMonths;
-    if (settingCap) settingCap.value = settings.cappingPercent;
-    if (settingMin) settingMin.value = settings.minOrderAmount;
-
-    if (badgeReward) badgeReward.textContent = `${settings.rewardPercent}%`;
-    if (badgeExpiry) badgeExpiry.textContent = `${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
-    if (badgeCap) badgeCap.textContent = `${settings.cappingPercent}% / ₹${Number(settings.minOrderAmount).toLocaleString()}`;
-
-    // Update Settings Presets active states
-    document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(p => {
-      p.classList.toggle('active', parseFloat(p.dataset.pct) === settings.rewardPercent);
-    });
-    document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(p => {
-      p.classList.toggle('active', parseInt(p.dataset.months) === settings.expiryMonths);
-    });
-    document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(p => {
-      p.classList.toggle('active', parseInt(p.dataset.cap) === settings.cappingPercent);
-    });
-
-    // 2. Update Grant Form Badges
-    const pointsGivenRateBadge = document.getElementById('pointsGivenRateBadge');
-    if (pointsGivenRateBadge) {
-      pointsGivenRateBadge.textContent = `${settings.rewardPercent}% Policy`;
-    }
-
-    // 3. Populate Grant Form Fields with Fixed Settings Values
-    if (rewardPercentInput) rewardPercentInput.value = settings.rewardPercent;
-    if (cappingPercentInput) cappingPercentInput.value = settings.cappingPercent;
-    if (minOrderAmountInput) minOrderAmountInput.value = settings.minOrderAmount;
-
-    if (expiryDateInput) {
-      expiryDateInput.value = calculateExpiryDate(settings.expiryMonths);
-    }
-    const grantExpiryMeta = document.getElementById('grantExpiryMeta');
-    if (grantExpiryMeta) {
-      grantExpiryMeta.textContent = `Auto-set to ${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
-    }
-
-    // 4. Update Overview Tab Stat
-    const statDefaultCap = document.getElementById('stat-default-cap');
-    if (statDefaultCap) statDefaultCap.textContent = `${settings.cappingPercent}%`;
-
-    // 5. Update Lock Protection State
-    applyGrantFormLockState(settings);
-
-    // 6. Recalculate Points Given
+  function applySettingsToUI(s) {
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setVal('settingRewardPercent', s.rewardPercent); setVal('settingExpiryMonths', s.expiryMonths);
+    setVal('settingCappingPercent', s.cappingPercent); setVal('settingMinOrderAmount', s.minOrderAmount);
+    setText('settingsBadgeReward', `${s.rewardPercent}%`); setText('settingsBadgeExpiry', `${s.expiryMonths}M`);
+    setText('settingsBadgeCapping', `${s.cappingPercent}% / ₹${s.minOrderAmount}`);
+    setText('pointsGivenRateBadge', `${s.rewardPercent}% Policy`);
+    if (rewardPercentInput) rewardPercentInput.value = s.rewardPercent;
+    setVal('expiryDate', calculateExpiryDate(s.expiryMonths)); setVal('cappingPercent', s.cappingPercent);
+    setVal('minOrderAmount', s.minOrderAmount); setVal('applyCappingPercent', s.cappingPercent);
+    setVal('applyMaxCappingLimit', s.minOrderAmount);
+    if (window.recalculateApplyMath) window.recalculateApplyMath();
     updatePointsFromPercent();
   }
 
-  // Compact auto-calculation & dynamic visibility for Points Given
   function updatePointsFromPercent() {
     const amount = parseFloat(orderAmountInput.value) || 0;
-    const percent = parseFloat(rewardPercentInput ? rewardPercentInput.value : 10) || 10;
-    const pointsGivenContainer = document.getElementById('pointsGivenContainer');
-
-    if (amount > 0 && percent >= 0) {
-      const points = Math.round((amount * percent) / 100);
-      if (rewardPointsInput) {
-        rewardPointsInput.value = points;
-      }
-      if (pointsGivenContainer) {
-        pointsGivenContainer.style.display = 'block';
-      }
+    const pct = parseFloat(rewardPercentInput ? rewardPercentInput.value : 10) || 10;
+    const box = document.getElementById('pointsGivenContainer');
+    const badge = document.getElementById('pointsGivenRateBadge');
+    if (badge) badge.textContent = `${pct}% Policy`;
+    if (amount > 0 && pct >= 0) {
+      if (rewardPointsInput) rewardPointsInput.value = Math.round((amount * pct) / 100);
+      if (box) box.style.display = 'block';
     } else {
-      if (rewardPointsInput) {
-        rewardPointsInput.value = '';
-      }
-      if (pointsGivenContainer) {
-        pointsGivenContainer.style.display = 'none';
-      }
+      if (rewardPointsInput) rewardPointsInput.value = '';
+      if (box) box.style.display = 'none';
     }
   }
 
-  function updatePercentFromPoints() {
-    const amount = parseFloat(orderAmountInput.value) || 0;
-    const points = parseFloat(rewardPointsInput.value) || 0;
-    if (amount > 0 && points >= 0) {
-      const pct = parseFloat(((points / amount) * 100).toFixed(1));
-      rewardPercentInput.value = pct;
-    }
-  }
+  if (orderAmountInput) orderAmountInput.addEventListener('input', updatePointsFromPercent);
+  if (rewardPercentInput) rewardPercentInput.addEventListener('input', updatePointsFromPercent);
 
-  orderAmountInput.addEventListener('input', updatePointsFromPercent);
-  rewardPercentInput.addEventListener('input', updatePointsFromPercent);
-  rewardPointsInput.addEventListener('input', updatePercentFromPoints);
-
-
-
-  // Setup Settings Presets Click Handlers
-  document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const pct = parseFloat(pill.dataset.pct);
-      const input = document.getElementById('settingRewardPercent');
-      if (input) input.value = pct;
-      document.querySelectorAll('#settingsRewardPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
-    });
-  });
-
-  document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const months = parseInt(pill.dataset.months);
-      const input = document.getElementById('settingExpiryMonths');
-      if (input) input.value = months;
-      document.querySelectorAll('#settingsExpiryPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
-    });
-  });
-
-  document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const cap = parseInt(pill.dataset.cap);
-      const input = document.getElementById('settingCappingPercent');
-      if (input) input.value = cap;
-      document.querySelectorAll('#settingsCappingPresets .preset-pill').forEach(p => p.classList.toggle('active', p === pill));
-    });
-  });
-
-  // Settings Form Submit Handler
+  // Settings form submit
+  const adminSettingsForm = document.getElementById('adminSettingsForm');
   if (adminSettingsForm) {
     adminSettingsForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      const getNum = (id, def) => parseFloat(document.getElementById(id).value) || def;
       const newSettings = {
-        rewardPercent: parseFloat(document.getElementById('settingRewardPercent').value) || 10,
-        expiryMonths: parseInt(document.getElementById('settingExpiryMonths').value) || 2,
-        cappingPercent: parseFloat(document.getElementById('settingCappingPercent').value) || 50,
-        minOrderAmount: parseFloat(document.getElementById('settingMinOrderAmount').value) || 0
+        rewardPercent: getNum('settingRewardPercent', 10),
+        expiryMonths: getNum('settingExpiryMonths', 2),
+        cappingPercent: getNum('settingCappingPercent', 50),
+        minOrderAmount: getNum('settingMinOrderAmount', 0)
       };
-
       saveAdminSettings(newSettings);
       applySettingsToUI(newSettings);
-      showToast('✅ Global settings saved & applied to Grant form!');
-
-      // Smooth switch back to Grant screen after 600ms
-      setTimeout(() => {
-        switchScreen('screen-grant');
-      }, 600);
+      window.showAdminToast('✅ Settings updated & applied!');
+      setTimeout(() => window.switchAdminScreen('screen-grant'), 600);
     });
   }
 
-  // Initialize Settings & UI
-  const initialSettings = getAdminSettings();
-  applySettingsToUI(initialSettings);
+  // Explicit Reset for Grant Form
+  window.resetGrantForm = function() {
+    if (adminForm) adminForm.reset();
+    ['customerName', 'customerPhone', 'orderId', 'productName', 'orderAmount', 'rewardPoints'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const dateIn = document.getElementById('orderDate');
+    if (dateIn) dateIn.value = new Date().toISOString().split('T')[0];
+    base64PhotoData = '';
+    if (photoInput) photoInput.value = '';
+    if (photoPreview) photoPreview.innerHTML = '<span>NO PHOTO</span>';
+    const ptsBox = document.getElementById('pointsGivenContainer');
+    if (ptsBox) ptsBox.style.display = 'none';
+    applySettingsToUI(window.getAdminSettings());
+  };
 
-  // Auto-fill today's date if empty
-  const orderDateInput = document.getElementById('orderDate');
-  if (orderDateInput && !orderDateInput.value) {
-    orderDateInput.value = new Date().toISOString().split('T')[0];
+  if (btnAdminRefresh) {
+    btnAdminRefresh.addEventListener('click', async () => {
+      window.resetGrantForm();
+      if (window.resetApplyForm) window.resetApplyForm();
+      await loadRewardsAndStats();
+      window.showAdminToast('Forms cleared & DB refreshed');
+    });
   }
 
-  // Photo Attachment with Canvas Auto-Resizing (Prevents Quota & Payload Limits)
-  photoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      base64PhotoData = '';
-      photoPreview.innerHTML = '<span>NO PHOTO</span>';
-      return;
-    }
+  if (btnResetForm) {
+    btnResetForm.addEventListener('click', () => {
+      window.resetGrantForm();
+      window.showAdminToast('Form fields cleared');
+    });
+  }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Resize to maximum 320x320 thumbnail for ultra-fast storage
-        const maxDim = 320;
-        let width = img.width;
-        let height = img.height;
-        if (width > height) {
-          if (width > maxDim) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          }
-        } else {
-          if (height > maxDim) {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
+  if (btnSampleData) {
+    btnSampleData.addEventListener('click', () => {
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+      setVal('customerName', 'Rahul Sharma'); setVal('customerPhone', '9876543210');
+      setVal('orderId', 'ORD-' + Math.floor(10000 + Math.random() * 90000));
+      setVal('productName', 'Android 5G Smartphone'); setVal('orderAmount', '15000');
+      setVal('orderDate', new Date().toISOString().split('T')[0]);
+      updatePointsFromPercent();
+      window.showAdminToast('Loaded sample ₹15,000 order');
+    });
+  }
 
-        // Compact JPEG data URL (~20KB)
-        base64PhotoData = canvas.toDataURL('image/jpeg', 0.82);
-        photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Thumb" />`;
+  if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) { base64PhotoData = ''; photoPreview.innerHTML = '<span>NO PHOTO</span>'; return; }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 120; canvas.height = 120;
+          canvas.getContext('2d').drawImage(img, 0, 0, 120, 120);
+          base64PhotoData = canvas.toDataURL('image/jpeg', 0.8);
+          photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Thumb" />`;
+        };
+        img.src = ev.target.result;
       };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+      reader.readAsDataURL(file);
+    });
+  }
 
-  // Autofill sample data from prompt
-  btnSampleData.addEventListener('click', () => {
-    document.getElementById('customerName').value = 'Rahul Sharma';
-    document.getElementById('customerPhone').value = '9876543210';
-    document.getElementById('orderId').value = 'ORD-' + Math.floor(10000 + Math.random() * 90000);
-    document.getElementById('productName').value = 'Android 5G Smartphone';
-    if (orderDateInput) orderDateInput.value = new Date().toISOString().split('T')[0];
+  // Grant Form Submit
+  if (adminForm) {
+    adminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const getVal = (id) => (document.getElementById(id)?.value || '').trim();
+      const customerName = getVal('customerName'), customerPhone = getVal('customerPhone');
+      const orderId = getVal('orderId'), productName = getVal('productName'), orderDate = getVal('orderDate');
+      const orderAmount = parseFloat(orderAmountInput.value) || 0;
+      const settings = window.getAdminSettings();
+      const rewardPoints = Math.round((orderAmount * settings.rewardPercent) / 100);
+      const expiryDate = calculateExpiryDate(settings.expiryMonths);
 
-    // Order: ₹15,000
-    orderAmountInput.value = '15000';
-    const settings = getAdminSettings();
-    applySettingsToUI(settings);
+      if (!customerName || !customerPhone || !orderAmount) return window.showAdminToast('Please fill all fields');
+      try {
+        await window.rewardsDB.createReward({
+          customerName, customerPhone, orderId, productName, orderDate, orderAmount,
+          rewardPercent: settings.rewardPercent, rewardPoints, expiryDate,
+          cappingPercent: settings.cappingPercent, minOrderAmount: settings.minOrderAmount,
+          productImage: base64PhotoData, status: 'ACTIVE'
+        });
+        window.showAdminToast(`✅ Granted ${rewardPoints} PTS to ${customerName}`);
+        window.resetGrantForm();
+        await loadRewardsAndStats();
+        setTimeout(() => window.switchAdminScreen('screen-issued'), 700);
+      } catch (err) { window.showAdminToast('Error: ' + err.message); }
+    });
+  }
 
-    base64PhotoData = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ededed"/><text x="50" y="52" font-family="sans-serif" font-size="11" font-weight="bold" fill="%23444" text-anchor="middle">PRODUCT</text></svg>';
-    photoPreview.innerHTML = `<img src="${base64PhotoData}" alt="Preview" />`;
+  // Feed Filter buttons
+  const btnFeedAll = document.getElementById('btnFeedAll'), btnFeedApplied = document.getElementById('btnFeedApplied');
+  function setFeedTab(tab) {
+    activeFeedTab = tab;
+    if (btnFeedAll) btnFeedAll.className = `wf-btn wf-btn-sm ${tab === 'all' ? '' : 'wf-btn-secondary'}`;
+    if (btnFeedApplied) btnFeedApplied.className = `wf-btn wf-btn-sm ${tab === 'applied' ? '' : 'wf-btn-secondary'}`;
+    loadRewardsAndStats();
+  }
+  if (btnFeedAll) btnFeedAll.addEventListener('click', () => setFeedTab('all'));
+  if (btnFeedApplied) btnFeedApplied.addEventListener('click', () => setFeedTab('applied'));
 
-    showToast(`Loaded sample ₹15,000 order (${settings.rewardPercent}% / ${settings.expiryMonths}M / ${settings.cappingPercent}% cap)`);
-  });
-
-  // Submit Handler: Saves to IndexedDB
-  adminForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const customerName = document.getElementById('customerName').value.trim();
-    const rawPhone = document.getElementById('customerPhone').value.trim();
-    const customerPhone = rawPhone.replace(/\D/g, '').slice(-10);
-    const orderId = document.getElementById('orderId').value.trim();
-    const productName = document.getElementById('productName').value.trim();
-    const orderDate = document.getElementById('orderDate').value;
-    const orderAmount = parseFloat(orderAmountInput.value) || 0;
-    
-    // Policy values are strictly and exclusively enforced from Settings
-    const settings = getAdminSettings();
-    const rewardPercent = settings.rewardPercent;
-    const rewardPoints = Math.round((orderAmount * rewardPercent) / 100);
-    const expiryDate = expiryDateInput.value || calculateExpiryDate(settings.expiryMonths);
-    const cappingPercent = settings.cappingPercent;
-    const minOrderAmount = settings.minOrderAmount;
-
-    if (!customerName || !customerPhone || !orderId || !productName || !orderAmount || !rewardPoints || !expiryDate) {
-      showToast('Please fill all required fields');
-      return;
-    }
-
-    const submitBtn = adminForm.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving to Database...';
-    }
-
-    try {
-      const payload = {
-        customerName,
-        customerPhone,
-        orderId,
-        productName,
-        orderDate: orderDate || new Date().toISOString().split('T')[0],
-        orderAmount,
-        rewardPercent,
-        rewardPoints,
-        expiryDate,
-        cappingPercent,
-        minOrderAmount,
-        productImage: base64PhotoData,
-        status: 'ACTIVE'
-      };
-
-      await window.rewardsDB.createReward(payload);
-      showToast(`✅ Saved! Granted ${rewardPoints.toLocaleString()} pts to ${customerName}`);
-
-      adminForm.reset();
-      const currentSettings = getAdminSettings();
-      applySettingsToUI(currentSettings);
-      if (orderDateInput) orderDateInput.value = new Date().toISOString().split('T')[0];
-      base64PhotoData = '';
-      photoPreview.innerHTML = '<span>NO PHOTO</span>';
-      
-      await loadRewardsAndStats();
-      
-      // Auto-switch to Issued feed after 800ms so admin sees the new card immediately
-      setTimeout(() => {
-        switchScreen('screen-issued');
-      }, 800);
-    } catch (err) {
-      console.error('Save reward error:', err);
-      showToast('Error: ' + err.message);
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Save & Issue Reward Points';
-      }
-    }
-  });
-
-  // Render Issued Rewards & Stats
-  async function loadRewardsAndStats() {
+  window.loadRewardsAndStats = async function() {
     try {
       const rewards = await window.rewardsDB.getAllRewards();
       const users = await window.rewardsDB.getAllUsers();
+      const applied = await window.rewardsDB.getAllAppliedRewards();
 
       let totalPoints = 0;
-      if (statRewardsCount) statRewardsCount.textContent = rewards.length;
-      if (statUsersCount) statUsersCount.textContent = users.length;
-
-      if (adminRewardsList) {
-        adminRewardsList.innerHTML = '';
-        if (rewards.length === 0) {
-          adminRewardsList.innerHTML = `
-            <div class="wf-card dashed" style="text-align: center; padding: 20px;">
-              <strong class="wf-title-sm">No Rewards Issued Yet</strong>
-              <p class="wf-meta" style="margin-top: 4px;">Use the 'Grant' tab to allocate rewards points.</p>
-            </div>
-          `;
-        } else {
-          rewards.forEach(item => {
-            totalPoints += Number(item.rewardPoints) || 0;
-            const isExpired = item.expiryDate && new Date(item.expiryDate) < new Date();
-            const expText = item.expiryDate ? item.expiryDate.replace('T', ' ') : 'N/A';
-
-            const points = Number(item.rewardPoints) || 0;
-            const capping = Number(item.cappingPercent) || 50;
-            const minOrd = Number(item.minOrderAmount) || 10000;
-            const ordAmt = Number(item.orderAmount) || 0;
-            const maxDisc = Math.floor(points * (capping / 100));
-            const safeItemTitle = (item.productName || 'Order Item').replace(/"/g, '&quot;');
-            const fallbackAdminSvg = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
-            const imgHtml = (item.productImage && item.productImage.trim())
-              ? `<img src="${item.productImage}" alt="${safeItemTitle}" onerror="this.onerror=null; this.parentElement.innerHTML='${fallbackAdminSvg.replace(/'/g, "\\'")}';">`
-              : fallbackAdminSvg;
-
-            const card = document.createElement('div');
-            card.className = `reward-card is-expandable ${isExpired ? 'is-expired' : ''}`;
-            card.innerHTML = `
-              <div class="reward-card-header" role="button" tabindex="0" aria-expanded="false">
-                <div class="reward-card-item">
-                  <div class="thumb-box">${imgHtml}</div>
-                  <div class="reward-card-info">
-                    <div class="reward-card-title">${item.productName}</div>
-                  </div>
-                  <div class="reward-card-chevron-box">
-                    <button type="button" class="btn-delete-reward" data-id="${item.id}" title="Delete Reward" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: var(--slate-400); display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; margin-right: 4px; transition: color 0.15s ease;" onmouseover="this.style.color='var(--rose-600)'" onmouseout="this.style.color='var(--slate-400)'">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
-                    <span class="chevron-icon" aria-hidden="true" title="Click to view details">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Expandable Drawer -->
-              <div class="reward-card-drawer">
-                <div class="reward-drawer-inner">
-
-                  <div class="drawer-reward-header">
-                    <div>
-                      <span class="reward-card-points">+${points.toLocaleString()} PTS</span>
-                      <div class="reward-card-meta">${item.customerName} (${item.customerPhone})</div>
-                    </div>
-                    <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
-                      ${isExpired ? 'EXPIRED' : 'ACTIVE'}
-                    </span>
-                  </div>
-
-                  <!-- Capping & Expiry Unified Policy Box -->
-                  <div class="drawer-policy-box ${isExpired ? 'is-expired' : ''}">
-                    <div class="policy-row">
-                      <span class="policy-icon">🛡</span>
-                      <span><strong>Capping Rule:</strong> Max ${capping}% redeemable</span>
-                    </div>
-                    ${minOrd ? `
-                    <div class="policy-row">
-                      <span class="policy-icon">🛒</span>
-                      <span><strong>Min Order:</strong> ₹${minOrd.toLocaleString()}</span>
-                    </div>` : ''}
-                    <div class="policy-row policy-validity">
-                      <span class="policy-icon">⏳</span>
-                      <span><strong>Valid Until:</strong> ${expText}</span>
-                    </div>
-                  </div>
-
-                  <div class="reward-breakdown-card">
-                    <div class="breakdown-row">
-                      <span class="breakdown-label">Customer:</span>
-                      <span class="breakdown-val breakdown-bold">${item.customerName} (+91 ${item.customerPhone})</span>
-                    </div>
-                    <div class="breakdown-row">
-                      <span class="breakdown-label">Order Reference:</span>
-                      <span class="breakdown-val">
-                        <code class="val-order-code">#${item.orderId}</code>
-                      </span>
-                    </div>
-                    <div class="breakdown-row">
-                      <span class="breakdown-label">Order Total Amount:</span>
-                      <span class="breakdown-val breakdown-bold">₹${ordAmt.toLocaleString()}</span>
-                    </div>
-                    <div class="breakdown-row">
-                      <span class="breakdown-label">Reward Calculation:</span>
-                      <span class="breakdown-val font-brand-blue">${item.rewardPercent || 0}% of ₹${ordAmt.toLocaleString()} = ${points.toLocaleString()} PTS</span>
-                    </div>
-                    <div class="breakdown-row">
-                      <span class="breakdown-label">Max Usable Discount:</span>
-                      <span class="breakdown-val font-emerald-save">Save up to ₹${maxDisc.toLocaleString()} (${capping}% Cap)</span>
-                    </div>
-                  </div>
-
-                  <div class="reward-drawer-footer">
-                    <button type="button" class="btn-collapse-card">
-                      <span>Show Less</span>
-                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-
-            const adminHeader = card.querySelector('.reward-card-header');
-            adminHeader.addEventListener('click', (e) => {
-              if (e.target.closest('button')) return;
-              const isCurrentlyExpanded = card.classList.contains('is-expanded');
-              if (isCurrentlyExpanded) {
-                card.classList.remove('is-expanded');
-                adminHeader.setAttribute('aria-expanded', 'false');
-              } else {
-                // Auto-collapse any other open cards
-                adminRewardsList.querySelectorAll('.reward-card.is-expanded').forEach(other => {
-                  if (other !== card) {
-                    other.classList.remove('is-expanded');
-                    const otherHeader = other.querySelector('.reward-card-header');
-                    if (otherHeader) otherHeader.setAttribute('aria-expanded', 'false');
-                  }
-                });
-                card.classList.add('is-expanded');
-                adminHeader.setAttribute('aria-expanded', 'true');
-              }
-            });
-
-            const btnAdminCollapse = card.querySelector('.btn-collapse-card');
-            if (btnAdminCollapse) {
-              btnAdminCollapse.addEventListener('click', (e) => {
-                e.stopPropagation();
-                card.classList.remove('is-expanded');
-                adminHeader.setAttribute('aria-expanded', 'false');
-              });
-            }
-
-            adminRewardsList.appendChild(card);
-          });
-
-          // Delete buttons
-          document.querySelectorAll('.btn-delete-reward').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-              e.stopPropagation();
-              if (confirm('Delete this reward entry?')) {
-                await window.rewardsDB.deleteReward(btn.dataset.id);
-                showToast('Reward record deleted');
-                await loadRewardsAndStats();
-              }
-            });
-          });
-        }
-      }
+      rewards.forEach(r => totalPoints += Number(r.rewardPoints) || 0);
 
       if (statIssuedPoints) statIssuedPoints.textContent = totalPoints.toLocaleString();
-    } catch (err) {
-      console.error('Error loading rewards & stats:', err);
-    }
+      if (statRewardsCount) statRewardsCount.textContent = rewards.length;
+      if (statUsersCount) statUsersCount.textContent = users.length;
+      if (statAppliedCount) statAppliedCount.textContent = applied.length;
+
+      if (!adminRewardsList) return;
+      adminRewardsList.innerHTML = '';
+
+      if (activeFeedTab === 'applied') {
+        if (applied.length === 0) {
+          adminRewardsList.innerHTML = '<div class="wf-card dashed" style="text-align:center; padding:16px;">No applied rewards yet.</div>';
+          return;
+        }
+        applied.forEach(item => {
+          const ord = (item.orderId && item.orderId !== 'N/A' && item.orderId.trim()) ? item.orderId : ('ORD-' + (item.id || 101));
+          const card = document.createElement('div');
+          card.className = 'reward-card';
+          card.innerHTML = `
+            <div class="admin-applied-card-body">
+              <div class="admin-applied-header">
+                <strong class="reward-card-title">${item.productName}</strong>
+                <span class="header-pill pill-applied-pts">-${item.pointsApplied.toLocaleString()} PTS</span>
+              </div>
+              <div class="wf-meta">${item.customerName} (+91 ${item.customerPhone}) • ${item.date}</div>
+              <div class="admin-applied-grid">
+                <div>Order: <strong class="pill-order-ref">#${ord}</strong></div>
+                <div>Orig Price: <strong>₹${Number(item.productPrice).toLocaleString()}</strong></div>
+                <div>Cap: <strong>${item.cappingPercent}%</strong></div>
+                <div>Due Paid: <strong class="val-due-paid">₹${Number(item.dueAmount).toLocaleString()}</strong></div>
+              </div>
+            </div>`;
+          adminRewardsList.appendChild(card);
+        });
+        return;
+      }
+
+      if (rewards.length === 0) {
+        adminRewardsList.innerHTML = '<div class="wf-card dashed" style="text-align:center; padding:16px;">No rewards granted yet.</div>';
+        return;
+      }
+
+      rewards.forEach(item => {
+        const isExp = item.expiryDate && new Date(item.expiryDate) < new Date();
+        const card = document.createElement('div');
+        card.className = `reward-card ${isExp ? 'is-expired' : ''}`;
+        card.innerHTML = `
+          <div class="admin-reward-card-body">
+            <div>
+              <strong class="reward-card-title">${item.productName}</strong>
+              <div class="wf-meta">${item.customerName} • +${Number(item.rewardPoints).toLocaleString()} PTS</div>
+              <small class="wf-meta">Exp: ${item.expiryDate ? item.expiryDate.split('T')[0] : 'N/A'}</small>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="header-pill card-pill-mini ${isExp ? 'pill-expired' : 'pill-active'}">${isExp ? 'EXPIRED' : 'ACTIVE'}</span>
+              <button type="button" class="btn-del-reward" title="Delete Reward" data-id="${item.id}">
+                <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </div>`;
+        card.querySelector('.btn-del-reward').addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openDeleteConfirm(item.id, item.productName || item.customerName, item.rewardPoints);
+        });
+        adminRewardsList.appendChild(card);
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  // Delete Confirmation Modal Logic
+  let pendingDeleteId = null;
+  const delModal = document.getElementById('confirmDeleteModal');
+  const btnCancelDel = document.getElementById('btnCancelDelete');
+  const btnConfirmDel = document.getElementById('btnConfirmDelete');
+  const delMsg = document.getElementById('confirmDeleteModalMsg');
+
+  function openDeleteConfirm(id, name, pts) {
+    pendingDeleteId = id;
+    if (delMsg) delMsg.textContent = `Are you sure you want to delete reward for "${name}" (+${Number(pts || 0).toLocaleString()} PTS)?`;
+    if (delModal) delModal.style.display = 'flex';
+  }
+  function closeDeleteConfirm() {
+    pendingDeleteId = null;
+    if (delModal) delModal.style.display = 'none';
+  }
+  if (btnCancelDel) btnCancelDel.addEventListener('click', closeDeleteConfirm);
+  if (btnConfirmDel) {
+    btnConfirmDel.addEventListener('click', async () => {
+      if (pendingDeleteId) {
+        await window.rewardsDB.deleteReward(pendingDeleteId);
+        window.showAdminToast('Reward deleted successfully');
+        closeDeleteConfirm();
+        loadRewardsAndStats();
+      }
+    });
   }
 
+  // Init
+  applySettingsToUI(window.getAdminSettings());
+  const dateIn = document.getElementById('orderDate');
+  if (dateIn && !dateIn.value) dateIn.value = new Date().toISOString().split('T')[0];
   await loadRewardsAndStats();
 });

@@ -951,20 +951,21 @@ input:-webkit-autofill:focus {
 
 /* Reward Card in Feed (Clean Collapsed Item -> Rich Expandable Details) */
 .reward-card {
-  border: 2px solid #c4b5fd;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  padding: 0;
+  margin-bottom: 6px;
+  border-radius: 10px;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .reward-card:hover {
   transform: translateY(-1px);
-  border-color: #d8b4fe;
-  box-shadow: 0 4px 14px rgba(95, 37, 159, 0.1);
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .reward-card.is-expandable {
@@ -973,8 +974,8 @@ input:-webkit-autofill:focus {
 
 .reward-card.is-expanded {
   border-color: #a78bfa;
-  box-shadow: 0 6px 20px rgba(95, 37, 159, 0.14);
-  padding-bottom: 14px;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.08);
+  padding-bottom: 8px;
 }
 
 .reward-card.is-expired {
@@ -1049,6 +1050,22 @@ input:-webkit-autofill:focus {
   align-items: center;
   justify-content: center;
   transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  line-height: 1;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.chevron-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
 }
 
 .reward-card.is-expandable:hover .chevron-icon {
@@ -1507,3 +1524,344 @@ input:-webkit-autofill:focus {
 .mobile-viewport::-webkit-scrollbar-thumb:hover {
   background: var(--slate-400);
 }
+
+/* Wallet Segment Navigation */
+.wallet-segment-bar {
+  display: flex;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.wallet-segment-btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wallet-segment-btn:hover {
+  color: var(--brand-primary);
+}
+
+.wallet-segment-btn.active {
+  background: #ffffff;
+  color: var(--brand-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.wallet-view-section {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Header & Item Clean Layout Classes */
+.reward-card-header-btn {
+  padding: 8px 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+.reward-card-subrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.reward-pts-grant {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #00875a;
+}
+
+.reward-pts-grant.is-expired-pts {
+  color: #64748b;
+}
+
+.reward-pts-applied {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.card-pill-mini {
+  font-size: 0.61rem;
+  padding: 1px 6px;
+}
+
+.card-date-sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Order Reference Badge - High Polish Pill */
+.pill-order-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.63rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  letter-spacing: 0.2px;
+}
+
+.pill-applied-pts {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+}
+
+/* Applied Redemption Thumb Box with clean vector styling */
+.thumb-box-applied {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb-box-applied svg {
+  width: 20px;
+  height: 20px;
+  stroke: #16a34a;
+}
+
+/* Card Drawer Inner & Breakdown Details */
+.reward-drawer-pad {
+  padding: 0 10px 8px 10px;
+}
+
+.breakdown-row-due {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 5px;
+  margin-top: 2px;
+}
+
+.breakdown-due-label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.breakdown-due-amount {
+  font-weight: 800;
+  color: #b91c1c;
+  font-size: 0.88rem;
+}
+
+.breakdown-exp-val {
+  font-weight: 700;
+  color: #00875a;
+}
+
+.breakdown-exp-val.is-expired {
+  color: #e11d48;
+}
+
+/* Nearest Expire Glass Banner */
+.policy-rules-row {
+  margin-bottom: 6px;
+}
+
+.policy-nearest-expire-box {
+  font-size: 0.69rem;
+  background: #fffbeb;
+  border: 1px dashed #fde68a;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.policy-nearest-warning {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.policy-nearest-valid {
+  color: #047857;
+  font-weight: 600;
+}
+
+/* Admin Item Details & Compact Feed Layout */
+.admin-reward-card-body {
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-applied-card-body {
+  padding: 8px 10px;
+}
+
+.admin-applied-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-applied-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.71rem;
+  background: #f8fafc;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #f1f5f9;
+}
+
+.val-due-paid {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+/* Delete Reward Trash Icon Button */
+.btn-del-reward {
+  border: 1px solid #fee2e2;
+  background: #fff5f5;
+  cursor: pointer;
+  color: #dc2626;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-del-reward:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+  transform: scale(1.05);
+}
+
+.btn-del-reward svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+}
+
+/* Confirm Delete Modal Popup */
+.confirm-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.confirm-modal-box {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 16px;
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid #f1f5f9;
+}
+
+.confirm-modal-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px auto;
+}
+
+.confirm-modal-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.confirm-modal-title {
+  margin: 0 0 4px 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.confirm-modal-msg {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: 0 0 14px 0;
+  line-height: 1.4;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-modal-cancel {
+  flex: 1;
+  padding: 7px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.btn-modal-delete {
+  flex: 1;
+  padding: 7px;
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.74rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+
+
