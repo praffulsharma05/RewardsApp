@@ -137,16 +137,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (customerSelect) customerSelect.addEventListener('change', onCustomerChanged);
   if (productPriceInput) productPriceInput.addEventListener('input', recalculateApplyMath);
 
-  // Quick Sample Button
+  // Quick Sample Button with sequential Order ID increment (+1)
+  function getNextApplyOrderId() {
+    let cur = parseInt(localStorage.getItem('wf_apply_order_counter') || '6562', 10);
+    const m = orderIdInput?.value?.match(/ORD-APPLY-(\d+)/i);
+    if (m) cur = Math.max(cur, parseInt(m[1], 10));
+    const next = cur + 1;
+    localStorage.setItem('wf_apply_order_counter', String(next));
+    return `ORD-APPLY-${next}`;
+  }
+
   if (btnSample) {
     btnSample.addEventListener('click', async () => {
       await onCustomerChanged();
-      if (orderIdInput) orderIdInput.value = 'ORD-APPLY-' + Math.floor(1000 + Math.random() * 9000);
+      if (orderIdInput) orderIdInput.value = getNextApplyOrderId();
       if (productNameInput) productNameInput.value = 'Smart LED 4K TV 55"';
       if (productPriceInput) productPriceInput.value = '20000';
       recalculateApplyMath();
       if (window.showAdminToast) {
-        window.showAdminToast(`Loaded sample order (Auto ${activeCappingPercent}% cap -> ₹${autoCalculatedDue.toLocaleString()} due)`);
+        window.showAdminToast(`Loaded sample ${orderIdInput.value} (₹${autoCalculatedDue.toLocaleString()} due)`);
       }
     });
   }

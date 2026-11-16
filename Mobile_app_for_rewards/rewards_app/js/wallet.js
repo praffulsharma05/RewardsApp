@@ -39,16 +39,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Segment Tab Switcher
   function switchWalletView(isApplied) {
-    tabGained.style.background = isApplied ? 'transparent' : '#fff';
-    tabGained.style.color = isApplied ? '#64748b' : 'var(--brand-primary)';
-    tabGained.style.boxShadow = isApplied ? 'none' : '0 1px 3px rgba(0,0,0,0.08)';
-
-    tabApplied.style.background = isApplied ? '#fff' : 'transparent';
-    tabApplied.style.color = isApplied ? 'var(--brand-primary)' : '#64748b';
-    tabApplied.style.boxShadow = isApplied ? '0 1px 3px rgba(0,0,0,0.08)' : 'none';
-
-    viewGained.style.display = isApplied ? 'none' : 'block';
-    viewApplied.style.display = isApplied ? 'block' : 'none';
+    tabGained.classList.toggle('active', !isApplied);
+    tabApplied.classList.toggle('active', isApplied);
+    viewGained.classList.toggle('u-hidden', isApplied);
+    viewApplied.classList.toggle('u-hidden', !isApplied);
   }
 
   tabGained.addEventListener('click', () => switchWalletView(false));
@@ -76,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let nearestExpReward = null;
 
     if (!rewards || rewards.length === 0) {
-      emptyGainedState.style.display = 'block';
+      emptyGainedState.classList.remove('u-hidden');
       totalPointsEl.textContent = '0';
       activeCountEl.textContent = '0 ACTIVE';
       expiredCountEl.textContent = '0 EXPIRED';
@@ -84,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return { totalActivePoints: 0, nearestExpReward: null };
     }
 
-    emptyGainedState.style.display = 'none';
+    emptyGainedState.classList.add('u-hidden');
     if (gainedBadge) gainedBadge.textContent = rewards.length;
 
     rewards.forEach(r => {
@@ -122,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <span class="header-pill card-pill-mini ${isExp ? 'pill-expired' : 'pill-active'}">${miniExp}</span>
               </div>
             </div>
-            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="8.5 17 13.5 12 8.5 7"></polyline></svg></span></div>
+            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></span></div>
           </div>
         </div>
 
@@ -132,7 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="breakdown-row"><span class="breakdown-label">Order ID:</span><span class="breakdown-val"><code class="val-order-code">#${r.orderId || 'N/A'}</code></span></div>
               <div class="breakdown-row"><span class="breakdown-label">Order Total:</span><span class="breakdown-val breakdown-bold">₹${Number(r.orderAmount || 0).toLocaleString()}</span></div>
               <div class="breakdown-row"><span class="breakdown-label">Reward Rate:</span><span class="breakdown-val font-brand-blue">${r.rewardPercent || 10}%</span></div>
-              <div class="breakdown-row"><span class="breakdown-label">Expiry Date:</span><span class="breakdown-val breakdown-exp-val ${isExp ? 'is-expired' : ''}">${r.expiryDate ? r.expiryDate.replace('T', ' ') : 'No expiry'}</span></div>
             </div>
           </div>
         </div>`;
@@ -151,12 +144,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderAppliedRewards(appliedList) {
     appliedRewardsListContainer.innerHTML = '';
     if (!appliedList || appliedList.length === 0) {
-      emptyAppliedState.style.display = 'block';
+      emptyAppliedState.classList.remove('u-hidden');
       if (appliedBadge) appliedBadge.textContent = '0';
       return;
     }
 
-    emptyAppliedState.style.display = 'none';
+    emptyAppliedState.classList.add('u-hidden');
     if (appliedBadge) appliedBadge.textContent = appliedList.length;
 
     appliedList.forEach(a => {
@@ -172,18 +165,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="reward-card-info">
               <div class="reward-card-title">${a.productName}</div>
               <div class="reward-card-subrow">
-                <span class="card-date-sub">${a.date || '2026-11-16'}</span>
+                <span class="card-date-text">${a.date || '2026-11-16'}</span>
                 <span class="pill-order-ref">#${orderRef}</span>
               </div>
             </div>
-            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="8.5 17 13.5 12 8.5 7"></polyline></svg></span></div>
+            <div class="reward-card-chevron-box"><span class="chevron-icon"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></span></div>
           </div>
         </div>
 
         <div class="reward-card-drawer">
           <div class="reward-drawer-inner reward-drawer-pad">
             <div class="reward-breakdown-card">
-              <div class="breakdown-row"><span class="breakdown-label">Date:</span><span class="breakdown-val">${a.date || 'Today'}</span></div>
               <div class="breakdown-row"><span class="breakdown-label">Product Price:</span><span class="breakdown-val breakdown-bold">₹${Number(a.productPrice).toLocaleString()}</span></div>
               <div class="breakdown-row"><span class="breakdown-label">Rewards Applied:</span><span class="breakdown-val font-brand-blue">-${Number(a.pointsApplied).toLocaleString()} PTS</span></div>
               <div class="breakdown-row breakdown-row-due">
@@ -211,7 +203,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (p.minOrderAmount) maxCap = p.minOrderAmount;
       }
     } catch(e){}
-    const maxRedeem = Math.floor(totalActive * (capPct / 100));
     let nearestHtml = '<span class="policy-nearest-valid">All points currently valid</span>';
     if (nearest && nearest.expiryDate) {
       const expD = new Date(nearest.expiryDate);
@@ -222,7 +213,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     cappingSummaryEl.innerHTML = `
       <div class="glass-policy-header">
         <span class="glass-policy-title">Redemption Policy</span>
-        <span class="glass-redeem-pill">${maxRedeem.toLocaleString()} Pts Usable Now</span>
       </div>
       <div class="glass-policy-rules policy-rules-row">
         <div class="glass-rule-chip chip-cap"><span class="rule-icon">🛡</span><span>Max <strong>${capPct}%</strong> cap / order</span></div>

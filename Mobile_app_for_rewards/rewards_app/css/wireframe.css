@@ -1580,13 +1580,14 @@ input:-webkit-autofill:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 3px;
+  margin-top: 5px;
 }
 
 .reward-pts-grant {
-  font-weight: 800;
-  font-size: 0.8rem;
+  font-weight: 700;
+  font-size: 0.68rem;
   color: #00875a;
+  letter-spacing: -0.1px;
 }
 
 .reward-pts-grant.is-expired-pts {
@@ -1594,20 +1595,32 @@ input:-webkit-autofill:focus {
 }
 
 .reward-pts-applied {
-  font-weight: 800;
-  font-size: 0.8rem;
+  font-weight: 700;
+  font-size: 0.68rem;
   color: #dc2626;
+  letter-spacing: -0.1px;
 }
 
 .card-pill-mini {
-  font-size: 0.61rem;
-  padding: 1px 6px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  letter-spacing: 0.2px;
 }
 
-.card-date-sub {
+.card-customer-sub {
   font-size: 0.72rem;
   font-weight: 600;
+  color: #475569;
+}
+
+.card-date-text,
+.card-date-sub {
+  font-size: 0.62rem;
+  font-weight: 500;
   color: #64748b;
+  letter-spacing: 0.15px;
+  line-height: 1.2;
 }
 
 /* Order Reference Badge - High Polish Pill */
@@ -1718,6 +1731,7 @@ input:-webkit-autofill:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .admin-applied-grid {
@@ -1735,6 +1749,17 @@ input:-webkit-autofill:focus {
 .val-due-paid {
   color: #b91c1c;
   font-weight: 700;
+}
+
+.empty-feed-card {
+  text-align: center;
+  padding: 16px;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Delete Reward Trash Icon Button */
@@ -1779,11 +1804,23 @@ input:-webkit-autofill:focus {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(2px);
   z-index: 999;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 16px;
   animation: fadeIn 0.15s ease-out;
+}
+
+.confirm-modal-backdrop.is-open {
+  display: flex !important;
+}
+
+.u-hidden {
+  display: none !important;
+}
+
+.admin-toast.toast-visible {
+  display: block !important;
 }
 
 .confirm-modal-box {
@@ -1861,6 +1898,66 @@ input:-webkit-autofill:focus {
   font-size: 0.74rem;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+/* Wallet Clean Classes (Zero Inline Styles) */
+.wallet-header-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: center;
+}
+
+.wallet-user-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wallet-user-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.wallet-user-badge {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+}
+
+.wallet-user-phone {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+  font-weight: 600;
+}
+
+.wallet-pills-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.policy-strip-wallet {
+  text-align: left;
+  margin-top: 10px;
+}
+
+.card-header-spaced {
+  margin-bottom: 8px;
+}
+
+.empty-wallet-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.wf-meta-spaced {
+  margin-top: 4px;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
 }
 
 

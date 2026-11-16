@@ -15,15 +15,15 @@
     </header>
 
     <div class="mobile-header">
-      <div style="display: flex; flex-direction: column; text-align: left; justify-content: center;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <strong id="customerName" style="font-size: 0.92rem; font-weight: 800; color: var(--slate-900);">Rahul Sharma</strong>
-          <span class="user-balance-pill" style="font-size: 0.62rem; padding: 1px 6px;">
+      <div class="wallet-header-info">
+        <div class="wallet-user-row">
+          <strong id="customerName" class="wallet-user-name">Rahul Sharma</strong>
+          <span class="user-balance-pill wallet-user-badge">
             <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Verified
           </span>
         </div>
-        <small id="customerPhone" style="font-size: 0.72rem; color: var(--slate-500); font-weight: 600;">+91 9876543210</small>
+        <small id="customerPhone" class="wallet-user-phone">+91 9876543210</small>
       </div>
       <button class="header-btn" id="btnLogout">
         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -34,15 +34,15 @@
     <main class="mobile-viewport">
       <!-- Hero Points Balance Box -->
       <div class="wallet-hero-box">
-        <span class="wf-label" style="margin-bottom: 0;">Total Available Reward Points</span>
+        <span class="wf-label mb-0">Total Available Reward Points</span>
         <div class="wallet-hero-points" id="totalPoints">0</div>
-        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 8px;">
+        <div class="wallet-pills-row">
           <span class="header-pill pill-active" id="activeCount">0 Active</span>
           <span class="header-pill pill-expired" id="expiredCount">0 Expired</span>
         </div>
 
         <!-- Redemption Policy with Nearest Expiring Points -->
-        <div class="policy-strip" id="cappingSummary" style="text-align: left; margin-top: 10px;">
+        <div class="policy-strip policy-strip-wallet" id="cappingSummary">
           Loading rewards &amp; redemption policy...
         </div>
       </div>
@@ -59,24 +59,20 @@
 
       <!-- LIST SCREEN 1: GAINED REWARDS (Collapsible View with Points & Expiry) -->
       <section id="viewGainedRewards" class="wallet-view-section">
-        <div class="wf-card-header" style="margin-bottom: 8px;">
-          <span class="wf-title-sm">Rewards Granted to You</span>
-          <small class="wf-meta">Tap to expand details</small>
-        </div>
         <div id="rewardsListContainer"></div>
-        <div id="emptyGainedState" class="wf-card dashed" style="display: none; text-align: center; padding: 20px;">
+        <div id="emptyGainedState" class="wf-card dashed empty-wallet-card u-hidden">
           <strong class="wf-title-sm">No Rewards in Wallet</strong>
-          <p class="wf-meta" style="margin-top: 4px;">Earned rewards from orders will appear here.</p>
+          <p class="wf-meta wf-meta-spaced">Earned rewards from orders will appear here.</p>
         </div>
       </section>
 
       <!-- LIST SCREEN 2: APPLIED REWARDS ON PRODUCTS (Separate View) -->
-      <section id="viewAppliedRewards" class="wallet-view-section" style="display: none;">
-        <div class="wf-card-header" style="margin-bottom: 8px;">
+      <section id="viewAppliedRewards" class="wallet-view-section u-hidden">
+        <div class="wf-card-header card-header-spaced">
           <span class="wf-title-sm">Applied Rewards on Products</span>
         </div>
         <div id="appliedRewardsListContainer"></div>
-        <div id="emptyAppliedState" class="wf-card dashed" style="display: none; text-align: center; padding: 20px;">
+        <div id="emptyAppliedState" class="wf-card dashed empty-wallet-card u-hidden">
           <strong class="wf-title-sm">No Applied Rewards Yet</strong>
         </div>
       </section>

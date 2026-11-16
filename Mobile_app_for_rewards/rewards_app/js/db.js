@@ -53,10 +53,11 @@ class UnifiedDatabaseService {
       if (users.length === 0) {
         await this.registerUser({ name: 'Rahul Sharma', phone: '9876543210', password: 'password123' });
         const svg = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%23e2e8f0"/><text x="40" y="45" font-size="10" font-weight="bold" fill="%23475569" text-anchor="middle">ITEM</text></svg>';
-        // Seed 60,000 active points total for Rahul Sharma (nearest expiring: Dec 31, 2026)
-        await this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId: 'ORD-5011', productName: 'iPhone 16 Pro Max 256GB', orderDate: '2026-10-15', orderAmount: 150000, rewardPercent: 10, rewardPoints: 15000, expiryDate: '2026-12-31T23:59', cappingPercent: 50, minOrderAmount: 10000, productImage: svg });
-        await this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId: 'ORD-5012', productName: 'MacBook Air M3 Laptop', orderDate: '2026-11-01', orderAmount: 120000, rewardPercent: 10, rewardPoints: 12000, expiryDate: '2027-01-31T23:59', cappingPercent: 50, minOrderAmount: 10000, productImage: svg });
-        await this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId: 'ORD-5013', productName: 'Smart Home Automation Suite', orderDate: '2026-11-10', orderAmount: 330000, rewardPercent: 10, rewardPoints: 33000, expiryDate: '2027-03-31T23:59', cappingPercent: 50, minOrderAmount: 10000, productImage: svg });
+        const seedR = (orderId, productName, orderDate, orderAmount, rewardPoints, expiryDate) =>
+          this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId, productName, orderDate, orderAmount, rewardPercent: 10, rewardPoints, expiryDate, cappingPercent: 50, minOrderAmount: 10000, productImage: svg });
+        await seedR('ORD-5011', 'iPhone 16 Pro Max 256GB', '2026-10-15', 150000, 15000, '2026-12-31T23:59');
+        await seedR('ORD-5012', 'MacBook Air M3 Laptop', '2026-11-01', 120000, 12000, '2027-01-31T23:59');
+        await seedR('ORD-5013', 'Smart Home Automation Suite', '2026-11-10', 330000, 33000, '2027-03-31T23:59');
       }
     } catch (e) {}
   }
@@ -102,16 +103,8 @@ class UnifiedDatabaseService {
               this.registerUser(newUser).then(created => { this.setCurrentUser(created); res(created); });
             }
           };
-          req.onerror = () => {
-            const fallback = { name: 'Rahul Sharma', phone: p };
-            this.setCurrentUser(fallback);
-            res(fallback);
-          };
-        } catch(err) {
-          const fallback = { name: 'Rahul Sharma', phone: p };
-          this.setCurrentUser(fallback);
-          res(fallback);
-        }
+          req.onerror = () => { const fb = { name: 'Rahul Sharma', phone: p }; this.setCurrentUser(fb); res(fb); };
+        } catch(err) { const fb = { name: 'Rahul Sharma', phone: p }; this.setCurrentUser(fb); res(fb); }
       });
     }
     const local = JSON.parse(localStorage.getItem('wf_local_users') || '[]');
@@ -277,8 +270,7 @@ class UnifiedDatabaseService {
         req.onerror = () => rej(req.error);
       });
     }
-    return JSON.parse(localStorage.getItem('wf_applied_rewards') || '[]')
-      .filter(r => this.cleanPhone(r.customerPhone) === p).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return JSON.parse(localStorage.getItem('wf_applied_rewards') || '[]').filter(r => this.cleanPhone(r.customerPhone) === p).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
   async getAllAppliedRewards() {
@@ -294,14 +286,10 @@ class UnifiedDatabaseService {
   }
 
   setCurrentUser(u) { localStorage.setItem('active_customer', JSON.stringify({ name: u.name, phone: this.cleanPhone(u.phone) })); }
-
   getCurrentUser() {
-    try {
-      const s = localStorage.getItem('active_customer');
-      return s ? JSON.parse(s) : { name: 'Rahul Sharma', phone: '9876543210' };
-    } catch (e) { return { name: 'Rahul Sharma', phone: '9876543210' }; }
+    try { const s = localStorage.getItem('active_customer'); return s ? JSON.parse(s) : { name: 'Rahul Sharma', phone: '9876543210' }; }
+    catch (e) { return { name: 'Rahul Sharma', phone: '9876543210' }; }
   }
-
   logoutUser() { localStorage.removeItem('active_customer'); }
 }
 
