@@ -827,77 +827,112 @@ input:-webkit-autofill:focus {
   margin-top: 2px;
 }
 
-/* Wallet Hero Box (Vibrant Presentation Showcase Card) */
+/* Wallet Hero Box (Glass Screen Showcase Card) */
 .wallet-hero-box {
-  background: var(--gold-hero-gradient);
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0) 100%),
+    linear-gradient(145deg, #18153b 0%, #2a236d 50%, #3e329c 100%);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
   color: #ffffff;
-  padding: 20px 16px;
+  padding: 18px 14px 14px 14px;
   text-align: center;
-  border-radius: var(--radius-xl);
+  border-radius: 20px;
   margin-bottom: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 14px 30px -6px rgba(67, 56, 202, 0.45), 0 6px 14px -3px rgba(67, 56, 202, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 16px 36px -8px rgba(24, 21, 59, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.45);
   position: relative;
   overflow: hidden;
 }
 
-/* Ambient glowing orbs inside wallet hero */
+/* Ambient glowing orbs inside the glass card */
 .wallet-hero-box::before {
   content: '';
   position: absolute;
-  top: -35px;
-  right: -35px;
-  width: 130px;
-  height: 130px;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(251, 191, 36, 0) 70%);
+  top: -40px;
+  right: -30px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(251, 191, 36, 0) 70%);
   border-radius: 50%;
   pointer-events: none;
+  filter: blur(8px);
 }
 
 .wallet-hero-box::after {
   content: '';
   position: absolute;
-  bottom: -40px;
-  left: -20px;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0) 70%);
+  bottom: -45px;
+  left: -25px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.5) 0%, rgba(99, 102, 241, 0) 70%);
   border-radius: 50%;
   pointer-events: none;
+  filter: blur(10px);
 }
 
 .wallet-hero-box .wf-label {
-  color: var(--brand-primary-border);
-  letter-spacing: 0.8px;
-  font-size: 0.7rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.9px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  position: relative;
+  z-index: 1;
 }
 
 .wallet-hero-points {
-  font-size: 2.6rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  letter-spacing: -1px;
-  margin: 6px 0;
-  color: var(--gold-400);
-  text-shadow: 0 2px 14px rgba(245, 158, 11, 0.4);
-  font-family: var(--font-wireframe);
+  letter-spacing: -0.5px;
+  margin: 4px 0 6px 0;
+  color: #fbbf24;
+  text-shadow: 0 2px 16px rgba(251, 191, 36, 0.5), 0 0 35px rgba(251, 191, 36, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 .wallet-hero-points::before {
   content: '★';
   font-size: 1.8rem;
-  color: var(--gold-400);
-  opacity: 0.9;
+  color: #f59e0b;
+  opacity: 0.95;
 }
 
+/* Frosted glass pills */
 .wallet-hero-box .header-pill {
-  border-radius: var(--radius-pill);
-  font-size: 0.68rem;
-  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 0.66rem;
+  padding: 3px 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 1;
+}
+
+.wallet-hero-box .header-pill.pill-active {
+  background: rgba(16, 185, 129, 0.22);
+  border: 1px solid rgba(52, 211, 153, 0.55);
+  color: #6ee7b7;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.wallet-hero-box .header-pill.pill-expired {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #cbd5e1;
 }
 
 .user-balance-pill {
