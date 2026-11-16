@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Capping summary
     const maxRedeemableSample = Math.floor((totalActivePoints * (defaultCappingPercent / 100)));
     cappingSummaryEl.innerHTML = `
-      <strong>Redemption Policy (Admin Setting):</strong><br>
+      <strong>Redemption Policy:</strong><br>
       • Maximum <strong>${defaultCappingPercent}%</strong> points can be used per order.<br>
       • Applicable on product purchases of min <strong>₹${Number(defaultMinOrder).toLocaleString()}</strong>.<br>
       • Available to redeem now: <strong>${maxRedeemableSample.toLocaleString()} Pts</strong>.
