@@ -377,14 +377,41 @@ body::before {
 }
 
 .tab-icon {
-  font-size: 1.15rem;
-  line-height: 1;
-  transition: transform 0.18s ease;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+  transition: transform 0.18s ease, color 0.18s ease;
+  color: var(--slate-500);
+}
+
+.tab-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
 }
 
 .nav-tab-item.active .tab-icon {
   transform: translateY(-1px) scale(1.1);
   color: var(--brand-primary);
+}
+
+.nav-tab-item.active .tab-icon svg {
+  stroke: var(--brand-primary);
+}
+
+.inline-svg {
+  display: inline-block;
+  vertical-align: -0.15em;
+  stroke: currentColor;
+  fill: none;
 }
 
 /* Cards & Surfaces */

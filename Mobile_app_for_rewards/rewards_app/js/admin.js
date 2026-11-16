@@ -126,23 +126,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Lock protection state on Grant form - strictly locked to Settings
   function applyGrantFormLockState(settings) {
     if (rewardPercentInput) {
-      rewardPercentInput.disabled = true;
       rewardPercentInput.readOnly = true;
     }
     if (rewardPointsInput) {
-      rewardPointsInput.disabled = true;
       rewardPointsInput.readOnly = true;
     }
     if (expiryDateInput) {
-      expiryDateInput.disabled = true;
       expiryDateInput.readOnly = true;
     }
     if (cappingPercentInput) {
-      cappingPercentInput.disabled = true;
       cappingPercentInput.readOnly = true;
     }
     if (minOrderAmountInput) {
-      minOrderAmountInput.disabled = true;
       minOrderAmountInput.readOnly = true;
     }
   }
@@ -179,13 +174,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       p.classList.toggle('active', parseInt(p.dataset.cap) === settings.cappingPercent);
     });
 
-    // 2. Update Grant Form Banner (Clearly shows values set by Settings)
-    const bannerRate = document.getElementById('grantBannerRate');
-    const bannerExpiry = document.getElementById('grantBannerExpiry');
-    const bannerCapping = document.getElementById('grantBannerCapping');
-    if (bannerRate) bannerRate.textContent = `★ Rate: ${settings.rewardPercent}%`;
-    if (bannerExpiry) bannerExpiry.textContent = `⏳ Expiry: ${settings.expiryMonths} Month${settings.expiryMonths > 1 ? 's' : ''}`;
-    if (bannerCapping) bannerCapping.textContent = `🛡 Cap: ${settings.cappingPercent}% (Min ₹${Number(settings.minOrderAmount).toLocaleString()})`;
+    // 2. Update Grant Form Badges
+    const pointsGivenRateBadge = document.getElementById('pointsGivenRateBadge');
+    if (pointsGivenRateBadge) {
+      pointsGivenRateBadge.textContent = `${settings.rewardPercent}% Policy`;
+    }
 
     // 3. Populate Grant Form Fields with Fixed Settings Values
     if (rewardPercentInput) rewardPercentInput.value = settings.rewardPercent;
@@ -211,14 +204,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     updatePointsFromPercent();
   }
 
-  // Compact auto-calculation for Points Given
+  // Compact auto-calculation & dynamic visibility for Points Given
   function updatePointsFromPercent() {
     const amount = parseFloat(orderAmountInput.value) || 0;
-    const percent = parseFloat(rewardPercentInput.value) || 0;
+    const percent = parseFloat(rewardPercentInput ? rewardPercentInput.value : 10) || 10;
+    const pointsGivenContainer = document.getElementById('pointsGivenContainer');
 
     if (amount > 0 && percent >= 0) {
       const points = Math.round((amount * percent) / 100);
-      rewardPointsInput.value = points;
+      if (rewardPointsInput) {
+        rewardPointsInput.value = points;
+      }
+      if (pointsGivenContainer) {
+        pointsGivenContainer.style.display = 'block';
+      }
+    } else {
+      if (rewardPointsInput) {
+        rewardPointsInput.value = '';
+      }
+      if (pointsGivenContainer) {
+        pointsGivenContainer.style.display = 'none';
+      }
     }
   }
 
@@ -474,7 +480,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
               <div class="reward-card-item">
                 <div class="thumb-box">
-                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<span>🎁 ITEM</span>'}
+                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'}
                 </div>
                 <div style="font-size: 0.8rem; line-height: 1.4;">
                   <strong style="color: var(--slate-900);">${item.productName}</strong>
@@ -490,8 +496,9 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
 
               <div style="margin-top: 8px; text-align: right;">
-                <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm btn-delete-reward" data-id="${item.id}" style="color: var(--rose-600); border-color: var(--rose-200); background: var(--rose-50);">
-                  ✕ Delete
+                <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm btn-delete-reward" data-id="${item.id}" style="color: var(--rose-600); border-color: var(--rose-200); background: var(--rose-50); display: inline-flex; align-items: center; gap: 4px;">
+                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  Delete
                 </button>
               </div>
             `;

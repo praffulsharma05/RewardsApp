@@ -19,9 +19,14 @@
 
     <!-- Top Action Bar -->
     <div class="mobile-header">
-      <span class="header-pill">&#9881; ADMIN</span>
+      <span class="header-pill">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -1px; margin-right: 3px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        ADMIN
+      </span>
       <span class="header-title">Admin Panel</span>
-      <button class="header-btn" id="btn-admin-refresh" title="Refresh DB">&#8635;</button>
+      <button class="header-btn" id="btn-admin-refresh" title="Refresh DB">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -1px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
     </div>
 
     <!-- Wireframe Toast Notification -->
@@ -38,7 +43,8 @@
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span class="wf-title-sm" style="font-size: 0.84rem;">Grant Reward Points</span>
             <button type="button" id="btnSampleData" class="wf-btn wf-btn-sm wf-btn-secondary" style="padding: 3px 8px; font-size: 0.68rem; width: auto; white-space: nowrap;">
-              ⚡ Sample (15k)
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" stroke="none" style="display: inline-block; vertical-align: -1px; margin-right: 2px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Sample (15k)
             </button>
           </div>
         </div>
@@ -84,41 +90,22 @@
               </div>
             </div>
 
-            <!-- 3. Reward & Policy Parameters -->
-            <div class="form-section-title">3. Reward Policy</div>
-
-            <div class="wf-row-2" style="margin-bottom: 4px;">
-              <div class="wf-form-group" style="flex: 0.7; margin-bottom: 0;">
-                <label class="wf-label" for="rewardPercent">Rate %</label>
-                <input type="number" id="rewardPercent" name="rewardPercent" class="wf-input wf-input-compact locked-input" value="10" min="0" max="100" step="0.5" disabled readonly>
+            <!-- Points Given * (Only displays dynamically when Amount (₹) * is entered) -->
+            <div id="pointsGivenContainer" class="wf-form-group" style="display: none; margin-bottom: 4px; margin-top: 4px; padding: 6px 8px; background: #fafafa; border: 1.5px dashed #111; border-radius: 4px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <label class="wf-label" for="rewardPoints" id="rewardPointsLabel" style="margin-bottom: 0; font-weight: 700; color: #111;">
+                  Points Given *
+                </label>
+                <span class="header-pill" id="pointsGivenRateBadge" style="font-size: 0.62rem; padding: 1px 5px;">10% Policy</span>
               </div>
-              <div class="wf-form-group" style="flex: 1.3; margin-bottom: 0;">
-                <label class="wf-label" for="rewardPoints" id="rewardPointsLabel">Points Given *</label>
-                <input type="number" id="rewardPoints" name="rewardPoints" class="wf-input wf-input-compact locked-input" placeholder="0" min="1" required disabled readonly style="font-weight: 800;">
-              </div>
-            </div>
-
-            <div class="wf-form-group" style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px;">
-                <label class="wf-label" for="expiryDate" style="margin-bottom: 0;">Expiry Date &amp; Time *</label>
-                <small class="wf-meta" id="grantExpiryMeta" style="margin: 0; font-size: 0.62rem;">Auto-set to 2 Months</small>
-              </div>
-              <input type="datetime-local" id="expiryDate" name="expiryDate" class="wf-input wf-input-compact locked-input" required disabled readonly>
-            </div>
-
-            <div class="wf-row-2" style="margin-bottom: 4px;">
-              <div class="wf-form-group" style="flex: 1; margin-bottom: 0;">
-                <label class="wf-label" for="cappingPercent">Cap %</label>
-                <input type="number" id="cappingPercent" name="cappingPercent" class="wf-input wf-input-compact locked-input" value="50" min="1" max="100" required disabled readonly>
-              </div>
-              <div class="wf-form-group" style="flex: 1; margin-bottom: 0;">
-                <label class="wf-label" for="minOrderAmount">Min Order (₹)</label>
-                <input type="number" id="minOrderAmount" name="minOrderAmount" class="wf-input wf-input-compact locked-input" value="10000" min="0" disabled readonly>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <input type="number" id="rewardPoints" name="rewardPoints" class="wf-input wf-input-compact locked-input" placeholder="0" min="1" readonly style="font-weight: 800; font-size: 0.95rem; flex: 1; background: #fff;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #333; white-space: nowrap;">PTS</span>
               </div>
             </div>
 
-            <!-- 4. Slim Photo Upload Row -->
-            <div class="wf-form-group" style="margin-bottom: 0; margin-top: 4px;">
+            <!-- Photo Upload -->
+            <div class="wf-form-group" style="margin-bottom: 0; margin-top: 6px;">
               <label class="wf-label" for="productPhoto">Product Photo / Receipt (Optional)</label>
               <div class="compact-photo-row">
                 <input type="file" id="productPhoto" name="productPhoto" class="wf-input wf-input-compact" accept="image/*" style="padding: 2px 4px; font-size: 0.7rem; flex: 1;">
@@ -126,6 +113,14 @@
                   <span>NO PHOTO</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Hidden Policy Parameters (Retained for DB persistence & configured globally via Settings) -->
+            <div id="policyHiddenParams" style="display: none;" aria-hidden="true">
+              <input type="number" id="rewardPercent" name="rewardPercent" value="10">
+              <input type="datetime-local" id="expiryDate" name="expiryDate">
+              <input type="number" id="cappingPercent" name="cappingPercent" value="50">
+              <input type="number" id="minOrderAmount" name="minOrderAmount" value="10000">
             </div>
 
           </div>
@@ -155,7 +150,10 @@
       <section class="admin-screen" id="screen-settings">
         <div class="wf-card highlight">
           <div class="wf-card-header">
-            <span class="wf-title-sm">&#9881; Default Policy Settings</span>
+            <span class="wf-title-sm">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Default Policy Settings
+            </span>
             <span class="header-pill">GLOBAL CONFIG</span>
           </div>
           <p class="wf-meta">
@@ -239,7 +237,8 @@
           </div>
 
           <button type="submit" class="wf-btn" style="margin-bottom: 12px;">
-            &#128190; Save &amp; Apply All Settings
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -2px; margin-right: 4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save &amp; Apply All Settings
           </button>
         </form>
       </section>
@@ -283,19 +282,27 @@
     <!-- Bottom Tab Navigation (Admin Only) -->
     <nav class="mobile-bottom-nav">
       <button type="button" class="nav-tab-item active" data-screen="screen-grant">
-        <span class="tab-icon">&#10010;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </span>
         <span>Grant</span>
       </button>
       <button type="button" class="nav-tab-item" data-screen="screen-issued">
-        <span class="tab-icon">&#128221;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </span>
         <span>Issued</span>
       </button>
       <button type="button" class="nav-tab-item" data-screen="screen-settings">
-        <span class="tab-icon">&#9881;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
         <span>Settings</span>
       </button>
       <button type="button" class="nav-tab-item" data-screen="screen-overview">
-        <span class="tab-icon">&#128202;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        </span>
         <span>Overview</span>
       </button>
     </nav>
