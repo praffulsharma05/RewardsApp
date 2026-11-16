@@ -471,35 +471,40 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="reward-card-top">
                 <div>
                   <span class="reward-card-points">+${Number(item.rewardPoints).toLocaleString()} PTS</span>
-                  <div class="wf-meta" style="font-weight: 600;">${item.customerName} (${item.customerPhone})</div>
+                  <div class="reward-card-meta">${item.customerName} (${item.customerPhone})</div>
                 </div>
-                <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
-                  ${isExpired ? 'EXPIRED' : 'ACTIVE'}
-                </span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
+                    ${isExpired ? 'EXPIRED' : 'ACTIVE'}
+                  </span>
+                  <button type="button" class="btn-delete-reward" data-id="${item.id}" title="Delete Reward" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: var(--slate-400); display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s ease;" onmouseover="this.style.color='var(--rose-600)'" onmouseout="this.style.color='var(--slate-400)'">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
               </div>
 
               <div class="reward-card-item">
                 <div class="thumb-box">
-                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'}
+                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'}
                 </div>
-                <div style="font-size: 0.8rem; line-height: 1.4;">
-                  <strong style="color: var(--slate-900);">${item.productName}</strong>
-                  <div class="wf-meta">Order #${item.orderId} | ₹${Number(item.orderAmount).toLocaleString()}</div>
-                  <div class="wf-meta">Date: ${item.orderDate || 'N/A'}</div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; font-size: 0.82rem; color: var(--slate-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${item.productName}
+                  </div>
+                  <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 1px;">
+                    #${item.orderId} • ₹${Number(item.orderAmount).toLocaleString()} • ${item.orderDate || 'N/A'}
+                  </div>
                 </div>
               </div>
 
               <div class="policy-strip">
-                <div><strong>Capping Rule:</strong> Max ${item.cappingPercent || 50}% points redeemable</div>
-                ${item.minOrderAmount ? `<div><strong>Min Order:</strong> Valid on orders above ₹${Number(item.minOrderAmount).toLocaleString()}</div>` : ''}
-                <div style="margin-top: 3px; font-weight: 700; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">Expiry: ${expText}</div>
-              </div>
-
-              <div style="margin-top: 8px; text-align: right;">
-                <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm btn-delete-reward" data-id="${item.id}" style="color: var(--rose-600); border-color: var(--rose-200); background: var(--rose-50); display: inline-flex; align-items: center; gap: 4px;">
-                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  Delete
-                </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2px;">
+                  <span>🛡 <strong>Cap:</strong> Max ${item.cappingPercent || 50}% redeemable</span>
+                  ${item.minOrderAmount ? `<span>• Min ₹${Number(item.minOrderAmount).toLocaleString()}</span>` : ''}
+                </div>
+                <div style="margin-top: 2px; font-weight: 700; font-size: 0.68rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
+                  ⏳ Expiry: ${expText}
+                </div>
               </div>
             `;
             adminRewardsList.appendChild(card);
@@ -507,9 +512,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // Delete buttons
           document.querySelectorAll('.btn-delete-reward').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', async () => {
               if (confirm('Delete this reward entry?')) {
-                await window.rewardsDB.deleteReward(e.target.dataset.id);
+                await window.rewardsDB.deleteReward(btn.dataset.id);
                 showToast('Reward record deleted');
                 await loadRewardsAndStats();
               }

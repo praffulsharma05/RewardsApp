@@ -133,14 +133,6 @@
 
       <!-- SCREEN 2: ISSUED REWARDS FEED -->
       <section class="admin-screen" id="screen-issued">
-        <div class="wf-card highlight">
-          <div class="wf-card-header">
-            <span class="wf-title-sm">Issued Rewards Registry</span>
-            <span class="header-pill">IndexedDB</span>
-          </div>
-          <p class="wf-meta">List of all reward points granted to customers with expiry dates and capping rules.</p>
-        </div>
-
         <div id="adminRewardsList">
           <!-- Dynamically populated reward cards -->
         </div>
@@ -148,19 +140,6 @@
 
       <!-- SCREEN 3: GLOBAL POLICY SETTINGS -->
       <section class="admin-screen" id="screen-settings">
-        <div class="wf-card highlight">
-          <div class="wf-card-header">
-            <span class="wf-title-sm">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              Default Policy Settings
-            </span>
-            <span class="header-pill">GLOBAL CONFIG</span>
-          </div>
-          <p class="wf-meta">
-            Configure default Reward %, Expiry duration, and Capping rules once. Fixed values apply directly to the Grant page to prevent accidental errors.
-          </p>
-        </div>
-
         <form id="adminSettingsForm">
           <!-- 1. Reward Rate % Setting -->
           <div class="wf-card">
@@ -245,14 +224,6 @@
 
       <!-- SCREEN 4: SYSTEM OVERVIEW -->
       <section class="admin-screen" id="screen-overview">
-        <div class="wf-card highlight">
-          <div class="wf-card-header">
-            <span class="wf-title-sm">System Overview</span>
-            <span class="header-pill">RewardsDB</span>
-          </div>
-          <p class="wf-meta">Connected to local IndexedDB. All reward updates immediately reflect on the user's mobile wallet.</p>
-        </div>
-
         <div class="stat-grid-2">
           <div class="stat-box">
             <span class="stat-number" id="stat-issued-points">0</span>
@@ -270,11 +241,6 @@
             <span class="stat-number">50%</span>
             <span class="stat-label">Default Cap</span>
           </div>
-        </div>
-
-        <div class="wf-card">
-          <strong class="wf-title-sm" style="display: block; margin-bottom: 6px;">Database &amp; Storage Info:</strong>
-          <p class="wf-meta">Points granted in the Admin Panel immediately save to the IndexedDB database and are visible in customer wallets.</p>
         </div>
       </section>
     </main>

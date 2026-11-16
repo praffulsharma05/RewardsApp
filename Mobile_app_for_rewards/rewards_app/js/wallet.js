@@ -116,18 +116,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         <div class="reward-card-item">
           <div class="thumb-box">${imgHtml}</div>
-          <div style="font-size: 0.8rem; line-height: 1.4;">
-            <strong style="color: var(--slate-900);">${reward.productName || 'Order Item'}</strong>
-            <div style="font-size: 0.72rem; color: var(--slate-500);">Order ID: #${reward.orderId || 'N/A'}</div>
-            <div style="font-size: 0.72rem; color: var(--slate-500);">Date: ${reward.orderDate || 'N/A'}</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 700; font-size: 0.82rem; color: var(--slate-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${reward.productName || 'Order Item'}
+            </div>
+            <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 1px;">
+              #${reward.orderId || 'N/A'} • ${reward.orderDate || 'N/A'}
+            </div>
           </div>
         </div>
 
         <div class="policy-strip">
-          <div><strong>Capping Rule:</strong> Max ${reward.cappingPercent || 50}% points redeemable per order</div>
-          ${reward.minOrderAmount ? `<div><strong>Applicable On:</strong> Orders above ₹${Number(reward.minOrderAmount).toLocaleString()}</div>` : ''}
-          <div style="margin-top: 4px; font-weight: 700; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
-            ${expiryDisplay}
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2px;">
+            <span>🛡 <strong>Cap:</strong> Max ${reward.cappingPercent || 50}% redeemable</span>
+            ${reward.minOrderAmount ? `<span>• Min ₹${Number(reward.minOrderAmount).toLocaleString()}</span>` : ''}
+          </div>
+          <div style="margin-top: 2px; font-weight: 700; font-size: 0.68rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
+            ⏳ ${expiryDisplay}
           </div>
         </div>
       `;
