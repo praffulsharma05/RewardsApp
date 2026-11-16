@@ -82,8 +82,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!rewards || rewards.length === 0) {
       emptyState.style.display = 'block';
       totalPointsEl.textContent = '0';
-      activeCountEl.textContent = '0 Active';
-      expiredCountEl.textContent = '0 Expired';
+      activeCountEl.textContent = '0 ACTIVE';
+      expiredCountEl.textContent = '0 EXPIRED';
       cappingSummaryEl.textContent = 'No rewards allocated yet by Admin.';
       return;
     }
@@ -175,14 +175,20 @@ document.addEventListener('DOMContentLoaded', async () => {
               </span>
             </div>
 
-            <!-- Capping & Expiry Policy Strip -->
-            <div class="policy-strip" style="margin-top: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-                <span>🛡 <strong>Capping Rule:</strong> Max ${cappingPercent}% redeemable</span>
-                ${minOrder ? `<span>🛒 <strong>Min Order:</strong> ₹${minOrder.toLocaleString()}</span>` : ''}
+            <!-- Capping & Expiry Unified Policy Box -->
+            <div class="drawer-policy-box ${isExpired ? 'is-expired' : ''}">
+              <div class="policy-row">
+                <span class="policy-icon">🛡</span>
+                <span><strong>Capping Rule:</strong> Max ${cappingPercent}% redeemable</span>
               </div>
-              <div style="margin-top: 3px; font-weight: 700; font-size: 0.69rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
-                ⏳ ${expiryDisplay}
+              ${minOrder ? `
+              <div class="policy-row">
+                <span class="policy-icon">🛒</span>
+                <span><strong>Min Order:</strong> ₹${minOrder.toLocaleString()}</span>
+              </div>` : ''}
+              <div class="policy-row policy-validity">
+                <span class="policy-icon">⏳</span>
+                <span><strong>Valid Until:</strong> ${expiryDisplay}</span>
               </div>
             </div>
 
@@ -191,28 +197,28 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="breakdown-row">
                 <span class="breakdown-label">Order Reference:</span>
                 <span class="breakdown-val">
-                  <code>#${reward.orderId || 'N/A'}</code>
+                  <code class="val-order-code">#${reward.orderId || 'N/A'}</code>
                   <button type="button" class="btn-copy-order" data-order="${reward.orderId || ''}" title="Copy Order ID">
-                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     <span class="copy-text">Copy</span>
                   </button>
                 </span>
               </div>
               <div class="breakdown-row">
                 <span class="breakdown-label">Order Date:</span>
-                <span class="breakdown-val">${reward.orderDate || 'N/A'}</span>
+                <span class="breakdown-val breakdown-bold">${reward.orderDate || 'N/A'}</span>
               </div>
               <div class="breakdown-row">
                 <span class="breakdown-label">Order Total Amount:</span>
-                <span class="breakdown-val">₹${orderAmount.toLocaleString()}</span>
+                <span class="breakdown-val breakdown-bold">₹${orderAmount.toLocaleString()}</span>
               </div>
               <div class="breakdown-row">
                 <span class="breakdown-label">Reward Calculation:</span>
-                <span class="breakdown-val font-brand">${reward.rewardPercent || 0}% of ₹${orderAmount.toLocaleString()} = <strong>${points.toLocaleString()} PTS</strong></span>
+                <span class="breakdown-val font-brand-blue">${reward.rewardPercent || 0}% of ₹${orderAmount.toLocaleString()} = ${points.toLocaleString()} PTS</span>
               </div>
               <div class="breakdown-row">
                 <span class="breakdown-label">Max Usable Discount:</span>
-                <span class="breakdown-val font-emerald">Save up to ₹${maxDiscountValue.toLocaleString()} (${cappingPercent}% Cap)</span>
+                <span class="breakdown-val font-emerald-save">Save up to ₹${maxDiscountValue.toLocaleString()} (${cappingPercent}% Cap)</span>
               </div>
             </div>
 
@@ -283,8 +289,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     totalPointsEl.textContent = totalActivePoints.toLocaleString();
-    activeCountEl.textContent = `${activeRewardsCount} Active`;
-    expiredCountEl.textContent = `${expiredRewardsCount} Expired`;
+    activeCountEl.textContent = `${activeRewardsCount} ACTIVE`;
+    expiredCountEl.textContent = `${expiredRewardsCount} EXPIRED`;
 
     // Optimized Glass Capping & Redemption Summary
     const maxRedeemableSample = Math.floor((totalActivePoints * (defaultCappingPercent / 100)));
@@ -297,11 +303,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         </span>
       </div>
       <div class="glass-policy-rules">
-        <div class="glass-rule-chip">
+        <div class="glass-rule-chip chip-cap">
           <span class="rule-icon">🛡</span>
           <span>Max <strong>${defaultCappingPercent}%</strong> cap / order</span>
         </div>
-        <div class="glass-rule-chip">
+        <div class="glass-rule-chip chip-min">
           <span class="rule-icon">🛒</span>
           <span>Min order <strong>₹${Number(defaultMinOrder).toLocaleString()}</strong></span>
         </div>

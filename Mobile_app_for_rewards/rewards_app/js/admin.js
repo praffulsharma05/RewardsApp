@@ -558,36 +558,45 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </span>
                   </div>
 
-                  <div class="policy-strip" style="margin-top: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-                      <span>🛡 <strong>Capping Rule:</strong> Max ${capping}% redeemable</span>
-                      ${minOrd ? `<span>🛒 <strong>Min Order:</strong> ₹${minOrd.toLocaleString()}</span>` : ''}
+                  <!-- Capping & Expiry Unified Policy Box -->
+                  <div class="drawer-policy-box ${isExpired ? 'is-expired' : ''}">
+                    <div class="policy-row">
+                      <span class="policy-icon">🛡</span>
+                      <span><strong>Capping Rule:</strong> Max ${capping}% redeemable</span>
                     </div>
-                    <div style="margin-top: 2px; font-weight: 700; font-size: 0.68rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
-                      ⏳ Expiry: ${expText}
+                    ${minOrd ? `
+                    <div class="policy-row">
+                      <span class="policy-icon">🛒</span>
+                      <span><strong>Min Order:</strong> ₹${minOrd.toLocaleString()}</span>
+                    </div>` : ''}
+                    <div class="policy-row policy-validity">
+                      <span class="policy-icon">⏳</span>
+                      <span><strong>Valid Until:</strong> ${expText}</span>
                     </div>
                   </div>
 
                   <div class="reward-breakdown-card">
                     <div class="breakdown-row">
                       <span class="breakdown-label">Customer:</span>
-                      <span class="breakdown-val">${item.customerName} (+91 ${item.customerPhone})</span>
+                      <span class="breakdown-val breakdown-bold">${item.customerName} (+91 ${item.customerPhone})</span>
                     </div>
                     <div class="breakdown-row">
                       <span class="breakdown-label">Order Reference:</span>
-                      <span class="breakdown-val"><code>#${item.orderId}</code></span>
+                      <span class="breakdown-val">
+                        <code class="val-order-code">#${item.orderId}</code>
+                      </span>
                     </div>
                     <div class="breakdown-row">
                       <span class="breakdown-label">Order Total Amount:</span>
-                      <span class="breakdown-val">₹${ordAmt.toLocaleString()}</span>
+                      <span class="breakdown-val breakdown-bold">₹${ordAmt.toLocaleString()}</span>
                     </div>
                     <div class="breakdown-row">
                       <span class="breakdown-label">Reward Calculation:</span>
-                      <span class="breakdown-val font-brand">${item.rewardPercent || 0}% of ₹${ordAmt.toLocaleString()} = <strong>${points.toLocaleString()} PTS</strong></span>
+                      <span class="breakdown-val font-brand-blue">${item.rewardPercent || 0}% of ₹${ordAmt.toLocaleString()} = ${points.toLocaleString()} PTS</span>
                     </div>
                     <div class="breakdown-row">
                       <span class="breakdown-label">Max Usable Discount:</span>
-                      <span class="breakdown-val font-emerald">Save up to ₹${maxDisc.toLocaleString()} (${capping}% Cap)</span>
+                      <span class="breakdown-val font-emerald-save">Save up to ₹${maxDisc.toLocaleString()} (${capping}% Cap)</span>
                     </div>
                   </div>
 
