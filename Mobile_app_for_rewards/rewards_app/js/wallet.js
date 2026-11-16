@@ -144,13 +144,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     activeCountEl.textContent = `${activeRewardsCount} Active`;
     expiredCountEl.textContent = `${expiredRewardsCount} Expired`;
 
-    // Capping summary
+    // Optimized Glass Capping & Redemption Summary
     const maxRedeemableSample = Math.floor((totalActivePoints * (defaultCappingPercent / 100)));
     cappingSummaryEl.innerHTML = `
-      <strong>Redemption Policy:</strong><br>
-      • Maximum <strong>${defaultCappingPercent}%</strong> points can be used per order.<br>
-      • Applicable on product purchases of min <strong>₹${Number(defaultMinOrder).toLocaleString()}</strong>.<br>
-      • Available to redeem now: <strong>${maxRedeemableSample.toLocaleString()} Pts</strong>.
+      <div class="glass-policy-header">
+        <span class="glass-policy-title">Redemption Policy</span>
+        <span class="glass-redeem-pill">
+          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-1px; margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>
+          ${maxRedeemableSample.toLocaleString()} Pts Usable Now
+        </span>
+      </div>
+      <div class="glass-policy-rules">
+        <div class="glass-rule-chip">
+          <span class="rule-icon">🛡</span>
+          <span>Max <strong>${defaultCappingPercent}%</strong> cap / order</span>
+        </div>
+        <div class="glass-rule-chip">
+          <span class="rule-icon">🛒</span>
+          <span>Min order <strong>₹${Number(defaultMinOrder).toLocaleString()}</strong></span>
+        </div>
+      </div>
     `;
   }
 
