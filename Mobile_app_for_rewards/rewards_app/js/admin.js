@@ -511,54 +511,133 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isExpired = item.expiryDate && new Date(item.expiryDate) < new Date();
             const expText = item.expiryDate ? item.expiryDate.replace('T', ' ') : 'N/A';
 
+            const points = Number(item.rewardPoints) || 0;
+            const capping = Number(item.cappingPercent) || 50;
+            const minOrd = Number(item.minOrderAmount) || 10000;
+            const ordAmt = Number(item.orderAmount) || 0;
+            const maxDisc = Math.floor(points * (capping / 100));
+            const safeItemTitle = (item.productName || 'Order Item').replace(/"/g, '&quot;');
+            const fallbackAdminSvg = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
+            const imgHtml = (item.productImage && item.productImage.trim())
+              ? `<img src="${item.productImage}" alt="${safeItemTitle}" onerror="this.onerror=null; this.parentElement.innerHTML='${fallbackAdminSvg.replace(/'/g, "\\'")}';">`
+              : fallbackAdminSvg;
+
             const card = document.createElement('div');
-            card.className = `reward-card ${isExpired ? 'is-expired' : ''}`;
+            card.className = `reward-card is-expandable ${isExpired ? 'is-expired' : ''}`;
             card.innerHTML = `
-              <div class="reward-card-top">
-                <div>
-                  <span class="reward-card-points">+${Number(item.rewardPoints).toLocaleString()} PTS</span>
-                  <div class="reward-card-meta">${item.customerName} (${item.customerPhone})</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
-                    ${isExpired ? 'EXPIRED' : 'ACTIVE'}
-                  </span>
-                  <button type="button" class="btn-delete-reward" data-id="${item.id}" title="Delete Reward" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: var(--slate-400); display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s ease;" onmouseover="this.style.color='var(--rose-600)'" onmouseout="this.style.color='var(--slate-400)'">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="reward-card-item">
-                <div class="thumb-box">
-                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 700; font-size: 0.82rem; color: var(--slate-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    ${item.productName}
+              <div class="reward-card-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="reward-card-item">
+                  <div class="thumb-box">${imgHtml}</div>
+                  <div class="reward-card-info">
+                    <div class="reward-card-title">${item.productName}</div>
                   </div>
-                  <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 1px;">
-                    #${item.orderId} • ₹${Number(item.orderAmount).toLocaleString()} • ${item.orderDate || 'N/A'}
+                  <div class="reward-card-chevron-box">
+                    <button type="button" class="btn-delete-reward" data-id="${item.id}" title="Delete Reward" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: var(--slate-400); display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; margin-right: 4px; transition: color 0.15s ease;" onmouseover="this.style.color='var(--rose-600)'" onmouseout="this.style.color='var(--slate-400)'">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                    <span class="chevron-icon" aria-hidden="true" title="Click to view details">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div class="policy-strip">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2px;">
-                  <span>🛡 <strong>Cap:</strong> Max ${item.cappingPercent || 50}% redeemable</span>
-                  ${item.minOrderAmount ? `<span>• Min ₹${Number(item.minOrderAmount).toLocaleString()}</span>` : ''}
-                </div>
-                <div style="margin-top: 2px; font-weight: 700; font-size: 0.68rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
-                  ⏳ Expiry: ${expText}
+              <!-- Expandable Drawer -->
+              <div class="reward-card-drawer">
+                <div class="reward-drawer-inner">
+
+                  <div class="drawer-reward-header">
+                    <div>
+                      <span class="reward-card-points">+${points.toLocaleString()} PTS</span>
+                      <div class="reward-card-meta">${item.customerName} (${item.customerPhone})</div>
+                    </div>
+                    <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
+                      ${isExpired ? 'EXPIRED' : 'ACTIVE'}
+                    </span>
+                  </div>
+
+                  <div class="policy-strip" style="margin-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+                      <span>🛡 <strong>Capping Rule:</strong> Max ${capping}% redeemable</span>
+                      ${minOrd ? `<span>🛒 <strong>Min Order:</strong> ₹${minOrd.toLocaleString()}</span>` : ''}
+                    </div>
+                    <div style="margin-top: 2px; font-weight: 700; font-size: 0.68rem; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
+                      ⏳ Expiry: ${expText}
+                    </div>
+                  </div>
+
+                  <div class="reward-breakdown-card">
+                    <div class="breakdown-row">
+                      <span class="breakdown-label">Customer:</span>
+                      <span class="breakdown-val">${item.customerName} (+91 ${item.customerPhone})</span>
+                    </div>
+                    <div class="breakdown-row">
+                      <span class="breakdown-label">Order Reference:</span>
+                      <span class="breakdown-val"><code>#${item.orderId}</code></span>
+                    </div>
+                    <div class="breakdown-row">
+                      <span class="breakdown-label">Order Total Amount:</span>
+                      <span class="breakdown-val">₹${ordAmt.toLocaleString()}</span>
+                    </div>
+                    <div class="breakdown-row">
+                      <span class="breakdown-label">Reward Calculation:</span>
+                      <span class="breakdown-val font-brand">${item.rewardPercent || 0}% of ₹${ordAmt.toLocaleString()} = <strong>${points.toLocaleString()} PTS</strong></span>
+                    </div>
+                    <div class="breakdown-row">
+                      <span class="breakdown-label">Max Usable Discount:</span>
+                      <span class="breakdown-val font-emerald">Save up to ₹${maxDisc.toLocaleString()} (${capping}% Cap)</span>
+                    </div>
+                  </div>
+
+                  <div class="reward-drawer-footer">
+                    <button type="button" class="btn-collapse-card">
+                      <span>Show Less</span>
+                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             `;
+
+            const adminHeader = card.querySelector('.reward-card-header');
+            adminHeader.addEventListener('click', (e) => {
+              if (e.target.closest('button')) return;
+              const isCurrentlyExpanded = card.classList.contains('is-expanded');
+              if (isCurrentlyExpanded) {
+                card.classList.remove('is-expanded');
+                adminHeader.setAttribute('aria-expanded', 'false');
+              } else {
+                // Auto-collapse any other open cards
+                adminRewardsList.querySelectorAll('.reward-card.is-expanded').forEach(other => {
+                  if (other !== card) {
+                    other.classList.remove('is-expanded');
+                    const otherHeader = other.querySelector('.reward-card-header');
+                    if (otherHeader) otherHeader.setAttribute('aria-expanded', 'false');
+                  }
+                });
+                card.classList.add('is-expanded');
+                adminHeader.setAttribute('aria-expanded', 'true');
+              }
+            });
+
+            const btnAdminCollapse = card.querySelector('.btn-collapse-card');
+            if (btnAdminCollapse) {
+              btnAdminCollapse.addEventListener('click', (e) => {
+                e.stopPropagation();
+                card.classList.remove('is-expanded');
+                adminHeader.setAttribute('aria-expanded', 'false');
+              });
+            }
+
             adminRewardsList.appendChild(card);
           });
 
           // Delete buttons
           document.querySelectorAll('.btn-delete-reward').forEach(btn => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', async (e) => {
+              e.stopPropagation();
               if (confirm('Delete this reward entry?')) {
                 await window.rewardsDB.deleteReward(btn.dataset.id);
                 showToast('Reward record deleted');
