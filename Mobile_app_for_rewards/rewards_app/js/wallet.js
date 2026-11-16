@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Product image thumbnail
       const imgHtml = reward.productImage
         ? `<img src="${reward.productImage}" alt="Product">`
-        : `<span>IMG</span>`;
+        : `<span>🎁 REWARD</span>`;
 
       const card = document.createElement('div');
       card.className = `reward-card ${isExpired ? 'is-expired' : ''}`;
@@ -109,24 +109,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="reward-card-points">+${Number(reward.rewardPoints).toLocaleString()} PTS</span>
             <div class="reward-card-meta">${reward.rewardPercent ? reward.rewardPercent + '% Reward on ' : ''}Order ₹${Number(reward.orderAmount).toLocaleString()}</div>
           </div>
-          <span class="header-pill" style="${isExpired ? 'background: #fff; color: #000; border-style: dashed;' : ''}">
+          <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
             ${isExpired ? 'EXPIRED' : 'ACTIVE'}
           </span>
         </div>
 
         <div class="reward-card-item">
           <div class="thumb-box">${imgHtml}</div>
-          <div style="font-size: 12px; line-height: 1.35;">
-            <strong>${reward.productName || 'Order Item'}</strong>
-            <div style="font-size: 11px; color: #555;">Order ID: #${reward.orderId || 'N/A'}</div>
-            <div style="font-size: 11px; color: #555;">Date: ${reward.orderDate || 'N/A'}</div>
+          <div style="font-size: 0.8rem; line-height: 1.4;">
+            <strong style="color: var(--slate-900);">${reward.productName || 'Order Item'}</strong>
+            <div style="font-size: 0.72rem; color: var(--slate-500);">Order ID: #${reward.orderId || 'N/A'}</div>
+            <div style="font-size: 0.72rem; color: var(--slate-500);">Date: ${reward.orderDate || 'N/A'}</div>
           </div>
         </div>
 
         <div class="policy-strip">
           <div><strong>Capping Rule:</strong> Max ${reward.cappingPercent || 50}% points redeemable per order</div>
           ${reward.minOrderAmount ? `<div><strong>Applicable On:</strong> Orders above ₹${Number(reward.minOrderAmount).toLocaleString()}</div>` : ''}
-          <div style="margin-top: 4px; font-weight: 700; color: ${isExpired ? '#888' : '#000'};">
+          <div style="margin-top: 4px; font-weight: 700; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">
             ${expiryDisplay}
           </div>
         </div>

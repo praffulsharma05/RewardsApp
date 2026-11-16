@@ -465,19 +465,19 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="reward-card-top">
                 <div>
                   <span class="reward-card-points">+${Number(item.rewardPoints).toLocaleString()} PTS</span>
-                  <div class="wf-meta">${item.customerName} (${item.customerPhone})</div>
+                  <div class="wf-meta" style="font-weight: 600;">${item.customerName} (${item.customerPhone})</div>
                 </div>
-                <span class="header-pill" style="${isExpired ? 'background: #fff; color: #000; border-style: dashed;' : ''}">
+                <span class="header-pill ${isExpired ? 'pill-expired' : 'pill-active'}">
                   ${isExpired ? 'EXPIRED' : 'ACTIVE'}
                 </span>
               </div>
 
               <div class="reward-card-item">
                 <div class="thumb-box">
-                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<span>PHOTO</span>'}
+                  ${item.productImage ? `<img src="${item.productImage}" alt="Product" />` : '<span>🎁 ITEM</span>'}
                 </div>
-                <div style="font-size: 0.78rem; line-height: 1.35;">
-                  <strong>${item.productName}</strong>
+                <div style="font-size: 0.8rem; line-height: 1.4;">
+                  <strong style="color: var(--slate-900);">${item.productName}</strong>
                   <div class="wf-meta">Order #${item.orderId} | ₹${Number(item.orderAmount).toLocaleString()}</div>
                   <div class="wf-meta">Date: ${item.orderDate || 'N/A'}</div>
                 </div>
@@ -486,12 +486,12 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="policy-strip">
                 <div><strong>Capping Rule:</strong> Max ${item.cappingPercent || 50}% points redeemable</div>
                 ${item.minOrderAmount ? `<div><strong>Min Order:</strong> Valid on orders above ₹${Number(item.minOrderAmount).toLocaleString()}</div>` : ''}
-                <div style="margin-top: 3px; font-weight: 700;">Expiry: ${expText}</div>
+                <div style="margin-top: 3px; font-weight: 700; color: ${isExpired ? 'var(--slate-400)' : 'var(--emerald-600)'};">Expiry: ${expText}</div>
               </div>
 
               <div style="margin-top: 8px; text-align: right;">
-                <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm btn-delete-reward" data-id="${item.id}">
-                  Delete
+                <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm btn-delete-reward" data-id="${item.id}" style="color: var(--rose-600); border-color: var(--rose-200); background: var(--rose-50);">
+                  ✕ Delete
                 </button>
               </div>
             `;
