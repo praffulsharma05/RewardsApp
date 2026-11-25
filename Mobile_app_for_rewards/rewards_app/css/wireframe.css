@@ -198,7 +198,7 @@ body::before {
   transform: translateY(-50%);
   width: 6px;
   height: 6px;
-  background-color: #1e293b;
+  background-color: #121b2a;
   border-radius: 50%;
 }
 
@@ -829,104 +829,188 @@ input:-webkit-autofill:focus {
   margin-top: 2px;
 }
 
-/* Wallet Hero Box (PhonePe-Style Purple Card) */
-.wallet-hero-box {
-  background: linear-gradient(135deg, #7c3aed 0%, #5f259f 50%, #4a1a7a 100%);
+/* Modern Header & Profile Bar */
+.wallet-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.wallet-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wallet-avatar-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #ffffff;
-  padding: 18px 14px 14px 14px;
-  text-align: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.28);
+  flex-shrink: 0;
+}
+
+.wallet-avatar-online {
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+}
+
+.wallet-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wallet-user-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wallet-user-name {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.user-verified-badge {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1;
+}
+
+.wallet-user-phone {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.wallet-exit-pill-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.wallet-exit-pill-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* Wallet Hero Box (Rich Deep Purple Card as in Mockup) */
+.wallet-hero-box {
+  background: linear-gradient(180deg, #5b149b 0%, #4a0d82 100%);
+  color: #ffffff;
+  padding: 22px 16px 16px 16px;
+  text-align: center;
+  border-radius: 24px;
   margin-bottom: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-top: 3px solid #a78bfa;
-  box-shadow: 
-    0 14px 32px -4px rgba(95, 37, 159, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: 0 16px 36px -6px rgba(74, 13, 130, 0.45);
   position: relative;
   overflow: hidden;
 }
 
-/* Soft ambient purple glow */
-.wallet-hero-box::before {
-  content: '';
-  position: absolute;
-  top: -30px;
-  right: -20px;
-  width: 130px;
-  height: 130px;
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.3) 0%, rgba(167, 139, 250, 0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(8px);
-}
-
-.wallet-hero-box::after {
-  content: '';
-  position: absolute;
-  bottom: -35px;
-  left: -20px;
-  width: 130px;
-  height: 130px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(8px);
-}
-
-.wallet-hero-box .wf-label {
-  color: #ddd6fe;
-  letter-spacing: 0.8px;
-  font-size: 0.68rem;
-  font-weight: 700;
+.wallet-hero-box .hero-title-label {
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.9px;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 6px;
+  display: block;
 }
 
 .wallet-hero-points {
   font-size: 2.6rem;
   font-weight: 900;
   letter-spacing: -0.5px;
-  margin: 3px 0 6px 0;
+  margin: 2px 0 8px 0;
   color: #ffffff;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
+  line-height: 1.1;
 }
 
-.wallet-hero-points::before {
-  content: '★';
-  font-size: 1.8rem;
+.star-gold {
   color: #fbbf24;
-  opacity: 0.95;
+  font-size: 1.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.3));
 }
 
-/* Frosted glass pills */
-.wallet-hero-box .header-pill {
+.wallet-pills-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hero-pill-dark {
+  background: rgba(0, 0, 0, 0.28);
   border-radius: 20px;
-  font-size: 0.66rem;
-  padding: 3px 10px;
+  padding: 4px 14px;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.3px;
-  position: relative;
-  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.wallet-hero-box .header-pill.pill-active {
-  background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  color: #047857;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.hero-pill-dark.pill-active {
+  color: #34d399;
 }
 
-.wallet-hero-box .header-pill.pill-expired {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #e9d5ff;
+.hero-pill-dark.pill-expired {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.glow-dot-emerald {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
 }
 
 .user-balance-pill {
@@ -951,13 +1035,13 @@ input:-webkit-autofill:focus {
 
 /* Reward Card in Feed (Clean Collapsed Item -> Rich Expandable Details) */
 .reward-card {
-  border: 1.5px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
   padding: 0;
-  margin-bottom: 6px;
-  border-radius: 10px;
+  margin-bottom: 10px;
+  border-radius: 18px;
   background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.02);
+  transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -965,7 +1049,7 @@ input:-webkit-autofill:focus {
 .reward-card:hover {
   transform: translateY(-1px);
   border-color: #cbd5e1;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
 .reward-card.is-expandable {
@@ -973,20 +1057,20 @@ input:-webkit-autofill:focus {
 }
 
 .reward-card.is-expanded {
-  border-color: #a78bfa;
-  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.08);
-  padding-bottom: 8px;
+  border-color: #c4b5fd;
+  box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding-bottom: 6px;
 }
 
 .reward-card.is-expired {
-  border: 1px dashed var(--slate-300);
+  border: 1px dashed #cbd5e1;
   background: #fafafa;
   opacity: 0.92;
 }
 
 .reward-card.is-expanded.is-expired {
-  border-color: var(--slate-300);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 /* Card Header (Collapsed List View) */
@@ -1040,12 +1124,12 @@ input:-webkit-autofill:focus {
 
 /* Chevron '>' Arrow Indicator */
 .chevron-icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: #f1f5f9;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
-  color: #64748b;
+  color: #94a3b8;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1095,10 +1179,10 @@ input:-webkit-autofill:focus {
 }
 
 .thumb-box {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #f8fafc;
   display: flex;
   align-items: center;
@@ -1108,14 +1192,14 @@ input:-webkit-autofill:focus {
   color: var(--brand-primary);
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .thumb-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  border-radius: 11px;
 }
 
 /* Drawer & Expanded Content Section */
@@ -1236,10 +1320,16 @@ input:-webkit-autofill:focus {
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  visibility: hidden;
 }
 
 .reward-card.is-expanded .reward-card-drawer {
   grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.reward-card:not(.is-expanded) .reward-card-drawer {
+  display: none !important;
 }
 
 .reward-drawer-inner {
@@ -1256,26 +1346,80 @@ input:-webkit-autofill:focus {
 /* Breakdown Card inside Drawer */
 .reward-breakdown-card {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+   border-radius: 14px;
   padding: 12px 14px;
-  margin-top: 10px;
+  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.breakdown-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.breakdown-card-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.breakdown-status-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  letter-spacing: 0.2px;
+}
+
+.breakdown-status-badge.is-active {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.breakdown-status-badge.is-expired {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.breakdown-status-badge.is-applied {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
 .breakdown-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.73rem;
-  line-height: 1.4;
+  padding: 6px 0;
+  font-size: 0.74rem;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.breakdown-row:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.breakdown-row:first-child {
+  padding-top: 2px;
 }
 
 .breakdown-label {
   color: #64748b;
   font-weight: 500;
+  font-size: 0.73rem;
 }
 
 .breakdown-val {
@@ -1284,11 +1428,39 @@ input:-webkit-autofill:focus {
   align-items: center;
   gap: 6px;
   text-align: right;
+  font-weight: 600;
 }
 
 .breakdown-val.breakdown-bold {
   font-weight: 800;
+  font-size: 0.85rem;
   color: #0f172a;
+}
+
+.badge-reward-rate {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  font-weight: 700;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.font-valid {
+  color: #059669;
+  font-weight: 700;
+}
+
+.font-expired {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.font-redeemed-pts {
+  color: #2563eb;
+  font-weight: 800;
+  font-size: 0.82rem;
 }
 
 /* Order Reference Pill */
@@ -1418,66 +1590,193 @@ input:-webkit-autofill:focus {
   color: #92400e;
 }
 
-/* Policy strip inside the blue hero box */
+/* Policy strip inside the hero box (White embedded card as in mockup) */
 .wallet-hero-box .policy-strip {
   background: #ffffff;
-  border: 1px solid #e0f2fe;
-  border-left: 3.5px solid #0284c7;
-  color: #334155;
-  border-radius: 12px;
-  padding: 9px 12px;
-  margin-top: 10px;
+  border-radius: 18px;
+  padding: 13px 16px;
+  margin-top: 14px;
   text-align: left;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  border: none;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 .glass-policy-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  gap: 6px;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.policy-header-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1;
+}
+
+.policy-dot-purple {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9333ea;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.policy-card-shell {
+  width: 100%;
+}
+
+.policy-header-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  transition: opacity 0.15s ease;
+}
+
+.policy-header-toggle:hover {
+  opacity: 0.9;
+}
+
+.policy-header-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1;
 }
 
 .glass-policy-title {
   font-weight: 800;
   font-size: 0.74rem;
-  color: #0f172a;
-  letter-spacing: 0.2px;
+  color: #1e1b4b;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
-.glass-redeem-pill {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #0284c7;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  padding: 2px 8px;
-  border-radius: 12px;
-  white-space: nowrap;
-  letter-spacing: 0.2px;
+.policy-details-link {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
-.glass-policy-rules {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+.policy-chevron-icon {
+  color: #8b5cf6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-rule-chip {
-  flex: 1;
-  min-width: 120px;
+.policy-card-shell.is-open .policy-chevron-icon {
+  transform: rotate(180deg);
+}
+
+.policy-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.policy-card-shell.is-open .policy-drawer {
+  grid-template-rows: 1fr;
+}
+
+.policy-drawer-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.22s ease 0.05s;
+ }
+
+.policy-card-shell.is-open .policy-drawer-inner {
+  opacity: 1;
+}
+
+.policy-capping-bar {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 0.69rem;
-  color: #475569;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 9px 12px;
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.shield-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.policy-pct-val {
+  color: #0284c7;
+  font-weight: 800;
+}
+
+.policy-terms-list {
+  display: flex;
+  flex-direction: column;
   gap: 5px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.policy-term-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.policy-nearest-expire-box {
+  background: #fffbeb;
+  border: 1px dashed #fde68a;
+  border-radius: 12px;
+  padding: 9px 12px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.policy-nearest-warning {
+  color: #92400e;
+  font-weight: 700;
+}
+
+.policy-nearest-text {
+  color: #78350f;
+  font-weight: 600;
 }
 
 .glass-rule-chip strong {
@@ -1525,43 +1824,65 @@ input:-webkit-autofill:focus {
   background: var(--slate-400);
 }
 
-/* Wallet Segment Navigation */
+/* Wallet Segment Navigation Capsule */
 .wallet-segment-bar {
   display: flex;
-  gap: 6px;
-  background: #f1f5f9;
+  gap: 4px;
+  background: #e2e8f0;
   padding: 4px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  border: none;
+  margin-top: 16px;
 }
 
 .wallet-segment-btn {
   flex: 1;
-  padding: 6px 10px;
-  font-size: 0.74rem;
+  padding: 8px 14px;
+  font-size: 0.76rem;
   font-weight: 700;
   border: none;
-  border-radius: 8px;
+  border-radius: 26px;
   background: transparent;
-  color: #64748b;
+  color: #475569;
   cursor: pointer;
   transition: all 0.18s ease;
-  text-align: center;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .wallet-segment-btn:hover {
-  color: var(--brand-primary);
+  color: #1e1b4b;
 }
 
 .wallet-segment-btn.active {
   background: #ffffff;
-  color: var(--brand-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  color: #4c1d95;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.segment-badge {
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wallet-segment-btn.active .segment-badge {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.wallet-segment-btn:not(.active) .segment-badge {
+  background: #cbd5e1;
+  color: #334155;
 }
 
 .wallet-view-section {
   animation: fadeIn 0.2s ease-in-out;
+  margin-top: 10px;
 }
 
 @keyframes fadeIn {
@@ -1571,7 +1892,7 @@ input:-webkit-autofill:focus {
 
 /* Card Header & Item Clean Layout Classes */
 .reward-card-header-btn {
-  padding: 8px 10px;
+  padding: 11px 13px;
   cursor: pointer;
   outline: none;
 }
@@ -1580,38 +1901,45 @@ input:-webkit-autofill:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 5px;
+  margin-top: 6px;
+  gap: 8px;
 }
 
 .reward-pts-grant {
-  font-weight: 700;
-  font-size: 0.68rem;
-  color: #00875a;
-  letter-spacing: -0.1px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #059669;
+  letter-spacing: -0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .reward-pts-grant.is-expired-pts {
-  color: #64748b;
+  color: #94a3b8;
+  text-decoration: line-through;
 }
 
 .reward-pts-applied {
-  font-weight: 700;
-  font-size: 0.68rem;
+  font-weight: 800;
+  font-size: 0.8rem;
   color: #dc2626;
-  letter-spacing: -0.1px;
+  letter-spacing: -0.2px;
 }
 
 .card-pill-mini {
-  font-size: 0.58rem;
-  font-weight: 600;
-  padding: 1px 5px;
-  letter-spacing: 0.2px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
 }
 
 .card-customer-sub {
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  color: #475569;
+  color:var(--glacier-800) !important;
 }
 
 .card-date-text,
@@ -1662,9 +1990,7 @@ input:-webkit-autofill:focus {
 }
 
 /* Card Drawer Inner & Breakdown Details */
-.reward-drawer-pad {
-  padding: 0 10px 8px 10px;
-}
+ 
 
 .breakdown-row-due {
   border-top: 1px dashed #cbd5e1;

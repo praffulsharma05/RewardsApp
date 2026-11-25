@@ -52,12 +52,17 @@ class UnifiedDatabaseService {
       const users = await this.getAllUsers();
       if (users.length === 0) {
         await this.registerUser({ name: 'Rahul Sharma', phone: '9876543210', password: 'password123' });
-        const svg = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%23e2e8f0"/><text x="40" y="45" font-size="10" font-weight="bold" fill="%23475569" text-anchor="middle">ITEM</text></svg>';
-        const seedR = (orderId, productName, orderDate, orderAmount, rewardPoints, expiryDate) =>
-          this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId, productName, orderDate, orderAmount, rewardPercent: 10, rewardPoints, expiryDate, cappingPercent: 50, minOrderAmount: 10000, productImage: svg });
-        await seedR('ORD-5011', 'iPhone 16 Pro Max 256GB', '2026-10-15', 150000, 15000, '2026-12-31T23:59');
-        await seedR('ORD-5012', 'MacBook Air M3 Laptop', '2026-11-01', 120000, 12000, '2027-01-31T23:59');
-        await seedR('ORD-5013', 'Smart Home Automation Suite', '2026-11-10', 330000, 33000, '2027-03-31T23:59');
+        const seedR = (orderId, productName, orderDate, orderAmount, rewardPoints, expiryDate, img) =>
+          this.createReward({ customerName: 'Rahul Sharma', customerPhone: '9876543210', orderId, productName, orderDate, orderAmount, rewardPercent: 10, rewardPoints, expiryDate, cappingPercent: 50, minOrderAmount: 10000, productImage: img || 'assets/smart_google_tv.jpg' });
+        await seedR('ORD-5011', 'Sony Bravia 55" Smart Google TV 4K', '2026-10-15', 55000, 5500, '2026-12-31T23:59', 'assets/smart_google_tv.jpg');
+        await seedR('ORD-5012', 'MacBook Air M3 Laptop', '2026-11-01', 120000, 12000, '2027-01-31T23:59', 'assets/smart_google_tv.jpg');
+        await seedR('ORD-5013', 'Smart Home Automation Suite', '2026-11-10', 330000, 33000, '2027-03-31T23:59', 'assets/smart_google_tv.jpg');
+        await this.applyProductReward({
+          orderId: 'ORD-APP-9021', customerPhone: '9876543210', customerName: 'Rahul Sharma',
+          productName: 'Sony Bravia 4K Smart Google TV', productPrice: 45000,
+          pointsApplied: 4500, dueAmount: 40500, cappingPercent: 50,
+          productImage: 'assets/smart_google_tv.jpg'
+        });
       }
     } catch (e) {}
   }
@@ -253,7 +258,7 @@ class UnifiedDatabaseService {
     for (const r of active) {
       if (rem <= 0) break;
       const pts = Number(r.rewardPoints) || 0;
-      if (pts <= rem) { rem -= pts; r.rewardPoints = 0; }
+      if (pts <= rem) { rem -= pts; r.rewardPoints = 0; r.status = 'USED'; }
       else { r.rewardPoints = pts - rem; rem = 0; }
       await this.updateReward(r);
     }
@@ -292,5 +297,4 @@ class UnifiedDatabaseService {
   }
   logoutUser() { localStorage.removeItem('active_customer'); }
 }
-
 window.rewardsDB = new UnifiedDatabaseService();

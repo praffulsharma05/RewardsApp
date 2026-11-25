@@ -74,13 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Automatic calculation of capped points & due amount to shopkeeper
   function recalculateApplyMath() {
-    const { cappingPercent, maxCappingLimit } = getCurrentCapping();
+    const { cappingPercent } = getCurrentCapping();
     activeCappingPercent = cappingPercent;
-    activeMaxCappingLimit = maxCappingLimit;
 
     const price = parseFloat(productPriceInput.value) || 0;
     const priceCap = Math.floor(price * (activeCappingPercent / 100));
-    autoCalculatedPoints = Math.min(availablePoints, priceCap, activeMaxCappingLimit);
+    autoCalculatedPoints = Math.min(availablePoints, priceCap);
     if (autoCalculatedPoints < 0) autoCalculatedPoints = 0;
 
     // Due amount to pay shopkeeper = Price - Automatically Capped Points
@@ -88,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (summaryPrice) summaryPrice.textContent = `₹${price.toLocaleString()}`;
     if (summaryPointsApplied) {
-      summaryPointsApplied.textContent = `-${autoCalculatedPoints.toLocaleString()} PTS (₹${autoCalculatedPoints.toLocaleString()} at ${activeCappingPercent}% Cap)`;
+      summaryPointsApplied.textContent = `-${autoCalculatedPoints.toLocaleString()} PTS (${activeCappingPercent}% Cap)`;
     }
     if (dueAmountDisplay) dueAmountDisplay.textContent = `₹${autoCalculatedDue.toLocaleString()}`;
   }
@@ -103,22 +102,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (productPriceInput) productPriceInput.value = '';
     applyPhotoData = '';
     if (applyPhotoInput) applyPhotoInput.value = '';
-    if (applyPhotoPreview) applyPhotoPreview.innerHTML = '<span>NO PHOTO</span>';
+    const upTxt = document.getElementById('applyPhotoUploadText');
+    if (upTxt) upTxt.textContent = 'Choose product photo';
+    if (applyPhotoPreview) applyPhotoPreview.innerHTML = '<span>NO<br>PHOTO</span>';
     recalculateApplyMath();
   };
+
+  const btnSampleTvApply = document.getElementById('btnUseSampleTvPhotoApply');
+  if (btnSampleTvApply) {
+    btnSampleTvApply.addEventListener('click', () => {
+      applyPhotoData = 'assets/smart_google_tv.jpg';
+      const upTxt = document.getElementById('applyPhotoUploadText');
+      if (upTxt) upTxt.textContent = 'smart_google_tv.jpg';
+      if (applyPhotoPreview) applyPhotoPreview.innerHTML = `<img src="${applyPhotoData}" alt="Thumb" />`;
+      if (window.showAdminToast) window.showAdminToast('Attached Smart TV photo to Apply form');
+    });
+  }
 
   if (applyPhotoInput) {
     applyPhotoInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
-      if (!file) { applyPhotoData = ''; if (applyPhotoPreview) applyPhotoPreview.innerHTML = '<span>NO PHOTO</span>'; return; }
+      const upTxt = document.getElementById('applyPhotoUploadText');
+      if (!file) {
+        applyPhotoData = '';
+        if (upTxt) upTxt.textContent = 'Choose product photo';
+        if (applyPhotoPreview) applyPhotoPreview.innerHTML = '<span>NO<br>PHOTO</span>';
+        return;
+      }
+      if (upTxt) upTxt.textContent = file.name;
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 120; canvas.height = 120;
-          canvas.getContext('2d').drawImage(img, 0, 0, 120, 120);
-          applyPhotoData = canvas.toDataURL('image/jpeg', 0.8);
+          const canvas = document.createElement('canvas'); canvas.width = 160; canvas.height = 120;
+          const ctx = canvas.getContext('2d'), r = Math.max(160 / img.width, 120 / img.height);
+          const nw = img.width * r, nh = img.height * r;
+          ctx.drawImage(img, (160 - nw) / 2, (120 - nh) / 2, nw, nh);
+          applyPhotoData = canvas.toDataURL('image/jpeg', 0.85);
           if (applyPhotoPreview) applyPhotoPreview.innerHTML = `<img src="${applyPhotoData}" alt="Thumb" />`;
         };
         img.src = ev.target.result;
@@ -151,11 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSample.addEventListener('click', async () => {
       await onCustomerChanged();
       if (orderIdInput) orderIdInput.value = getNextApplyOrderId();
-      if (productNameInput) productNameInput.value = 'Smart LED 4K TV 55"';
-      if (productPriceInput) productPriceInput.value = '20000';
+      if (productNameInput) productNameInput.value = 'Sony Bravia 55" Smart Google TV';
+      if (productPriceInput) productPriceInput.value = '42000';
+      applyPhotoData = 'assets/smart_google_tv.jpg';
+      const upTxt = document.getElementById('applyPhotoUploadText');
+      if (upTxt) upTxt.textContent = 'smart_google_tv.jpg';
+      if (applyPhotoPreview) applyPhotoPreview.innerHTML = `<img src="${applyPhotoData}" alt="Thumb" />`;
       recalculateApplyMath();
       if (window.showAdminToast) {
-        window.showAdminToast(`Loaded sample ${orderIdInput.value} (₹${autoCalculatedDue.toLocaleString()} due)`);
+        window.showAdminToast(`Loaded sample ${orderIdInput.value} with Smart TV photo`);
       }
     });
   }

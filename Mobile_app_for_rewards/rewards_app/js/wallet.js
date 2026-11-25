@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   customerNameEl.textContent = currentUser.name || 'Valued Customer';
   customerPhoneEl.textContent = `+91 ${currentUser.phone}`;
 
+  const avatarEl = document.getElementById('userAvatarInitial');
+  if (avatarEl) {
+    const rawName = (currentUser.name || 'H').trim();
+    avatarEl.textContent = rawName.charAt(0).toUpperCase();
+  }
+
   if (btnLogout) {
     btnLogout.addEventListener('click', (e) => {
       e.preventDefault();
@@ -69,7 +75,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let totalActivePoints = 0, activeCount = 0, expiredCount = 0;
     let nearestExpReward = null;
 
-    if (!rewards || rewards.length === 0) {
+    const availableRewards = (rewards || []).filter(r => (Number(r.rewardPoints) || 0) > 0 && r.status !== 'USED' && (!r.expiryDate || new Date(r.expiryDate) > now));
+
+    if (availableRewards.length === 0) {
       emptyGainedState.classList.remove('u-hidden');
       totalPointsEl.textContent = '0';
       activeCountEl.textContent = '0 ACTIVE';
@@ -79,9 +87,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     emptyGainedState.classList.add('u-hidden');
-    if (gainedBadge) gainedBadge.textContent = rewards.length;
+    if (gainedBadge) gainedBadge.textContent = availableRewards.length;
 
-    rewards.forEach(r => {
+    availableRewards.forEach(r => {
       const pts = Number(r.rewardPoints) || 0;
       const isExp = r.expiryDate ? new Date(r.expiryDate) < now : false;
 
@@ -103,12 +111,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         miniExp = isExp ? 'Expired' : `Exp: ${dateStr}`;
       }
 
+      let expFullStr = 'No Expiry';
+      if (r.expiryDate) {
+        const expD = new Date(r.expiryDate);
+        expFullStr = expD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      let orderDateStr = '';
+      if (r.orderDate) {
+        const ordD = new Date(r.orderDate);
+        if (!isNaN(ordD.getTime())) {
+          orderDateStr = ordD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        } else {
+          orderDateStr = r.orderDate;
+        }
+      }
+
       const card = document.createElement('div');
       card.className = `reward-card is-expandable ${isExp ? 'is-expired' : ''}`;
       card.innerHTML = `
         <div class="reward-card-header reward-card-header-btn" role="button" tabindex="0" aria-expanded="false">
           <div class="reward-card-item">
-            <div class="thumb-box">${r.productImage ? `<img src="${r.productImage}" alt="" />` : '🎁'}</div>
+            <div class="thumb-box">${r.productImage ? `<img src="${r.productImage}" alt="${r.productName || ''}" />` : '🎁'}</div>
             <div class="reward-card-info">
               <div class="reward-card-title">${r.productName || 'Order Reward'}</div>
               <div class="reward-card-subrow">
@@ -123,9 +147,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="reward-card-drawer">
           <div class="reward-drawer-inner reward-drawer-pad">
             <div class="reward-breakdown-card">
-              <div class="breakdown-row"><span class="breakdown-label">Order ID:</span><span class="breakdown-val"><code class="val-order-code">#${r.orderId || 'N/A'}</code></span></div>
-              <div class="breakdown-row"><span class="breakdown-label">Order Total:</span><span class="breakdown-val breakdown-bold">₹${Number(r.orderAmount || 0).toLocaleString()}</span></div>
-              <div class="breakdown-row"><span class="breakdown-label">Reward Rate:</span><span class="breakdown-val font-brand-blue">${r.rewardPercent || 10}%</span></div>
+              <div class="breakdown-card-top">
+                <span class="breakdown-card-title">Reward Details</span>
+                <span class="breakdown-status-badge ${isExp ? 'is-expired' : 'is-active'}">
+                  ${isExp ? 'Expired' : 'Verified Order'}
+                </span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Order ID</span>
+                <span class="breakdown-val"><code class="val-order-code">#${r.orderId || 'N/A'}</code></span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Order Total</span>
+                <span class="breakdown-val breakdown-bold">₹${Number(r.orderAmount || 0).toLocaleString()}</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Reward Rate</span>
+                <span class="breakdown-val"><span class="badge-reward-rate">${r.rewardPercent || 10}% Earned</span></span>
+              </div>
+              ${orderDateStr ? `
+              <div class="breakdown-row">
+                <span class="breakdown-label">Order Date</span>
+                <span class="breakdown-val">${orderDateStr}</span>
+              </div>` : ''}
+              <div class="breakdown-row">
+                <span class="breakdown-label">Valid Until</span>
+                <span class="breakdown-val ${isExp ? 'font-expired' : 'font-valid'}">${expFullStr}</span>
+              </div>
             </div>
           </div>
         </div>`;
@@ -176,13 +224,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="reward-card-drawer">
           <div class="reward-drawer-inner reward-drawer-pad">
             <div class="reward-breakdown-card">
-              <div class="breakdown-row"><span class="breakdown-label">Product Price:</span><span class="breakdown-val breakdown-bold">₹${Number(a.productPrice).toLocaleString()}</span></div>
-              <div class="breakdown-row"><span class="breakdown-label">Rewards Applied:</span><span class="breakdown-val font-brand-blue">-${Number(a.pointsApplied).toLocaleString()} PTS</span></div>
-              <div class="breakdown-row breakdown-row-due">
-                <span class="breakdown-label breakdown-due-label">Due Paid to Shopkeeper:</span>
-                <span class="breakdown-val breakdown-due-amount">₹${Number(a.dueAmount).toLocaleString()}</span>
+              <div class="breakdown-card-top">
+                <span class="breakdown-card-title">Redemption Details</span>
+                <span class="breakdown-status-badge is-applied">Applied</span>
               </div>
-              <div class="breakdown-row"><span class="breakdown-label">Order Reference:</span><span class="breakdown-val"><code class="val-order-code">#${orderRef}</code></span></div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Product Price</span>
+                <span class="breakdown-val breakdown-bold">₹${Number(a.productPrice || 0).toLocaleString()}</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Rewards Applied</span>
+                <span class="breakdown-val font-redeemed-pts">-${Number(a.pointsApplied || 0).toLocaleString()} PTS</span>
+              </div>
+              <div class="breakdown-row breakdown-row-due">
+                <span class="breakdown-label breakdown-due-label">Paid to Shopkeeper</span>
+                <span class="breakdown-val breakdown-due-amount">₹${Number(a.dueAmount || 0).toLocaleString()}</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">Order Reference</span>
+                <span class="breakdown-val"><code class="val-order-code">#${orderRef}</code></span>
+              </div>
             </div>
           </div>
         </div>`;
@@ -194,33 +255,61 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Update Redemption Policy section with Nearest Expiring Points
   function renderRedemptionPolicy(totalActive, nearest) {
-    let capPct = 50, maxCap = 10000;
+    let capPct = 10;
     try {
       const s = localStorage.getItem('rewards_app_admin_settings_v1');
       if (s) {
         const p = JSON.parse(s);
         if (p.cappingPercent) capPct = p.cappingPercent;
-        if (p.minOrderAmount) maxCap = p.minOrderAmount;
       }
     } catch(e){}
     let nearestHtml = '<span class="policy-nearest-valid">All points currently valid</span>';
     if (nearest && nearest.expiryDate) {
       const expD = new Date(nearest.expiryDate);
       const dateStr = expD.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-      nearestHtml = `<strong class="policy-nearest-warning">⚠️ Nearest Expire:</strong> ${Number(nearest.rewardPoints).toLocaleString()} PTS on ${dateStr}`;
+      nearestHtml = `<strong class="policy-nearest-warning">⚠️ Nearest Expire:</strong> <span class="policy-nearest-text">${Number(nearest.rewardPoints).toLocaleString()} PTS on ${dateStr}</span>`;
     }
 
     cappingSummaryEl.innerHTML = `
-      <div class="glass-policy-header">
-        <span class="glass-policy-title">Redemption Policy</span>
-      </div>
-      <div class="glass-policy-rules policy-rules-row">
-        <div class="glass-rule-chip chip-cap"><span class="rule-icon">🛡</span><span>Max <strong>${capPct}%</strong> cap / order</span></div>
-        <div class="glass-rule-chip chip-min"><span class="rule-icon">🛒</span><span>Max cap <strong>₹${Number(maxCap).toLocaleString()}</strong></span></div>
-      </div>
-      <div class="policy-nearest-expire-box">
-        ${nearestHtml}
+      <div class="policy-card-shell" id="policyCardShell">
+        <div class="glass-policy-header policy-header-toggle" id="btnTogglePolicy" role="button" tabindex="0" aria-expanded="false">
+          <div class="policy-header-left">
+            <span class="policy-dot-purple"></span>
+            <span class="glass-policy-title">REDEMPTION POLICY</span>
+          </div>
+          <div class="policy-header-right">
+            <span class="policy-details-link" id="policyToggleText">Details</span>
+            <span class="policy-chevron-icon" id="policyChevron">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="policy-drawer" id="policyDrawer">
+          <div class="policy-drawer-inner">
+            <div class="policy-capping-bar">
+              <span class="shield-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8b5cf6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
+              <span>Max <strong class="policy-pct-val">${capPct}%</strong> cap / order</span>
+            </div>
+            <div class="policy-nearest-expire-box">
+              ${nearestHtml}
+            </div>
+          
+          </div>
+        </div>
       </div>`;
+
+    const btnToggle = document.getElementById('btnTogglePolicy');
+    const shell = document.getElementById('policyCardShell');
+    const toggleText = document.getElementById('policyToggleText');
+    if (btnToggle && shell) {
+      btnToggle.addEventListener('click', () => {
+        const isOpen = shell.classList.toggle('is-open');
+        btnToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (toggleText) toggleText.textContent = isOpen ? 'Hide' : 'Details';
+      });
+    }
   }
 
   // Load All Data
