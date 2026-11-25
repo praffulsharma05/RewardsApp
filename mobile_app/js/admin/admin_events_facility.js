@@ -201,24 +201,26 @@ Object.assign(MobileAdminApp.prototype, {
       });
     });
 
-    // 2. Card Header Accordion (Only one card open in parent container; others auto-close)
-    document.querySelectorAll(".card-collapse-header").forEach(hdr => {
-      hdr.addEventListener("click", () => {
-        const card = hdr.closest(".card-accordion");
-        if (!card) return;
-        const isCurrentlyExpanded = card.classList.contains("expanded");
-        const parent = card.parentElement;
+    // 2. Card Header Accordion (Delegated for static and dynamically rendered cards)
+    document.addEventListener("click", (e) => {
+      const hdr = e.target.closest(".card-collapse-header");
+      if (!hdr) return;
+      if (e.target.closest("button, input, select, a, textarea")) return;
 
-        // Auto-close other card accordions in the same container
-        if (parent) {
-          parent.querySelectorAll(".card-accordion").forEach(c => {
-            if (c !== card) c.classList.remove("expanded");
-          });
-        }
+      const card = hdr.closest(".card-accordion");
+      if (!card) return;
+      const isCurrentlyExpanded = card.classList.contains("expanded");
+      const parent = card.parentElement;
 
-        // Toggle: open if previously closed, close if open
-        card.classList.toggle("expanded", !isCurrentlyExpanded);
-      });
+      // Auto-close other card accordions in the same container
+      if (parent) {
+        parent.querySelectorAll(".card-accordion").forEach(c => {
+          if (c !== card) c.classList.remove("expanded");
+        });
+      }
+
+      // Toggle: open if previously closed, close if open
+      card.classList.toggle("expanded", !isCurrentlyExpanded);
     });
   }
 });

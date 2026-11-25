@@ -192,7 +192,7 @@ Object.assign(MockAPI.prototype, {
     booking.admin_refund_note = "";
     await this._put("bookings", booking);
 
-    return { booking, updatedWallet: user?.wallet_balance };
+    return { booking, user, updatedWallet: user?.wallet_balance };
   },
 
   // Admin Manual Refund API: Admin sets how much refund to disburse back to user wallet
@@ -201,6 +201,9 @@ Object.assign(MockAPI.prototype, {
     const booking = await this._get("bookings", Number(bookingId));
     if (!booking) throw new Error("Booking not found.");
     if (booking.status !== "CANCELLED") throw new Error("Only cancelled bookings can be refunded.");
+    if (booking.refund_status === "REFUNDED") {
+      throw new Error("This booking has already been refunded. Refunds can only be disbursed once per booking.");
+    }
 
     const maxAllowed = Number(booking.price);
     const amount = Math.max(0, Math.min(maxAllowed, Number(refundAmount)));
@@ -230,16 +233,44 @@ Object.assign(MockAPI.prototype, {
       });
     }
 
-    return { booking, updatedWallet: user?.wallet_balance };
+    return { booking, user, updatedWallet: user?.wallet_balance };
   },
 
   // Wallet History Ledger API
   async getWalletLedger(userId) {
     await this._simulateDelay(50);
     const all = await this._getAll("wallet_ledger");
-    return all
-      .filter(l => l.user_id === Number(userId))
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const seenRefunds = new Set();
+    const cleaned = [];
+    let surplusDeduction = 0;
+
+    for (const l of all) {
+      if (l.type === "ADMIN_MANUAL_REFUND" && l.booking_id) {
+        if (seenRefunds.has(l.booking_id)) {
+          // Clean up duplicate refund record from store
+          this._delete("wallet_ledger", l.id).catch(() => {});
+          if (l.user_id === Number(userId)) {
+            surplusDeduction += (Number(l.amount) || 0);
+          }
+          continue;
+        }
+        seenRefunds.add(l.booking_id);
+      }
+      if (l.user_id === Number(userId)) {
+        cleaned.push(l);
+      }
+    }
+
+    // Auto-correct user balance if duplicate refunds had inflated it
+    if (surplusDeduction > 0) {
+      const u = await this._get("users", Number(userId));
+      if (u) {
+        u.wallet_balance = Number(Math.max(0, u.wallet_balance - surplusDeduction).toFixed(2));
+        await this._put("users", u);
+      }
+    }
+
+    return cleaned.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
 });

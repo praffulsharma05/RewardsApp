@@ -202,6 +202,19 @@ Object.assign(MobileWireframeApp.prototype, {
     document.getElementById("btn-close-cancel-modal")?.addEventListener("click", () => this.closeCancelModal());
     document.getElementById("btn-abort-cancel")?.addEventListener("click", () => this.closeCancelModal());
     document.getElementById("btn-submit-cancel")?.addEventListener("click", async () => this.handleConfirmCancellation());
+
+    // Hash change listener for browser navigation & reloads
+    window.addEventListener("hashchange", async () => {
+      if (!this.currentUser) return;
+      const rawHash = window.location.hash.replace("#", "");
+      const validScreens = ["screen-sports", "screen-bookings", "screen-wallet"];
+      if (validScreens.includes(rawHash) && this.currentScreen !== rawHash) {
+        this.navigateTo(rawHash, false);
+        if (rawHash === "screen-bookings") await this.renderBookingsList();
+        else if (rawHash === "screen-wallet") await this.renderWallet();
+        else await this.renderSports();
+      }
+    });
   }
 
 });

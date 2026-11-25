@@ -30,7 +30,7 @@ Object.assign(MobileWireframeApp.prototype, {
     if (pill && summary) pill.textContent = `${summary.expiryDays} Days Policy`;
     if (expiryText && summary) {
       if (summary.earliestExpiry) {
-        expiryText.innerHTML = `<span>&#9200; <strong>$${summary.earliestExpiringAmount.toFixed(2)}</strong> expires on <strong>${new Date(summary.earliestExpiry).toLocaleDateString()}</strong> (${summary.daysLeft} days remaining).</span>`;
+        expiryText.innerHTML = `<span class="wallet-expiry-notice"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span><strong>$${summary.earliestExpiringAmount.toFixed(2)}</strong> expires on <strong>${new Date(summary.earliestExpiry).toLocaleDateString()}</strong> (${summary.daysLeft} days remaining).</span></span>`;
       } else {
         expiryText.innerHTML = `<span>All cashback rewards are valid for <strong>${summary.expiryDays} days</strong> from date of credit.</span>`;
       }
@@ -47,17 +47,52 @@ Object.assign(MobileWireframeApp.prototype, {
       let expiryLabel = "";
       if (l.amount > 0 && l.expires_at) {
         const daysLeft = Math.ceil((new Date(l.expires_at).getTime() - Date.now()) / 86400000);
-        expiryLabel = `<small style="color:var(--text-muted); display:block;">Expires: ${new Date(l.expires_at).toLocaleDateString()} (${daysLeft > 0 ? `${daysLeft}d left` : 'Expired'})</small>`;
+        if (daysLeft > 0) {
+          expiryLabel = `<span>&bull; Expires in ${daysLeft}d</span>`;
+        }
       }
+
+      // Format clean, human-readable title & only necessary info
+      let displayTitle = l.description || "Reward Transaction";
+      let noteText = "";
+
+      if (l.type === "ADMIN_MANUAL_REFUND") {
+        displayTitle = l.booking_id ? `Admin Refund &bull; Booking #${l.booking_id}` : `Admin Refund`;
+        if (l.description && l.description.includes(" - ")) {
+          const rawNote = l.description.split(" - ").slice(1).join(" - ").trim();
+          if (rawNote && rawNote.toLowerCase() !== "manual refund") {
+            noteText = rawNote;
+          }
+        }
+      } else if (l.type === "REWARD_EARNED") {
+        displayTitle = l.booking_id ? `Cashback Reward &bull; Booking #${l.booking_id}` : `Cashback Reward`;
+      } else if (l.type === "WALLET_PAYMENT") {
+        displayTitle = l.booking_id ? `Wallet Payment &bull; Booking #${l.booking_id}` : `Wallet Payment`;
+      } else if (l.type === "WALLET_UPGRADE_PAYMENT") {
+        displayTitle = l.booking_id ? `Reschedule Upgrade &bull; Booking #${l.booking_id}` : `Reschedule Upgrade`;
+      } else if (l.type === "WALLET_DOWNGRADE_REFUND") {
+        displayTitle = l.booking_id ? `Reschedule Difference &bull; Booking #${l.booking_id}` : `Reschedule Difference`;
+      } else if (l.type === "REWARD_REVERSED") {
+        displayTitle = l.booking_id ? `Reward Reversal &bull; Booking #${l.booking_id}` : `Reward Reversal`;
+      } else if (l.type === "WELCOME_BONUS") {
+        displayTitle = `Welcome Bonus`;
+      } else if (displayTitle.includes(" - ")) {
+        displayTitle = displayTitle.split(" - ")[0].trim();
+      }
+
+      const dateStr = new Date(l.created_at).toLocaleDateString();
 
       return `
         <div class="ledger-row">
-          <div>
-            <strong style="display:block;">${l.description}</strong>
-            <small class="wf-meta">${new Date(l.created_at).toLocaleDateString()} &bull; ${l.type}</small>
-            ${expiryLabel}
+          <div class="ledger-info">
+            <strong class="ledger-title">${displayTitle}</strong>
+            <div class="ledger-meta">
+              <span>${dateStr}</span>
+              ${noteText ? `<span>&bull; ${noteText}</span>` : ""}
+              ${expiryLabel}
+            </div>
           </div>
-          <span class="ledger-amount" style="color: #000;">
+          <span class="ledger-amount ${isPositive ? 'positive' : 'negative'}">
             ${isPositive ? `+` : ``}$${l.amount.toFixed(2)}
           </span>
         </div>

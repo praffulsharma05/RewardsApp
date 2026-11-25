@@ -69,7 +69,7 @@ const APP_CONSTANTS = Object.freeze({
     RESCHEDULE_CUTOFF_SAVED: (hours) => `Slot change cutoff set to ${hours} Hours!`,
     UPGRADE_RATIO_SAVED: (ratio) => `Wallet upgrade ratio set to ${ratio}%!`,
     REFUND_RATE_SAVED: (rate) => `Default refund rate set to ${rate}%!`,
-    REFUND_SENT: (amount, userId) => `Refund sent: $${amount.toFixed(2)} to User #${userId}!`,
+    REFUND_SENT: (amount, userTarget) => `Refund sent: $${amount.toFixed(2)} to ${typeof userTarget === 'number' ? `User #${userTarget}` : userTarget}!`,
     SPORT_ADDED: (id, name) => `New Sport #${id} (${name}) added!`,
     SPORT_UPDATED: (id, name) => `Sport #${id} (${name}) updated!`,
     SPORT_DELETED: (id) => `Sport #${id} and associated courts deleted.`,

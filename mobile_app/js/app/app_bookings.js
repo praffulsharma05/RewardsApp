@@ -42,15 +42,12 @@ Object.assign(MobileWireframeApp.prototype, {
         statusBadge = `<span class="wf-pill" style="background:var(--glacier-100); color:var(--glacier-800); border-color:var(--glacier-200);">COMPLETED</span>`;
       }
 
-      // Default the first reservation to expanded, others collapsed
-      const isExpanded = idx === 0;
-
       return `
-        <div class="wf-card ${isConfirmed ? "" : "highlight"} booking-accordion-card ${isExpanded ? "expanded" : ""}" data-booking-id="${b.id}">
+        <div class="wf-card ${isConfirmed ? "" : "highlight"} booking-accordion-card" data-booking-id="${b.id}">
           <div class="booking-collapse-header" title="Tap to expand or collapse details">
             <div>
               <strong style="font-size:0.88rem; color:var(--glacier-950);">${b.sport_name}</strong>
-              <small class="wf-meta" style="display:block;">${b.date} &bull; ${b.start_time} - ${b.end_time}</small>
+              <small class="wf-meta" style="display:block;">${b.date}</small>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               ${statusBadge}
@@ -61,13 +58,20 @@ Object.assign(MobileWireframeApp.prototype, {
           </div>
 
           <div class="booking-collapse-body">
-            <div style="font-size:0.8rem; margin-bottom: 8px;">
-              <div>Facility: <strong>${b.court_name}</strong> &bull; Booking ID: <strong>#${b.id}</strong></div>
-              <div>Slot Fee: <strong>$${b.price.toFixed(2)}</strong></div>
-              ${b.wallet_applied > 0 ? `<div>Paid with Wallet: <strong>-$${b.wallet_applied.toFixed(2)}</strong> (Net Paid: $${b.net_paid.toFixed(2)})</div>` : ''}
-              <div style="margin-top: 4px;">
-                Reward: <strong>${isConfirmed ? `+` : `Reversed `}$${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</strong>
+            <div class="app-booking-detail-container">
+              <div class="app-booking-detail-row justify-between">
+                <span><span class="app-booking-detail-label">Facility:</span> <strong class="app-booking-detail-val">${b.court_name}</strong></span>
+                <span><span class="app-booking-detail-label">Booking ID:</span> <strong class="app-booking-detail-val">#${b.id}</strong></span>
               </div>
+              <div class="app-booking-detail-row justify-between">
+                <span><span class="app-booking-detail-label">Slot Fee:</span> <strong class="app-booking-detail-val">$${b.price.toFixed(2)}</strong></span>
+                <span><span class="app-booking-detail-label">Reward:</span> <span class="app-booking-reward-val">${isConfirmed ? `+` : `Reversed `}$${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</span></span>
+              </div>
+              ${b.wallet_applied > 0 ? `
+              <div class="app-booking-detail-row justify-between">
+                <small style="color:var(--text-muted); font-weight:600;">Paid with Wallet: -$${b.wallet_applied.toFixed(2)}</small>
+                <span><span class="app-booking-detail-label">Net Paid:</span> <strong class="app-booking-detail-val">$${b.net_paid.toFixed(2)}</strong></span>
+              </div>` : ''}
             </div>
 
             ${isConfirmed ? (isPastGame ? `
@@ -101,28 +105,22 @@ Object.assign(MobileWireframeApp.prototype, {
       `;
     }).join("");
 
-    // Bind Expand / Collapse Toggle on Header Click
+    // Bind Expand / Collapse Toggle on Header Click (Single-open accordion)
     container.querySelectorAll(".booking-collapse-header").forEach(hdr => {
-      hdr.addEventListener("click", (e) => {
+      hdr.addEventListener("click", () => {
         const card = hdr.closest(".booking-accordion-card");
-        if (card) {
-          card.classList.toggle("expanded");
-        }
+        if (!card) return;
+        const isCurrentlyExpanded = card.classList.contains("expanded");
+
+        // Auto-close all other cards in the container
+        container.querySelectorAll(".booking-accordion-card").forEach(c => {
+          if (c !== card) c.classList.remove("expanded");
+        });
+
+        // Toggle the clicked card
+        card.classList.toggle("expanded", !isCurrentlyExpanded);
       });
     });
-
-    // Expand All / Collapse All Header Button
-    const toggleAllBtn = document.getElementById("btn-toggle-all-bookings");
-    if (toggleAllBtn) {
-      toggleAllBtn.onclick = () => {
-        const allCards = container.querySelectorAll(".booking-accordion-card");
-        const hasCollapsed = Array.from(allCards).some(c => !c.classList.contains("expanded"));
-        allCards.forEach(c => {
-          c.classList.toggle("expanded", hasCollapsed);
-        });
-        toggleAllBtn.textContent = hasCollapsed ? APP_CONSTANTS.UI.COLLAPSE_ALL : APP_CONSTANTS.UI.EXPAND_ALL;
-      };
-    }
 
     // Bind Edit & Cancel Buttons (prevent bubbling to accordion toggle)
     container.querySelectorAll(".btn-edit-booking").forEach(btn => {

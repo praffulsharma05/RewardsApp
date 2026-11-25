@@ -26,13 +26,15 @@
     </header>
 
     <div class="mobile-header">
-      <button class="header-btn" id="btn-header-back">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
-        <span>Back</span>
-      </button>
-       <div style="display:flex; align-items:center; gap:6px;">
+      <div class="mobile-header-left">
+        <button class="header-btn" id="btn-header-back">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Back</span>
+        </button>
         <span class="header-user-tag" id="header-user-pill">Guest</span>
-        <button class="header-btn" id="btn-header-logout" style="font-size:0.7rem; padding:3px 8px; display:none;" title="Sign Out">Logout</button>
+      </div>
+      <div class="mobile-header-right">
+        <button class="header-btn btn-header-logout" id="btn-header-logout" title="Sign Out">Logout</button>
       </div>
     </div>
     <!-- Wireframe Toast Notification -->
@@ -370,12 +372,9 @@
       </section>
       <!-- SCREEN 7: MY BOOKINGS (EDIT & CANCEL) -->
       <section class="wireframe-screen" id="screen-bookings">
-        <div class="wf-card-header" style="margin-bottom: 10px;">
-          <p class="wf-label" style="margin: 0;">My Reservations:</p>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <button type="button" class="header-btn" id="btn-toggle-all-bookings" style="font-size:0.7rem; padding:4px 10px;" title="Expand or collapse all">Expand All</button>
-            <button type="button" class="header-btn" id="btn-refresh-bookings-list" style="font-size:0.7rem; padding:4px 10px;">Refresh</button>
-          </div>
+        <div class="wf-card-header mb-10">
+          <p class="wf-label m-0">My Reservations:</p>
+          <button type="button" class="header-btn btn-sm" id="btn-refresh-bookings-list">Refresh</button>
         </div>
         <div id="bookings-list-container">
           <!-- Populated from IndexedDB bookings store -->

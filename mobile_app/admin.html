@@ -73,38 +73,6 @@
           </div>
         </div>
 
-        <!-- Rules & Policies Quick Summary Card (Navigates to Rules Tab) -->
-        <div class="wf-card highlight mt-10">
-          <div class="wf-card-header items-start gap-8">
-            <div class="flex-1">
-              <strong class="wf-title-sm">Active Rules &amp; Availability:</strong>
-            </div>
-            <span class="header-pill badge-rules-pill" id="badge-overview-rules-count">Rules Active</span>
-          </div>
-          <div class="rule-summary-list">
-            <div class="rule-summary-item">
-              <svg class="rule-summary-icon rule-icon-glacier mt-3" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <div class="rule-summary-text"><strong>Closed Dates &amp; Blackouts:</strong> <span id="overview-closed-count">0 set</span></div>
-            </div>
-            <div class="rule-summary-item">
-              <svg class="rule-summary-icon rule-icon-amber mt-3" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <div class="rule-summary-text"><strong>Ground &amp; Academy Blocks:</strong> <span id="overview-unavail-count">0 set</span></div>
-            </div>
-            <div class="rule-summary-item">
-              <svg class="rule-summary-icon rule-icon-navy mt-3" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <div class="rule-summary-text"><strong>Cancellation &amp; Reschedule Cutoff:</strong> <span id="overview-cutoff-text">12 hrs</span></div>
-            </div>
-            <div class="rule-summary-item">
-              <svg class="rule-summary-icon rule-icon-emerald mt-3" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
-              <div class="rule-summary-text"><strong>Max Discount Limit:</strong> <span id="overview-discount-cap">30%</span></div>
-            </div>
-          </div>
-          <button type="button" class="wf-btn wf-btn-sm btn-manage-rules" id="btn-goto-rules">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Manage Rules &amp; Availability</span>
-          </button>
-        </div>
-
         <div class="wf-card mt-10">
           <strong class="wf-title-sm d-block mb-10">Quick Management:</strong>
           <div class="quick-mgmt-row">
@@ -362,8 +330,7 @@
                   <strong class="wf-title-sm">Slot Cancellation Cutoff Policy</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Time Rule</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -395,8 +362,7 @@
                   <strong class="wf-title-sm">Default Cancellation Refund Rate</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Refund Policy</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -410,10 +376,10 @@
                       <span class="wf-unit-label">%</span>
                     </div>
                     <div class="wf-chip-grid-2 responsive-4 mt-6">
-                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="100">100% (Full)</button>
-                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="80">80% (20% Fee)</button>
-                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="50">50% (Split)</button>
-                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="0">0% (No Refund)</button>
+                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="100">100% </button>
+                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="80">80%  </button>
+                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="50">50%  </button>
+                      <button type="button" class="header-btn btn-policy-refund-chip" data-pct="0">0% </button>
                     </div>
                   </div>
                   <button type="submit" class="wf-btn">Save Default Refund Rate %</button>
@@ -428,8 +394,7 @@
                   <strong class="wf-title-sm">Slot Change / Reschedule Cutoff Policy</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Time Rule</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -462,8 +427,7 @@
                   <strong class="wf-title-sm">Slot Upgrade Wallet Payment Ratio</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Payment Rule</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -478,10 +442,10 @@
                     </div>
                     <small class="wf-presets-label">Ratio Presets:</small>
                     <div class="wf-chip-grid-2 responsive-4 mt-6">
-                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="100">100% (Full Wallet)</button>
+                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="100">100%  </button>
                       <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="80">80%</button>
-                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="50">50% (Split)</button>
-                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="0">0% (Pay Directly)</button>
+                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="50">50%  </button>
+                      <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="0">0%  </button>
                     </div>
                   </div>
                   <button type="submit" class="wf-btn">Update Wallet Upgrade Ratio</button>
@@ -513,8 +477,7 @@
                   <strong class="wf-title-sm">Maximum Limit of Discount</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Discount Cap</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -531,7 +494,7 @@
                     <div class="wf-chip-row gap-6 mt-6">
                       <button type="button" class="header-btn btn-max-discount-chip" data-cap="15">15%</button>
                       <button type="button" class="header-btn btn-max-discount-chip" data-cap="20">20%</button>
-                      <button type="button" class="header-btn btn-max-discount-chip" data-cap="30">30% (Standard)</button>
+                      <button type="button" class="header-btn btn-max-discount-chip" data-cap="30">30%</button>
                       <button type="button" class="header-btn btn-max-discount-chip" data-cap="40">40%</button>
                       <button type="button" class="header-btn btn-max-discount-chip" data-cap="50">50%</button>
                     </div>
@@ -548,8 +511,7 @@
                   <strong class="wf-title-sm">Cashback Reward Policy</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Live DB Rule</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -581,8 +543,7 @@
                   <strong class="wf-title-sm">Reward Cashback Expiry Policy</strong>
                 </div>
                 <div class="d-flex items-center gap-6">
-                  <span class="header-pill">Points Validity</span>
-                  <span class="card-chevron">
+                   <span class="card-chevron">
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </span>
                 </div>
@@ -590,7 +551,7 @@
               <div class="card-collapse-body">
                 <form id="form-admin-expiry-days-config" class="mt-6">
                   <div class="wf-form-group">
-                    <label class="wf-label">Reward Validity Period (Days until Expiry):</label>
+                    <label class="wf-label">Reward Validity Period :</label>
                     <div class="wf-unit-input-row">
                       <input type="number" id="admin-expiry-days-input" class="wf-input" min="1" max="730" step="1" value="60" required>
                       <span class="wf-unit-label">Days</span>
@@ -741,19 +702,18 @@
     <!-- MODAL 3: PROCESS MANUAL REFUND -->
     <div class="wf-modal-overlay" id="modal-admin-refund">
       <div class="wf-modal-sheet">
-        <div class="wf-card-header">
+        <div class="wf-card-header mb-10">
           <strong class="wf-title-sm">Process Manual Refund</strong>
           <button class="header-btn" id="btn-close-refund-modal">&#10005;</button>
         </div>
         <div class="wf-card highlight modal-summary-card">
           <div id="refund-modal-booking-meta"><strong>Booking #...</strong></div>
-          <div class="mt-4">Original Slot Price: <strong id="refund-modal-price" class="text-glacier-dark">$0.00</strong></div>
-          <div id="refund-modal-cancel-timing" class="wf-meta mt-3">Cancelled: ...</div>
+          <div class="mt-4">Slot Price: <strong id="refund-modal-price" class="text-glacier-dark">$0.00</strong></div>
         </div>
         <form id="form-admin-disburse-refund">
           <input type="hidden" id="refund-booking-id" value="">
           <div class="wf-form-group">
-            <label class="wf-label">Refund Amount to Send ($):</label>
+            <label class="wf-label">Refund Amount ($):</label>
             <input type="number" id="refund-input-amount" class="wf-input" min="0" step="0.5" required>
             <small class="wf-presets-label">Preset Ratios:</small>
             <div class="wf-chip-row gap-6 mt-6">
@@ -764,11 +724,11 @@
             </div>
           </div>
           <div class="wf-form-group">
-            <label class="wf-label">Admin Reason / Note (Shown to Player):</label>
-            <input type="text" id="refund-input-note" class="wf-input" placeholder="e.g. Approved 100% refund for 12h cancellation">
+            <label class="wf-label">Admin Reason / Note:</label>
+            <input type="text" id="refund-input-note" class="wf-input" placeholder="e.g. Approved per cutoff policy">
           </div>
-          <button type="submit" class="wf-btn">Confirm &amp; Send Refund to Player</button>
-          <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-abort-refund">Dismiss</button>
+          <button type="submit" class="wf-btn">Confirm &amp; Send Refund</button>
+          <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-abort-refund">Cancel</button>
         </form>
       </div>
     </div>

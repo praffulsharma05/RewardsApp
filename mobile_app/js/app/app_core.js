@@ -55,11 +55,22 @@ class MobileWireframeApp {
     await this.refreshAdminRewardDisplay();
     await this.checkDateAvailability(this.draft.date);
 
-    // 5. If user session is active, navigate to sports; otherwise show Sign In wireframe first
+    // 5. If user session is active, restore active screen (e.g. bookings, wallet); otherwise show Sign In
     if (this.currentUser) {
       this.updateUserHeaderPill();
-      this.navigateTo("screen-sports", false);
-      await this.renderSports();
+      const rawHash = window.location.hash.replace("#", "");
+      const validScreens = ["screen-sports", "screen-bookings", "screen-wallet"];
+      const targetScreen = validScreens.includes(rawHash) ? rawHash : (localStorage.getItem("sports_active_screen") || "screen-sports");
+      const resolved = validScreens.includes(targetScreen) ? targetScreen : "screen-sports";
+
+      this.navigateTo(resolved, false);
+      if (resolved === "screen-bookings") {
+        await this.renderBookingsList();
+      } else if (resolved === "screen-wallet") {
+        await this.renderWallet();
+      } else {
+        await this.renderSports();
+      }
     } else {
       this.currentUser = null;
       this.updateUserHeaderPill();
@@ -74,8 +85,9 @@ class MobileWireframeApp {
     if (!pill) return;
     if (this.currentUser) {
       pill.textContent = `${this.currentUser.name.split(" ")[0]} ($${this.currentUser.wallet_balance.toFixed(2)})`;
-      pill.style.display = "inline-block";
-      if (logoutBtn) logoutBtn.style.display = "inline-block";
+      const hidePill = this.currentScreen === "screen-bookings" || this.currentScreen === "screen-wallet";
+      pill.style.display = hidePill ? "none" : "inline-flex";
+      if (logoutBtn) logoutBtn.style.display = "inline-flex";
     } else {
       pill.textContent = "Guest";
       if (logoutBtn) logoutBtn.style.display = "none";
@@ -86,6 +98,8 @@ class MobileWireframeApp {
     if (confirm("Are you sure you want to log out?")) {
       this.currentUser = null;
       localStorage.removeItem("sports_active_user_id");
+      localStorage.removeItem("sports_active_screen");
+      try { history.replaceState(null, "", " "); } catch (_) {}
       this.updateUserHeaderPill();
       this.screenHistory = ["screen-auth"];
       this.navigateTo("screen-auth", false);
@@ -116,6 +130,15 @@ class MobileWireframeApp {
       }
     }
 
+    // Persist top-level active tab for page reload
+    if (this.currentUser && screenId !== "screen-auth") {
+      const topTabs = ["screen-sports", "screen-bookings", "screen-wallet"];
+      if (topTabs.includes(screenId)) {
+        localStorage.setItem("sports_active_screen", screenId);
+        try { history.replaceState(null, "", "#" + screenId); } catch (_) {}
+      }
+    }
+
     // Update Header Title
     const titleElem = document.getElementById("header-screen-title");
     const backBtn = document.getElementById("btn-header-back");
@@ -133,7 +156,13 @@ class MobileWireframeApp {
 
     if (titleElem) titleElem.textContent = titles[screenId] || "SportsSlot";
     if (backBtn) {
-      backBtn.style.visibility = (screenId === "screen-auth" || screenId === "screen-sports") ? "hidden" : "visible";
+      backBtn.style.display = (screenId === "screen-auth" || screenId === "screen-sports") ? "none" : "inline-flex";
+    }
+
+    const userPill = document.getElementById("header-user-pill");
+    if (userPill) {
+      const hidePill = screenId === "screen-bookings" || screenId === "screen-wallet" || !this.currentUser;
+      userPill.style.display = hidePill ? "none" : "inline-flex";
     }
 
     // Hide bottom navigation bar on auth screen for clean login experience

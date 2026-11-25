@@ -198,6 +198,32 @@ body::before {
   flex-shrink: 0;
 }
 
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-header-logout {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  display: none;
+}
+
+.btn-sm {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+}
+
+.mb-10 { margin-bottom: 10px !important; }
+.m-0 { margin: 0 !important; }
+
 .header-btn {
   background: var(--glacier-100);
   border: 1px solid var(--glacier-200);
@@ -1036,6 +1062,40 @@ select.wf-input option {
   border-top: 1px dashed var(--glacier-200);
 }
 
+.app-booking-detail-container {
+  margin-bottom: 8px;
+}
+
+.app-booking-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 22px;
+  line-height: 1.4;
+  margin-bottom: 5px;
+  font-size: 0.8rem;
+}
+
+.app-booking-detail-row.justify-between {
+  justify-content: space-between;
+}
+
+.app-booking-detail-label {
+  color: var(--glacier-950);
+  font-weight: 700;
+}
+
+.app-booking-detail-val {
+  color: var(--glacier-950);
+  font-weight: 800;
+}
+
+.app-booking-reward-val {
+  color: var(--glacier-800);
+  font-weight: 500;
+}
+
 /* Wallet Screen */
 .wallet-hero-card {
   text-align: center;
@@ -1060,24 +1120,73 @@ select.wf-input option {
   font-size: 0.78rem;
 }
 
+.wallet-expiry-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--glacier-900);
+}
+
+.wallet-expiry-notice svg {
+  flex-shrink: 0;
+  color: var(--glacier-700);
+}
+
 /* Ledger / Wallet History Item */
 .ledger-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
   border-bottom: 1px dashed var(--glacier-200);
   padding: 10px 0;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
 }
 
 .ledger-row:last-child {
   border-bottom: none;
 }
 
+.ledger-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ledger-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--glacier-950);
+  display: block;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.ledger-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
 .ledger-amount {
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.ledger-amount.positive {
+  color: var(--emerald-accent);
+}
+
+.ledger-amount.negative {
+  color: var(--rose-accent);
 }
 
 /* Modals */

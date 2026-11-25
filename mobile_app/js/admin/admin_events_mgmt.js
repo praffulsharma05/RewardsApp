@@ -211,7 +211,8 @@ Object.assign(MobileAdminApp.prototype, {
       try {
         const res = await window.api.processManualRefund(bookingId, amount, note);
         this.closeRefundModal();
-        this.showToast(APP_CONSTANTS.MESSAGES.REFUND_SENT(amount, res.booking.user_id));
+        const userName = res.user?.name || `User #${res.booking.user_id}`;
+        this.showToast(APP_CONSTANTS.MESSAGES.REFUND_SENT(amount, userName));
         await this.renderAllBookings();
         await this.refreshOverview();
       } catch (err) {

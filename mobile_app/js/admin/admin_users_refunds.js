@@ -131,17 +131,15 @@ Object.assign(MobileAdminApp.prototype, {
 
     document.getElementById("refund-booking-id").value = booking.id;
     document.getElementById("refund-modal-booking-meta").innerHTML = 
-      `<strong>Booking #${booking.id} (${booking.sport_name} &bull; ${booking.court_name})</strong><br>User ID #${booking.user_id} &bull; Date: ${booking.date} (${booking.start_time} - ${booking.end_time})`;
+      `<strong>Booking #${booking.id} &bull; ${booking.court_name}</strong>`;
     document.getElementById("refund-modal-price").textContent = `$${booking.price.toFixed(2)}`;
-    document.getElementById("refund-modal-cancel-timing").textContent = 
-      `Cancellation: ${booking.cancelled_at ? new Date(booking.cancelled_at).toLocaleString() : 'Recently'} (${booking.hours_before_slot != null ? booking.hours_before_slot + 'h before slot' : 'Advance'})`;
 
     const inputAmount = document.getElementById("refund-input-amount");
     inputAmount.value = booking.refund_amount > 0 ? booking.refund_amount : booking.price;
     inputAmount.max = booking.price;
 
     const inputNote = document.getElementById("refund-input-note");
-    inputNote.value = booking.admin_refund_note;
+    inputNote.value = booking.admin_refund_note || "";
 
     document.getElementById("modal-admin-refund")?.classList.add("active");
   },
@@ -172,44 +170,56 @@ Object.assign(MobileAdminApp.prototype, {
       const isRefundPending = b.status === "CANCELLED" && b.refund_status === "PENDING";
 
       return `
-        <div class="wf-card ${isConfirmed ? "" : "highlight"} admin-booking-card ${isRefundPending ? "refund-pending" : ""}">
-          <div class="admin-booking-header">
+        <div class="wf-card ${isConfirmed ? "" : "highlight"} admin-booking-card card-accordion ${isRefundPending ? "refund-pending" : ""}">
+          <div class="admin-booking-header card-collapse-header" title="Tap to expand or collapse">
             <div class="admin-booking-title-group">
               <div class="admin-booking-title">
                 <span>Booking #${b.id}</span>
                 <span class="wf-meta">&bull;</span>
                 <span>${b.sport_name}</span>
               </div>
-              <small class="wf-meta d-block mt-2">User ID #${b.user_id} &bull; <span class="facility-date-badge">${b.date}</span></small>
             </div>
             <div class="admin-booking-badges">
               <span class="header-pill pill-sm ${isConfirmed ? "pill-confirmed" : "pill-cancelled"}">
                 ${b.status}
               </span>
-              ${b.status === "CANCELLED" ? `
-                <span class="header-pill pill-sm ${isRefunded ? "pill-refunded" : "pill-awaiting-refund"}">
-                  ${isRefunded ? `REFUNDED $${Number(b.refund_amount || 0).toFixed(2)}` : "AWAITING REFUND"}
-                </span>
-              ` : ""}
+              <span class="card-chevron">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
             </div>
           </div>
-          <div class="admin-booking-body">
-            <div class="admin-booking-detail-row">
-              <span class="admin-booking-detail-item">Facility: <strong>${b.court_name}</strong></span>
+          <div class="admin-booking-body card-collapse-body">
+            <div class="admin-booking-detail-row justify-between">
+              <span class="admin-booking-detail-item"><span class="admin-booking-detail-label">Date:</span> <strong class="facility-date-badge">${b.date}</strong></span>
+              <span><span class="admin-booking-detail-label">User ID:</span> <strong class="admin-css">#${b.user_id}</strong></span>
+            </div>
+            <div class="admin-booking-detail-row justify-between">
+              <span class="admin-booking-detail-item"><span class="admin-booking-detail-label">Facility:</span> <strong class="admin-css">${b.court_name}</strong></span>
               <span class="facility-date-badge">${b.start_time} - ${b.end_time}</span>
             </div>
-            <div class="admin-booking-detail-row">
-              <span>Slot Fee: <strong>$${b.price.toFixed(2)}</strong></span>
-              <span class="wf-meta">|</span>
-              <span>Net Paid: <strong class="text-glacier-dark">$${(b.net_paid || b.price).toFixed(2)}</strong></span>
+            <div class="admin-booking-detail-row justify-between">
+              <span><span class="admin-booking-detail-label">Slot Fee:</span> <strong  class="admin-css">$${b.price.toFixed(2)}</strong></span>
+              <span><span class="admin-booking-detail-label">Net Paid:</span> <strong    class="admin-css" >$${(b.net_paid || b.price).toFixed(2)}</strong></span>
             </div>
             
             ${b.status === "CANCELLED" ? `
               <div class="admin-refund-box">
-                <div><strong>Cancellation Timing:</strong> ${b.hours_before_slot != null ? `${b.hours_before_slot} hrs before slot (Policy compliant)` : "Registered cancellation"}</div>
-                 <button type="button" class="wf-btn wf-btn-sm btn-open-refund-modal mt-8" data-id="${b.id}">
-                  ${isRefunded ? "Edit / Adjust Refund" : "Set & Send Refund to User"}
-                </button>
+                <div class="d-flex items-center justify-between mb-6 flex-wrap gap-4">
+                  <span><strong>Refund Status:</strong></span>
+                  <span class="header-pill pill-sm ${isRefunded ? "pill-refunded" : "pill-awaiting-refund"}">
+                    ${isRefunded ? `REFUNDED $${Number(b.refund_amount || 0).toFixed(2)}` : "AWAITING REFUND"}
+                  </span>
+                </div>
+                <div class="font-size-xs text-muted mb-4">Cancellation: <strong>${b.hours_before_slot != null ? `${b.hours_before_slot}h before slot` : "Advance"}</strong></div>
+                ${isRefunded ? `
+                  <div class="admin-refund-note-done">
+                    &#10003; Refund Disbursed: $${Number(b.refund_amount || 0).toFixed(2)} credited to user's wallet.
+                  </div>
+                ` : `
+                  <button type="button" class="wf-btn wf-btn-sm btn-open-refund-modal mt-8" data-id="${b.id}">
+                    Send Refund
+                  </button>
+                `}
               </div>
             ` : ""}
           </div>
@@ -219,7 +229,10 @@ Object.assign(MobileAdminApp.prototype, {
 
     // Bind refund action buttons
     container.querySelectorAll(".btn-open-refund-modal").forEach(btn => {
-      btn.addEventListener("click", () => this.openRefundModal(Number(btn.dataset.id)));
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openRefundModal(Number(btn.dataset.id));
+      });
     });
   }
 });
