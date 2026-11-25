@@ -44,16 +44,16 @@ Object.assign(MockAPI.prototype, {
     return parsed;
   },
 
-  // Admin Settings: Get & Set Admin UPI ID (defaults to 9602565841@ybl)
+  // Admin Settings: Get & Set Admin UPI ID (defaults to gyananiharish@ybl)
   async getAdminUPI() {
     await this._simulateDelay(20);
     const item = await this._get("settings", "admin_upi_id");
-    return item ? String(item.value).trim() : "9602565841@ybl";
+    return item ? String(item.value).trim() : "gyananiharish@ybl";
   },
 
   async setAdminUPI(upiId) {
     await this._simulateDelay(80);
-    const val = String(upiId || "9602565841@ybl").trim();
+    const val = String(upiId || "gyananiharish@ybl").trim();
     await this._put("settings", { key: "admin_upi_id", value: val });
     return val;
   },

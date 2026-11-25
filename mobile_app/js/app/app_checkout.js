@@ -32,9 +32,9 @@ Object.assign(MobileWireframeApp.prototype, {
     const capBadge = document.getElementById("badge-checkout-discount-cap");
     if (capBadge) capBadge.textContent = `Max Cap: ${maxDiscountCap}%`;
 
-    // Fetch Admin Facility Receiving UPI ID (Default: 9602565841@ybl)
-    const adminUpi = (window.api && window.api.getAdminUPI) ? await window.api.getAdminUPI() : "9602565841@ybl";
-    this.adminUpi = adminUpi || "9602565841@ybl";
+    // Fetch Admin Facility Receiving UPI ID (Default: gyananiharish@ybl)
+    const adminUpi = (window.api && window.api.getAdminUPI) ? await window.api.getAdminUPI() : "gyananiharish@ybl";
+    this.adminUpi = adminUpi || "gyananiharish@ybl";
 
     const chkUseWallet = document.getElementById("chk-use-wallet");
     const updatePaymentMath = () => {
@@ -117,7 +117,7 @@ Object.assign(MobileWireframeApp.prototype, {
 
     this.draft.paymentMethod = this.draft.paymentMethod === "COD" ? "COD" : "UPI";
 
-    const adminUPI = this.adminUpi || "9602565841@ybl";
+    const adminUPI = this.adminUpi || "gyananiharish@ybl";
     const upiDisplay = document.getElementById("upi-id-display");
     if (upiDisplay) upiDisplay.textContent = adminUPI;
 

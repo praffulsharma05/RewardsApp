@@ -46,10 +46,10 @@ Object.assign(MockAPI.prototype, {
       await this._put("settings", { key: "max_discount_percent", value: 30 });
     }
 
-    // Admin Setting: Default Facility Receiving UPI ID (Default: 9602565841@ybl)
+    // Admin Setting: Default Facility Receiving UPI ID (Default: gyananiharish@ybl)
     const currentAdminUPI = await this._get("settings", "admin_upi_id");
-    if (!currentAdminUPI) {
-      await this._put("settings", { key: "admin_upi_id", value: "9602565841@ybl" });
+    if (!currentAdminUPI || currentAdminUPI.value === "9602565841@ybl") {
+      await this._put("settings", { key: "admin_upi_id", value: "gyananiharish@ybl" });
     }
 
     // Admin Setting: Playground & Academy Time-Window Unavailability (e.g. 10 AM to 5 PM)

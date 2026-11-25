@@ -96,7 +96,7 @@ Object.assign(MobileAdminApp.prototype, {
     // Admin UPI ID Form Submit
     document.getElementById("form-admin-upi-config")?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const newUpi = document.getElementById("admin-upi-input")?.value?.trim() || "9602565841@ybl";
+      const newUpi = document.getElementById("admin-upi-input")?.value?.trim() || "gyananiharish@ybl";
       try {
         const saved = await window.api.setAdminUPI(newUpi);
         const msg = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.ADMIN_UPI_SAVED)
