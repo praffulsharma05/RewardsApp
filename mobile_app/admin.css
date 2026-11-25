@@ -207,11 +207,19 @@ body::before {
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
   text-decoration: none;
+  line-height: 1;
+}
+
+.header-btn svg {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .header-btn:hover {
