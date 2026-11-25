@@ -39,7 +39,7 @@ class MobileWireframeApp {
     // 1. Initialize IndexedDB
     await window.api.init();
 
-    // 2. Check if user chose "Remember me" from localStorage
+    // 2. Restore active user session if exists
     const savedUserId = localStorage.getItem("sports_active_user_id");
     if (savedUserId) {
       const user = await window.api.getUser(Number(savedUserId));
@@ -48,63 +48,76 @@ class MobileWireframeApp {
       }
     }
 
-    // 3. Bind UI Events
+    // 3. Restore draft state if saved
+    try {
+      const savedDraft = localStorage.getItem("sports_active_draft");
+      if (savedDraft) {
+        this.draft = { ...this.draft, ...JSON.parse(savedDraft) };
+      }
+    } catch (_) {}
+
+    // 4. Bind UI Events
     this.bindEvents();
 
-    // 4. Update Promo & Admin Badges from DB
+    // 5. Update Promo & Admin Badges from DB
     await this.refreshAdminRewardDisplay();
     await this.checkDateAvailability(this.draft.date);
 
-    // 5. If user session is active, restore active screen (e.g. bookings, wallet); otherwise show Sign In
+    // 6. Navigate to active screen if logged in; otherwise show screen-auth
+    this.updateUserHeaderPill();
     if (this.currentUser) {
-      this.updateUserHeaderPill();
-      const rawHash = window.location.hash.replace("#", "");
-      const validScreens = ["screen-sports", "screen-bookings", "screen-wallet"];
-      const targetScreen = validScreens.includes(rawHash) ? rawHash : (localStorage.getItem("sports_active_screen") || "screen-sports");
-      const resolved = validScreens.includes(targetScreen) ? targetScreen : "screen-sports";
+      const savedScreen = localStorage.getItem("sports_active_screen") || "screen-sports";
+      const validScreens = [
+        "screen-sports",
+        "screen-courts",
+        "screen-slots",
+        "screen-checkout",
+        "screen-success",
+        "screen-bookings",
+        "screen-wallet"
+      ];
+      const targetScreen = validScreens.includes(savedScreen) ? savedScreen : "screen-sports";
 
-      this.navigateTo(resolved, false);
-      if (resolved === "screen-bookings") {
+      this.navigateTo(targetScreen, false);
+      if (targetScreen === "screen-bookings") {
         await this.renderBookingsList();
-      } else if (resolved === "screen-wallet") {
+      } else if (targetScreen === "screen-wallet") {
         await this.renderWallet();
+      } else if (targetScreen === "screen-courts") {
+        await this.renderCourts(this.draft.sportId);
+      } else if (targetScreen === "screen-slots") {
+        await this.renderSlots(this.draft.courtId, this.draft.date);
+      } else if (targetScreen === "screen-checkout") {
+        await this.renderCheckout();
       } else {
         await this.renderSports();
       }
     } else {
       this.currentUser = null;
-      this.updateUserHeaderPill();
       this.navigateTo("screen-auth", false);
     }
   }
 
-  // Header and user pill updater
+  // Header and user pill updater (Header user tag removed as requested)
   updateUserHeaderPill() {
     const pill = document.getElementById("header-user-pill");
     const logoutBtn = document.getElementById("btn-header-logout");
-    if (!pill) return;
-    if (this.currentUser) {
-      pill.textContent = `${this.currentUser.name.split(" ")[0]} ($${this.currentUser.wallet_balance.toFixed(2)})`;
-      const hidePill = this.currentScreen === "screen-bookings" || this.currentScreen === "screen-wallet";
-      pill.style.display = hidePill ? "none" : "inline-flex";
-      if (logoutBtn) logoutBtn.style.display = "inline-flex";
-    } else {
-      pill.textContent = "Guest";
-      if (logoutBtn) logoutBtn.style.display = "none";
-    }
+    if (pill) pill.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = this.currentUser ? "inline-flex" : "none";
   }
 
   handleLogout() {
-    if (confirm("Are you sure you want to log out?")) {
-      this.currentUser = null;
-      localStorage.removeItem("sports_active_user_id");
-      localStorage.removeItem("sports_active_screen");
-      try { history.replaceState(null, "", " "); } catch (_) {}
-      this.updateUserHeaderPill();
-      this.screenHistory = ["screen-auth"];
-      this.navigateTo("screen-auth", false);
-      this.showToast("Signed out successfully.");
-    }
+    this.currentUser = null;
+    localStorage.removeItem("sports_active_user_id");
+    localStorage.removeItem("sports_active_screen");
+    localStorage.removeItem("sports_active_draft");
+    try {
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    } catch (_) {}
+    this.updateUserHeaderPill();
+    this.screenHistory = ["screen-auth"];
+    this.navigateTo("screen-auth", false);
+    this.showToast("Signed out!");
   }
 
   // Toast feedback
@@ -130,13 +143,19 @@ class MobileWireframeApp {
       }
     }
 
-    // Persist top-level active tab for page reload
+    // Persist current active screen and draft state so reloading never loses screen
     if (this.currentUser && screenId !== "screen-auth") {
-      const topTabs = ["screen-sports", "screen-bookings", "screen-wallet"];
-      if (topTabs.includes(screenId)) {
-        localStorage.setItem("sports_active_screen", screenId);
-        try { history.replaceState(null, "", "#" + screenId); } catch (_) {}
-      }
+      localStorage.setItem("sports_active_screen", screenId);
+      try {
+        localStorage.setItem("sports_active_draft", JSON.stringify(this.draft));
+      } catch (_) {}
+    }
+
+    // Clear hash from URL so it doesn't get stuck on screen-sports
+    if (screenId === "screen-auth" && window.location.hash) {
+      try {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      } catch (_) {}
     }
 
     // Update Header Title
@@ -160,10 +179,7 @@ class MobileWireframeApp {
     }
 
     const userPill = document.getElementById("header-user-pill");
-    if (userPill) {
-      const hidePill = screenId === "screen-bookings" || screenId === "screen-wallet" || !this.currentUser;
-      userPill.style.display = hidePill ? "none" : "inline-flex";
-    }
+    if (userPill) userPill.style.display = "none";
 
     // Hide bottom navigation bar on auth screen for clean login experience
     const bottomNav = document.querySelector(".mobile-bottom-nav");

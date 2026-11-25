@@ -128,7 +128,7 @@ Object.assign(MobileWireframeApp.prototype, {
           if (mainDate) mainDate.value = this.draft.date;
           await this.renderSlots(courtId, this.draft.date);
         } else {
-          this.showToast("Cannot select a date in the past.");
+          this.showToast("Date has passed!");
         }
       };
     }
@@ -194,15 +194,14 @@ Object.assign(MobileWireframeApp.prototype, {
       return `
         <div class="slot-box" data-slot-id="${s.id}" data-time="${s.start_time} - ${s.end_time}" data-price="${s.price}">
           <span class="slot-time">${s.start_time} - ${s.end_time}</span>
-          <span class="slot-price">$${s.price.toFixed(2)} ${dayLabel}</span>
+          <span class="slot-price">₹${s.price.toFixed(2)} ${dayLabel}</span>
         </div>
       `;
     }).join("");
 
     container.querySelectorAll(".slot-box.unavailable").forEach(box => {
       box.addEventListener("click", () => {
-        const reason = box.dataset.reason || "Slot unavailable per academy rules.";
-        this.showToast(`🚫 ${reason}`);
+        this.showToast("Slot unavailable!");
       });
     });
 

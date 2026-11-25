@@ -16,10 +16,10 @@ Object.assign(MockAPI.prototype, {
       await this._put("settings", { key: "cancellation_cutoff_hours", value: 12 });
     }
 
-    // Slot Change / Reschedule Cutoff Hours Setting (Default: 12 Hours)
+    // Slot Change / Reschedule Cutoff Hours Setting (Default: 0 Hours for seamless booking & demo)
     const currentRescheduleCutoff = await this._get("settings", "reschedule_cutoff_hours");
-    if (!currentRescheduleCutoff) {
-      await this._put("settings", { key: "reschedule_cutoff_hours", value: 12 });
+    if (!currentRescheduleCutoff || currentRescheduleCutoff.value === 12) {
+      await this._put("settings", { key: "reschedule_cutoff_hours", value: 0 });
     }
 
     // Default Cancellation Refund Percentage Setting (Default: 100%)
@@ -44,6 +44,12 @@ Object.assign(MockAPI.prototype, {
     const currentMaxDiscount = await this._get("settings", "max_discount_percent");
     if (!currentMaxDiscount) {
       await this._put("settings", { key: "max_discount_percent", value: 30 });
+    }
+
+    // Admin Setting: Default Facility Receiving UPI ID (Default: 9602565841@ybl)
+    const currentAdminUPI = await this._get("settings", "admin_upi_id");
+    if (!currentAdminUPI) {
+      await this._put("settings", { key: "admin_upi_id", value: "9602565841@ybl" });
     }
 
     // Admin Setting: Playground & Academy Time-Window Unavailability (e.g. 10 AM to 5 PM)

@@ -93,6 +93,21 @@ Object.assign(MobileAdminApp.prototype, {
       }
     });
 
+    // Admin UPI ID Form Submit
+    document.getElementById("form-admin-upi-config")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newUpi = document.getElementById("admin-upi-input")?.value?.trim() || "9602565841@ybl";
+      try {
+        const saved = await window.api.setAdminUPI(newUpi);
+        const msg = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.ADMIN_UPI_SAVED)
+          ? APP_CONSTANTS.MESSAGES.ADMIN_UPI_SAVED(saved)
+          : "UPI saved!";
+        this.showToast(msg);
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
     // Cancellation Cutoff Preset Chips
     document.querySelectorAll(".btn-cutoff-chip").forEach(btn => {
       btn.addEventListener("click", () => {

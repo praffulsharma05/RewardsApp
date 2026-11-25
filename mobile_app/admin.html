@@ -144,7 +144,7 @@
                   </select>
                 </div>
                 <div class="wf-form-col-rate">
-                  <label class="wf-label">Rate ($):</label>
+                  <label class="wf-label">Rate (₹):</label>
                   <input type="number" id="price-rate-value" class="wf-input" value="45" min="5" step="1" required>
                 </div>
               </div>
@@ -463,7 +463,7 @@
               <span>3. Reward &amp; Discount Limit Rules</span>
             </span>
             <div class="d-flex items-center gap-6">
-              <span class="header-pill pill-sm">3 Rules</span>
+              <span class="header-pill pill-sm">4 Rules</span>
               <span class="rules-chevron">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
@@ -566,6 +566,30 @@
                     </div>
                   </div>
                   <button type="submit" class="wf-btn">Update &amp; Save Reward Expiry Days</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- ADMIN RECEIVING UPI ID CONFIGURATION -->
+            <div class="wf-card card-accordion mt-10">
+              <div class="card-collapse-header" title="Tap to expand or collapse">
+                <div>
+                  <strong class="wf-title-sm">Facility Payment UPI ID</strong>
+                </div>
+                <div class="d-flex items-center gap-6">
+                   <span class="card-chevron">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="card-collapse-body">
+                <form id="form-admin-upi-config" class="mt-6">
+                  <div class="wf-form-group">
+                    <label class="wf-label">Admin Receiving UPI ID (Default: 9602565841@ybl):</label>
+                    <input type="text" id="admin-upi-input" class="wf-input" value="9602565841@ybl" placeholder="e.g. 9602565841@ybl" required>
+                    <small class="wf-presets-label">Used for dynamic customer payment QR codes &amp; UPI intent links during slot checkout.</small>
+                  </div>
+                  <button type="submit" class="wf-btn">Update &amp; Save Admin UPI ID</button>
                 </form>
               </div>
             </div>
@@ -708,12 +732,12 @@
         </div>
         <div class="wf-card highlight modal-summary-card">
           <div id="refund-modal-booking-meta"><strong>Booking #...</strong></div>
-          <div class="mt-4">Slot Price: <strong id="refund-modal-price" class="text-glacier-dark">$0.00</strong></div>
+          <div class="mt-4">Slot Price: <strong id="refund-modal-price" class="text-glacier-dark">₹0.00</strong></div>
         </div>
         <form id="form-admin-disburse-refund">
           <input type="hidden" id="refund-booking-id" value="">
           <div class="wf-form-group">
-            <label class="wf-label">Refund Amount ($):</label>
+            <label class="wf-label">Refund Amount (₹):</label>
             <input type="number" id="refund-input-amount" class="wf-input" min="0" step="0.5" required>
             <small class="wf-presets-label">Preset Ratios:</small>
             <div class="wf-chip-row gap-6 mt-6">
@@ -745,18 +769,18 @@
         </div>
         <form id="form-edit-slot-price" class="mt-10">
           <div class="wf-form-group">
-            <label class="wf-label">Slot Price ($):</label>
+            <label class="wf-label">Slot Price (₹):</label>
             <div class="wf-unit-input-row">
-              <span class="wf-unit-prefix">$</span>
+              <span class="wf-unit-prefix">₹</span>
               <input type="number" id="input-edit-slot-price" class="wf-input" min="1" max="1000" step="0.5" required>
             </div>
             <small class="wf-meta d-block mt-4">Applies to all courts for this time slot.</small>
           </div>
           <div class="wf-chip-row mb-12 flex-wrap">
-            <button type="button" class="header-btn btn-quick-price-chip" data-price="20">$20</button>
-            <button type="button" class="header-btn btn-quick-price-chip" data-price="30">$30</button>
-            <button type="button" class="header-btn btn-quick-price-chip" data-price="40">$40</button>
-            <button type="button" class="header-btn btn-quick-price-chip" data-price="50">$50</button>
+            <button type="button" class="header-btn btn-quick-price-chip" data-price="20">₹20</button>
+            <button type="button" class="header-btn btn-quick-price-chip" data-price="30">₹30</button>
+            <button type="button" class="header-btn btn-quick-price-chip" data-price="40">₹40</button>
+            <button type="button" class="header-btn btn-quick-price-chip" data-price="50">₹50</button>
           </div>
           <button type="submit" class="wf-btn">Save New Slot Price</button>
           <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-cancel-slot-price">Cancel</button>

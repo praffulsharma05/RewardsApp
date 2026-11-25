@@ -261,31 +261,36 @@ body::before {
   line-height: 1;
 }
 
-/* Toast */
+/* Toast Notification - Small & Compact */
 .wf-toast {
   position: absolute;
-  top: 56px;
+  bottom: 76px;
   left: 50%;
-  transform: translateX(-50%) translateY(-24px);
-  background: var(--glacier-950);
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(13, 34, 56, 0.94);
+  backdrop-filter: blur(8px);
   color: #ffffff;
-  padding: 8px 18px;
+  padding: 4px 11px;
   border-radius: 999px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  box-shadow: 0 10px 28px rgba(13, 34, 56, 0.28);
-  border: 1px solid var(--glacier-700);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 14px rgba(13, 34, 56, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   z-index: 1000;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
-  max-width: 90%;
+  width: fit-content;
+  max-width: 75%;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.2;
 }
 
 .wf-toast.show {
@@ -937,8 +942,13 @@ body::before {
   font-size: 0.75rem;
   color: var(--emerald-accent);
   font-weight: 600;
-  margin-top: 6px;
-}
+ }
+
+.admin-cancellation-meta {
+  font-size: 0.75rem;
+  color: var(--glacier-950);
+  font-weight: 700;
+ }
 
 .pill-awaiting-refund {
   background: var(--rose-bg) !important;
@@ -1288,7 +1298,7 @@ select.wf-input option {
 /* Buttons */
 .wf-btn {
   width: 100%;
-  background: linear-gradient(135deg, #265074 0%, #163654 100%);
+  background: linear-gradient(135deg, #4279ab 0%, #2b5b84 100%);
   color: #ffffff;
   border: none;
   border-radius: 14px;
@@ -1300,16 +1310,16 @@ select.wf-input option {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 8px 20px -4px rgba(38, 80, 116, 0.28);
+  box-shadow: 0 8px 20px -4px rgba(66, 121, 171, 0.28);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
   text-decoration: none;
 }
 
 .wf-btn:hover {
-  background: linear-gradient(135deg, #3c6d96 0%, #265074 100%);
+  background: linear-gradient(135deg, #5593c0 0%, #356790 100%);
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px -4px rgba(38, 80, 116, 0.35);
+  box-shadow: 0 10px 24px -4px rgba(66, 121, 171, 0.35);
 }
 
 .wf-btn:active {

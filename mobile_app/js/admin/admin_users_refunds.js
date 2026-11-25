@@ -30,7 +30,7 @@ Object.assign(MobileAdminApp.prototype, {
           </div>
           <div class="user-row-actions">
             <span class="user-balance-pill" title="Current Reward Balance">
-              $${(u.wallet_balance || 0).toFixed(2)}
+              ₹${(u.wallet_balance || 0).toFixed(2)}
             </span>
             <button type="button" class="btn-user-remove btn-delete-user" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}">
               Remove
@@ -114,6 +114,10 @@ Object.assign(MobileAdminApp.prototype, {
     const maxDiscountInput = document.getElementById("admin-max-discount-input");
     if (maxDiscountInput) maxDiscountInput.value = maxDiscount;
 
+    const adminUpi = await window.api.getAdminUPI();
+    const adminUpiInput = document.getElementById("admin-upi-input");
+    if (adminUpiInput) adminUpiInput.value = adminUpi;
+
     // Render Availability & Blackout rules in Rules screen
     await this.renderClosedDatesList();
     await this.populateUnavailabilityCourts();
@@ -132,7 +136,7 @@ Object.assign(MobileAdminApp.prototype, {
     document.getElementById("refund-booking-id").value = booking.id;
     document.getElementById("refund-modal-booking-meta").innerHTML = 
       `<strong>Booking #${booking.id} &bull; ${booking.court_name}</strong>`;
-    document.getElementById("refund-modal-price").textContent = `$${booking.price.toFixed(2)}`;
+    document.getElementById("refund-modal-price").textContent = `₹${booking.price.toFixed(2)}`;
 
     const inputAmount = document.getElementById("refund-input-amount");
     inputAmount.value = booking.refund_amount > 0 ? booking.refund_amount : booking.price;
@@ -198,8 +202,8 @@ Object.assign(MobileAdminApp.prototype, {
               <span class="facility-date-badge">${b.start_time} - ${b.end_time}</span>
             </div>
             <div class="admin-booking-detail-row justify-between">
-              <span><span class="admin-booking-detail-label">Slot Fee:</span> <strong  class="admin-css">$${b.price.toFixed(2)}</strong></span>
-              <span><span class="admin-booking-detail-label">Net Paid:</span> <strong    class="admin-css" >$${(b.net_paid || b.price).toFixed(2)}</strong></span>
+              <span><span class="admin-booking-detail-label">Slot Fee:</span> <strong  class="admin-css">₹${b.price.toFixed(2)}</strong></span>
+              <span><span class="admin-booking-detail-label">Net Paid:</span> <strong    class="admin-css" >₹${(b.net_paid || b.price).toFixed(2)}</strong></span>
             </div>
             
             ${b.status === "CANCELLED" ? `
@@ -207,13 +211,13 @@ Object.assign(MobileAdminApp.prototype, {
                 <div class="d-flex items-center justify-between mb-6 flex-wrap gap-4">
                   <span><strong>Refund Status:</strong></span>
                   <span class="header-pill pill-sm ${isRefunded ? "pill-refunded" : "pill-awaiting-refund"}">
-                    ${isRefunded ? `REFUNDED $${Number(b.refund_amount || 0).toFixed(2)}` : "AWAITING REFUND"}
+                    ${isRefunded ? `REFUNDED ₹${Number(b.refund_amount || 0).toFixed(2)}` : "AWAITING REFUND"}
                   </span>
                 </div>
-                <div class="font-size-xs text-muted mb-4">Cancellation: <strong>${b.hours_before_slot != null ? `${b.hours_before_slot}h before slot` : "Advance"}</strong></div>
+                <div class="admin-cancellation-meta">Cancellation: <strong>${b.hours_before_slot != null ? `${b.hours_before_slot}h before slot` : "Advance"}</strong></div>
                 ${isRefunded ? `
                   <div class="admin-refund-note-done">
-                    &#10003; Refund Disbursed: $${Number(b.refund_amount || 0).toFixed(2)} credited to user's wallet.
+                    &#10003; Refund Disbursed: ₹${Number(b.refund_amount || 0).toFixed(2)} credited to user's wallet.
                   </div>
                 ` : `
                   <button type="button" class="wf-btn wf-btn-sm btn-open-refund-modal mt-8" data-id="${b.id}">

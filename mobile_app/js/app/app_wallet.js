@@ -11,7 +11,7 @@ Object.assign(MobileWireframeApp.prototype, {
     if (!balDisplay || !container) return;
 
     if (!this.currentUser) {
-      balDisplay.textContent = "$0.00";
+      balDisplay.textContent = "₹0.00";
       container.innerHTML = `<p class="wf-meta">Please sign in to view rewards.</p>`;
       return;
     }
@@ -21,7 +21,7 @@ Object.assign(MobileWireframeApp.prototype, {
     this.currentUser = user;
     this.updateUserHeaderPill();
 
-    balDisplay.textContent = `$${user.wallet_balance.toFixed(2)}`;
+    balDisplay.textContent = `₹${user.wallet_balance.toFixed(2)}`;
 
     // Load Wallet Expiry Summary
     const summary = await window.api.getUserWalletSummary(user.id);
@@ -30,7 +30,7 @@ Object.assign(MobileWireframeApp.prototype, {
     if (pill && summary) pill.textContent = `${summary.expiryDays} Days Policy`;
     if (expiryText && summary) {
       if (summary.earliestExpiry) {
-        expiryText.innerHTML = `<span class="wallet-expiry-notice"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span><strong>$${summary.earliestExpiringAmount.toFixed(2)}</strong> expires on <strong>${new Date(summary.earliestExpiry).toLocaleDateString()}</strong> (${summary.daysLeft} days remaining).</span></span>`;
+        expiryText.innerHTML = `<span class="wallet-expiry-notice"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span><strong>₹${summary.earliestExpiringAmount.toFixed(2)}</strong> expires on <strong>${new Date(summary.earliestExpiry).toLocaleDateString()}</strong> (${summary.daysLeft} days remaining).</span></span>`;
       } else {
         expiryText.innerHTML = `<span>All cashback rewards are valid for <strong>${summary.expiryDays} days</strong> from date of credit.</span>`;
       }
@@ -93,7 +93,7 @@ Object.assign(MobileWireframeApp.prototype, {
             </div>
           </div>
           <span class="ledger-amount ${isPositive ? 'positive' : 'negative'}">
-            ${isPositive ? `+` : ``}$${l.amount.toFixed(2)}
+            ${isPositive ? `+` : ``}₹${l.amount.toFixed(2)}
           </span>
         </div>
       `;

@@ -64,18 +64,18 @@ Object.assign(MobileWireframeApp.prototype, {
                 <span><span class="app-booking-detail-label">Booking ID:</span> <strong class="app-booking-detail-val">#${b.id}</strong></span>
               </div>
               <div class="app-booking-detail-row justify-between">
-                <span><span class="app-booking-detail-label">Slot Fee:</span> <strong class="app-booking-detail-val">$${b.price.toFixed(2)}</strong></span>
-                <span><span class="app-booking-detail-label">Reward:</span> <span class="app-booking-reward-val">${isConfirmed ? `+` : `Reversed `}$${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</span></span>
+                <span><span class="app-booking-detail-label">Slot Fee:</span> <strong class="app-booking-detail-val">₹${b.price.toFixed(2)}</strong></span>
+                <span><span class="app-booking-detail-label">Reward:</span> <span class="app-booking-reward-val">${isConfirmed ? `+` : `Reversed `}₹${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</span></span>
               </div>
               ${b.wallet_applied > 0 ? `
               <div class="app-booking-detail-row justify-between">
-                <small style="color:var(--text-muted); font-weight:600;">Paid with Wallet: -$${b.wallet_applied.toFixed(2)}</small>
-                <span><span class="app-booking-detail-label">Net Paid:</span> <strong class="app-booking-detail-val">$${b.net_paid.toFixed(2)}</strong></span>
+                <small style="color:var(--text-muted); font-weight:600;">Paid with Wallet: -₹${b.wallet_applied.toFixed(2)}</small>
+                <span><span class="app-booking-detail-label">Net Paid:</span> <strong class="app-booking-detail-val">₹${b.net_paid.toFixed(2)}</strong></span>
               </div>` : ''}
             </div>
 
             ${isConfirmed ? (isPastGame ? `
-              <div style="margin-top:8px; padding:8px 12px; background:var(--glacier-50); border:1px solid var(--glacier-200); border-radius:12px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+              <div class="past-game-banner">
                 &#10003; <strong>Game Completed</strong> &bull; Past reservations cannot be edited or cancelled.
               </div>
             ` : `
@@ -92,11 +92,11 @@ Object.assign(MobileWireframeApp.prototype, {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <strong style="color:var(--glacier-950);">Refund Status:</strong>
                   ${b.refund_status === 'REFUNDED' 
-                    ? `<span class="wf-pill" style="background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border);">Refunded $${Number(b.refund_amount || 0).toFixed(2)}</span>` 
+                    ? `<span class="wf-pill" style="background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border);">Refunded ₹${Number(b.refund_amount || 0).toFixed(2)}</span>` 
                     : `<span class="wf-pill" style="border-style:dashed; color:var(--rose-accent); background:var(--rose-bg); border-color:var(--rose-border);">Pending Admin Review</span>`}
                 </div>
                 ${b.refund_status === 'REFUNDED' 
-                  ? `<div style="color:var(--text-muted);">${b.admin_refund_note ? `Admin Note: "${b.admin_refund_note}"` : 'Refund credited to your wallet balance.'}</div>` 
+                  ? `<div style="color:var(--text-muted);">${b.admin_refund_note ? `Admin Note: "${b.admin_refund_note}"` : ''}</div>` 
                   : `<div style="color:var(--text-muted);">Slot cancelled ${b.hours_before_slot != null ? `(${b.hours_before_slot}h before slot)` : ''}. Admin will manually review & disburse refund.</div>`}
               </div>
             `}
@@ -149,38 +149,53 @@ Object.assign(MobileWireframeApp.prototype, {
     // Check cancellation cutoff window
     const check = await window.api.checkCancellationEligibility(booking);
 
-    document.getElementById("cancel-modal-title").textContent = 
-      `Booking #${booking.id} (${booking.sport_name} - ${booking.court_name} on ${booking.date} at ${booking.start_time})`;
-    document.getElementById("cancel-modal-reward").textContent = 
-      `-$${booking.reward_amount.toFixed(2)} (${booking.reward_percent}%)`;
+    const titleEl = document.getElementById("cancel-modal-title");
+    if (titleEl) {
+      titleEl.textContent = `Booking #${booking.id} • ${booking.sport_name} (${booking.start_time})`;
+    }
 
-    const rulePill = document.getElementById("cancel-modal-rule-pill");
+    const rewardEl = document.getElementById("cancel-modal-reward");
+    if (rewardEl) {
+      rewardEl.textContent = `-₹${(booking.reward_amount || 0).toFixed(2)}`;
+    }
+
+    const refundEl = document.getElementById("cancel-modal-refund-amt");
     const timingMeta = document.getElementById("cancel-modal-timing-meta");
     const submitBtn = document.getElementById("btn-submit-cancel");
     const noticeBox = document.getElementById("cancel-cutoff-notice");
 
-    if (rulePill) rulePill.textContent = `${check.cutoffHours}h Policy`;
-
     if (check.isEligible) {
-      if (noticeBox) noticeBox.style.borderColor = "var(--glacier-300)";
+      if (noticeBox) {
+        noticeBox.style.borderColor = "var(--emerald-accent, #10b981)";
+        noticeBox.style.background = "#f0fdf4";
+      }
       if (timingMeta) {
-        timingMeta.innerHTML = `<span style="color:var(--emerald-accent); font-weight:700;">&#10003; Cancellation Allowed:</span> ${check.diffHours} hrs remaining before slot start (Policy: &ge; ${check.cutoffHours} hrs).<br><span style="display:inline-block; margin-top:3px;"><strong>Policy Refund Rate:</strong> ${check.defaultRefundPct}% ($${check.estimatedRefund.toFixed(2)} refund to wallet).</span>`;
+        timingMeta.innerHTML = `<span style="color:var(--emerald-accent, #059669); font-weight:700;">&#10003; Eligible for Cancellation</span>`;
+      }
+      if (refundEl) {
+        refundEl.textContent = `+₹${check.estimatedRefund.toFixed(2)}`;
       }
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = `Confirm Cancellation (Refund: $${check.estimatedRefund.toFixed(2)})`;
+        submitBtn.textContent = `Confirm Cancellation`;
         submitBtn.style.opacity = "1";
         submitBtn.style.cursor = "pointer";
       }
     } else {
-      if (noticeBox) noticeBox.style.borderColor = "var(--rose-border)";
+      if (noticeBox) {
+        noticeBox.style.borderColor = "var(--rose-border, #fecdd3)";
+        noticeBox.style.background = "#fff1f2";
+      }
       if (timingMeta) {
-        timingMeta.innerHTML = `<span style="color:var(--rose-accent); font-weight:700;">&#9888; Cancellation Window Expired:</span> Only ${check.diffHours > 0 ? check.diffHours + ' hrs' : '0 hrs (past)'} remaining. Facility policy requires at least <strong>${check.cutoffHours} hours</strong> notice before slot.`;
+        timingMeta.innerHTML = `<span style="color:var(--rose-accent, #e11d48); font-weight:700;">&#9888; Cancellation Locked</span> <span style="color:var(--glacier-700); font-weight:normal;">(< ${check.cutoffHours}h notice)</span>`;
+      }
+      if (refundEl) {
+        refundEl.textContent = `₹0.00`;
       }
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = `Locked (< ${check.cutoffHours}h Rule)`;
-        submitBtn.style.opacity = "0.4";
+        submitBtn.textContent = `Locked (< ${check.cutoffHours}h Notice)`;
+        submitBtn.style.opacity = "0.45";
         submitBtn.style.cursor = "not-allowed";
       }
     }
@@ -200,7 +215,7 @@ Object.assign(MobileWireframeApp.prototype, {
       this.currentUser.wallet_balance = res.updatedWallet;
       this.updateUserHeaderPill();
       this.closeCancelModal();
-      this.showToast(`Booking #${res.booking.id} cancelled. Reward reversed.`);
+      this.showToast("Booking cancelled!");
       await this.renderBookingsList();
     } catch (err) {
       alert(err.message);

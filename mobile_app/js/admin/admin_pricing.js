@@ -62,7 +62,7 @@ Object.assign(MobileAdminApp.prototype, {
               <small class="wf-meta" style="display:block;">${sportTitle} &bull; ${isPeak ? "Peak Slot" : "Standard Slot"}</small>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
-              <span class="user-balance-pill" style="font-size:0.82rem;">$${Number(t.price).toFixed(2)}</span>
+              <span class="user-balance-pill" style="font-size:0.82rem;">₹${Number(t.price).toFixed(2)}</span>
               <button type="button" class="header-btn btn-edit-single-tier" data-start="${t.start}" data-end="${t.end}" data-price="${t.price}" style="font-size:0.68rem;">Edit</button>
             </div>
           </div>
@@ -126,7 +126,7 @@ Object.assign(MobileAdminApp.prototype, {
         this.closeEditSlotPriceModal();
         const msg = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.SLOT_PRICE_UPDATED) ?
           APP_CONSTANTS.MESSAGES.SLOT_PRICE_UPDATED(sportTitle, start, end, newPrice) :
-          `${sportTitle} (${start}-${end}): Set to $${newPrice}`;
+          `Price: ₹${newPrice}`;
         this.showToast(msg);
         await this.renderPricingSchedule();
       } catch (err) {

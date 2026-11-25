@@ -3,7 +3,7 @@
  */
 Object.assign(MockAPI.prototype, {
   // Book a Slot API with Dynamic Reward Calculation, Max Discount Cap, and optional Wallet Payment
-  async createBooking({ userId, sportId, courtId, slotId, date, useWallet = false, discountPercent = 0, promoCode = "" }) {
+  async createBooking({ userId, sportId, courtId, slotId, date, useWallet = false, discountPercent = 0, promoCode = "", paymentMethod = "UPI" }) {
     await this._simulateDelay(120);
 
     // 0. Check Facility Operating Status & Date Blackout
@@ -51,7 +51,7 @@ Object.assign(MockAPI.prototype, {
       b.status === "CONFIRMED"
     );
     if (conflict) {
-      throw new Error("This slot was just booked by another player! Please pick another slot.");
+      throw new Error("This slot was just booked by other player!");
     }
 
     // Day-Wise Pricing (Weekday vs Weekend)
@@ -94,6 +94,7 @@ Object.assign(MockAPI.prototype, {
       price: slotBasePrice,
       wallet_applied: walletApplied,
       net_paid: netPaid,
+      payment_method: netPaid === 0 ? "WALLET" : (paymentMethod || "UPI"),
       reward_percent: rewardPercent,
       reward_amount: rewardAmount,
       status: "CONFIRMED",

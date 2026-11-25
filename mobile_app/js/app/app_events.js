@@ -71,13 +71,9 @@ Object.assign(MobileWireframeApp.prototype, {
       try {
         const user = await window.api.login(identifier, pass);
         this.currentUser = user;
-        if (remember) {
-          localStorage.setItem("sports_active_user_id", user.id);
-        } else {
-          localStorage.removeItem("sports_active_user_id");
-        }
+        localStorage.setItem("sports_active_user_id", user.id);
         this.updateUserHeaderPill();
-        this.showToast(`Signed in as ${user.name}`);
+        this.showToast("Signed in!");
         this.navigateTo("screen-sports");
         await this.renderSports();
       } catch (err) {
@@ -91,7 +87,7 @@ Object.assign(MobileWireframeApp.prototype, {
       this.currentUser = user;
       localStorage.setItem("sports_active_user_id", user.id);
       this.updateUserHeaderPill();
-      this.showToast(`Signed in via ${provider} (${user.name})`);
+      this.showToast("Signed in!");
       this.navigateTo("screen-sports");
       await this.renderSports();
     };
@@ -121,7 +117,7 @@ Object.assign(MobileWireframeApp.prototype, {
         this.currentUser = user;
         localStorage.setItem("sports_active_user_id", user.id);
         this.updateUserHeaderPill();
-        this.showToast(`Signed in as ${user.name}`);
+        this.showToast("Signed in!");
         this.navigateTo("screen-sports");
         await this.renderSports();
       } catch (err) {
@@ -153,7 +149,7 @@ Object.assign(MobileWireframeApp.prototype, {
         this.currentUser = user;
         localStorage.setItem("sports_active_user_id", user.id);
         this.updateUserHeaderPill();
-        this.showToast(`Welcome ${user.name}! 10 sports credits added.`);
+        this.showToast("Account created!");
         this.navigateTo("screen-sports");
         await this.renderSports();
       } catch (err) {
@@ -191,7 +187,7 @@ Object.assign(MobileWireframeApp.prototype, {
     // Refresh Bookings List
     document.getElementById("btn-refresh-bookings-list")?.addEventListener("click", async () => {
       await this.renderBookingsList();
-      this.showToast("Bookings list reloaded from IndexedDB");
+      this.showToast("Refreshed!");
     });
 
     // Edit Modal Close & Abort

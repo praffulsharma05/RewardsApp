@@ -44,6 +44,20 @@ Object.assign(MockAPI.prototype, {
     return parsed;
   },
 
+  // Admin Settings: Get & Set Admin UPI ID (defaults to 9602565841@ybl)
+  async getAdminUPI() {
+    await this._simulateDelay(20);
+    const item = await this._get("settings", "admin_upi_id");
+    return item ? String(item.value).trim() : "9602565841@ybl";
+  },
+
+  async setAdminUPI(upiId) {
+    await this._simulateDelay(80);
+    const val = String(upiId || "9602565841@ybl").trim();
+    await this._put("settings", { key: "admin_upi_id", value: val });
+    return val;
+  },
+
   // Check if booking is eligible for cancellation against admin cutoff rule & calculate refund rate
   async checkCancellationEligibility(booking) {
     const cutoff = await this.getCancellationCutoffHours();
@@ -62,7 +76,7 @@ Object.assign(MockAPI.prototype, {
     if (isPast) {
       reason = "Cannot cancel: This slot time has already passed (Game Completed).";
     } else if (isEligible) {
-      reason = `Eligible for cancellation (${diffHours.toFixed(1)} hrs left >= ${cutoff} hrs cutoff). Policy refund rate: ${defaultRefundPct}% ($${estimatedRefund.toFixed(2)}).`;
+      reason = `Eligible for cancellation (${diffHours.toFixed(1)} hrs left >= ${cutoff} hrs cutoff). Policy refund rate: ${defaultRefundPct}% (₹${estimatedRefund.toFixed(2)}).`;
     } else {
       reason = `Cannot cancel: Only ${diffHours > 0 ? diffHours.toFixed(1) + ' hrs' : '0 hrs (past)'} remaining before slot start. Facility rule requires at least ${cutoff} hours notice.`;
     }
@@ -83,7 +97,7 @@ Object.assign(MockAPI.prototype, {
   async getRescheduleCutoffHours() {
     await this._simulateDelay(20);
     const item = await this._get("settings", "reschedule_cutoff_hours");
-    return item ? Number(item.value) : 12;
+    return item ? Number(item.value) : 0;
   },
 
   async setRescheduleCutoffHours(hours) {
@@ -97,21 +111,29 @@ Object.assign(MockAPI.prototype, {
   async checkRescheduleEligibility(booking) {
     const cutoff = await this.getRescheduleCutoffHours();
     const dateStr = booking.date;
-    const timeStr = booking.start_time || "00:00";
-    const slotDateTime = new Date(`${dateStr}T${timeStr}:00`);
+    const endTimeStr = booking.end_time || "23:59";
+    const slotEndDateTime = new Date(`${dateStr}T${endTimeStr}:00`);
     const now = new Date();
-    const diffHours = (slotDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    const isPast = diffHours <= 0;
-    const isEligible = !isPast && (diffHours >= cutoff);
+    // A game/slot is only past if its end time has already elapsed
+    const isPast = slotEndDateTime.getTime() <= now.getTime();
+
+    const startTimeStr = booking.start_time || "00:00";
+    const slotStartDateTime = new Date(`${dateStr}T${startTimeStr}:00`);
+    const diffHours = (slotStartDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    // Eligible if not ended AND (cutoff is 0 or sufficient notice before start)
+    const isEligible = !isPast && (cutoff === 0 || diffHours >= cutoff);
 
     let reason = "";
     if (isPast) {
-      reason = "Cannot change slot: This game/slot has already passed (Game Completed).";
+      reason = "Cannot change slot: This game/slot has already ended (Game Completed).";
     } else if (isEligible) {
-      reason = `Eligible for slot change (${diffHours.toFixed(1)} hrs left >= ${cutoff} hrs cutoff).`;
+      reason = cutoff === 0 
+        ? "Eligible for slot change."
+        : `Eligible for slot change (${diffHours.toFixed(1)} hrs notice).`;
     } else {
-      reason = `Cannot change slot: Only ${diffHours > 0 ? diffHours.toFixed(1) + ' hrs' : '0 hrs (past)'} remaining before slot start. Facility rule requires at least ${cutoff} hours notice to reschedule.`;
+      reason = `Requires at least ${cutoff} hours notice before slot.`;
     }
 
     return {
@@ -119,7 +141,7 @@ Object.assign(MockAPI.prototype, {
       isPast,
       diffHours: Number(diffHours.toFixed(1)),
       cutoffHours: cutoff,
-      slotDateTimeStr: `${dateStr} ${timeStr}`,
+      slotDateTimeStr: `${dateStr} ${startTimeStr}`,
       reason
     };
   },
