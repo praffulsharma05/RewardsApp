@@ -3,20 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Sports Slot Booking - Mobile Wireframe</title>
+  <title>Sports Slot Booking - Pastel Glacier Blue Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+ 
+
   <!-- Mobile Prototype Device Shell -->
   <div class="mobile-device-shell">
     
-    <header class="mobile-status-bar"><span>9:41</span><div class="notch-pill"></div><span>100%</span></header>
+    <!-- Status Bar -->
+    <header class="mobile-status-bar">
+      <span>9:41</span>
+      <div class="notch-pill"></div>
+      <div class="status-bar-icons">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="15" height="10" rx="2" ry="2"/><line x1="21" y1="11" x2="21" y2="13"/></svg>
+      </div>
+    </header>
+
     <div class="mobile-header">
       <button class="header-btn" id="btn-header-back">&larr; Back</button>
-      <span class="header-title" id="header-screen-title">Sports</span>
-      <div style="display:flex; align-items:center; gap:4px;">
+       <div style="display:flex; align-items:center; gap:6px;">
         <span class="header-user-tag" id="header-user-pill">Guest</span>
-        <button class="header-btn" id="btn-header-logout" style="font-size:0.7rem; padding:3px 6px; display:none;" title="Sign Out">Logout</button>
+        <button class="header-btn" id="btn-header-logout" style="font-size:0.7rem; padding:3px 8px; display:none;" title="Sign Out">Logout</button>
       </div>
     </div>
     <!-- Wireframe Toast Notification -->
@@ -25,113 +38,180 @@
     <main class="mobile-viewport">
       
       <!-- Facility Closed Alert Banner (Controlled by Admin in IndexedDB) -->
-      <div id="facility-closed-banner" class="wf-card" style="display:none; border:2px dashed #000; background:#000; color:#fff; text-align:center; padding:10px; margin-bottom:12px;">
-        <strong style="text-transform:uppercase; font-size:0.85rem; display:block;">[!] Facility Closed Today</strong>
-        <p style="font-size:0.75rem; color:#d6d6d6; margin-top:3px;" id="facility-closed-reason">Shop is closed by admin today. Slot bookings are temporarily paused.</p>
+      <div id="facility-closed-banner" class="wf-card alert-closed-banner" style="display:none;">
+        <div class="alert-closed-header">
+          <span class="alert-closed-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          <strong class="alert-closed-title">Facility Closed Today</strong>
+        </div>
+        <p class="alert-closed-reason" id="facility-closed-reason">Shop is closed by admin today. Slot bookings are temporarily paused.</p>
       </div>
 
-      <!-- SCREEN 1: AUTHENTICATION WIREFRAME (SPEC AUTH-1.0 & SPEC AUTH-2.0) -->
+      <!-- SCREEN 1: AUTHENTICATION -->
       <section class="wireframe-screen active" id="screen-auth">
-        <div style="display:flex; gap:6px; margin-bottom:10px;">
-          <button class="wf-btn wf-btn-sm" id="btn-auth-tab-login" style="flex:1;">Sign In</button>
-          <button class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-auth-tab-reg" style="flex:1;">New Player Register</button>
-        </div>
-        <!-- VIEW A: SIGN IN WIREFRAME (SPEC AUTH-1.0) -->
-        <div id="view-auth-login">
-          <div class="wf-spec-banner">
-            <span class="wf-spec-tag">SPEC AUTH-1.0</span>
-            <span><strong>Login Flow:</strong> Authenticates user, binds active session to <code class="wf-code-pill">USER.id PK</code>, persists token in <code class="wf-code-pill">localStorage</code>.</span>
+        <!-- Brand Hero -->
+        <div class="auth-brand-section">
+          <div class="auth-logo-wrap">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/>
+            </svg>
           </div>
-          <div class="wf-card auth-card">
+          <h1 class="auth-brand-title">Sports Slot</h1>
+          <p class="auth-brand-subtitle">Reserve facility courts &amp; earn instant wallet rewards</p>
+        </div>
+
+       
+
+        <!-- VIEW A: SIGN IN -->
+        <div id="view-auth-login">
+          <div class="auth-card">
             <div class="auth-header-row">
-              <div class="auth-icon-circle">&#10132;</div>
+              <div class="auth-icon-circle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              </div>
               <div style="flex:1;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong style="font-size:0.92rem;">Customer Sign In Wireframe</strong>
-                  <span class="wf-pill" style="font-size:0.62rem;">Low-Fi Wireframe</span>
-                </div>
-                <span class="wf-meta">Returning sports player authentication</span>
+                <strong style="font-size:0.95rem; color:var(--glacier-950); display:block;">Welcome Back</strong>
+                <span class="wf-meta">Sign in to manage your bookings and wallet</span>
               </div>
             </div>
+
             <div class="wf-dotted-sep"></div>
-            <span class="wf-micro-label">SINGLE SIGN-ON (OAUTH 2.0 / OPENID CONNECT):</span>
-            <div style="display:flex; gap:8px; margin:6px 0 10px;">
-              <button type="button" class="sso-btn" id="btn-sso-google"><strong>G</strong> Continue with Google</button>
-              <button type="button" class="sso-btn" id="btn-sso-apple">&#63743; Apple ID</button>
+
+            <!-- Single Sign-On -->
+            <span class="wf-micro-label">QUICK ACCESS WITH SOCIAL ACCOUNTS:</span>
+            <div style="display:flex; gap:8px; margin:8px 0 12px;">
+              <button type="button" class="sso-btn" id="btn-sso-google">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span>Google</span>
+              </button>
+              <button type="button" class="sso-btn" id="btn-sso-apple">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.89c.65-.79 1.09-1.89.97-3-.99.04-2.19.66-2.9 1.49-.62.72-1.16 1.85-1.02 2.93 1.1.09 2.22-.56 2.95-1.42z"/></svg>
+                <span>Apple ID</span>
+              </button>
             </div>
+
             <div class="wf-text-divider"><span>OR ENTER CREDENTIALS</span></div>
-            <form id="form-login" style="margin-top:10px;">
+
+            <form id="form-login" style="margin-top:12px;">
               <div class="wf-form-group">
-                <label class="wf-label">Email or Phone Number: *</label>
+                <label class="wf-label" for="login-email">Email or Phone Number *</label>
                 <div class="wf-input-wrap">
-                  <input type="text" id="login-email" class="wf-input" value="alex.morgan@sportsmail.com" required>
-                  <span class="wf-input-icon">&#9993;</span>
+                  <input type="text" id="login-email" class="wf-input" placeholder="player@domain.com" value="alex.morgan@sportsmail.com" required>
+                  <span class="wf-input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  </span>
                 </div>
-                <span class="wf-field-hint">Validated against <code class="wf-code-pill">USER.email</code> or <code class="wf-code-pill">USER.phone</code></span>
               </div>
+
               <div class="wf-form-group">
-                <div style="display:flex; justify-content:space-between;">
-                  <label class="wf-label">Password: *</label>
+                <div class="label-row-split">
+                  <label class="wf-label" for="login-password">Password *</label>
                   <a href="#" class="wf-link" id="link-forgot-pass">Forgot Password?</a>
                 </div>
                 <div class="wf-input-wrap">
-                  <input type="password" id="login-password" class="wf-input" value="password123" required>
-                  <span class="wf-input-icon" id="toggle-login-pass" title="Show password">&#128065;</span>
+                  <input type="password" id="login-password" class="wf-input" placeholder="••••••••" value="password123" required>
+                  <button type="button" class="btn-input-icon" id="toggle-login-pass" title="Show / Hide password">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
                 </div>
               </div>
+
               <label class="wf-checkbox-label">
-                <input type="checkbox" id="chk-remember-me" checked> Remember me for 30 days
+                <input type="checkbox" id="chk-remember-me" checked>
+                <span>Remember me for 30 days</span>
               </label>
-              <button type="submit" class="wf-btn auth-submit-btn">Sign In to Account</button>
+
+              <button type="submit" class="wf-btn auth-submit-btn">
+                <span>Sign In to Account</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
             </form>
+
+            <button type="button" id="btn-quick-demo-login" class="auth-btn-demo">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Quick Demo Player (Alex Morgan &bull; $15 Wallet)</span>
+            </button>
+          </div>
+
+          <div class="auth-switch-card">
+            <span class="auth-switch-text">New to Sports Slot?</span>
+            <button type="button" class="auth-switch-link" id="btn-switch-to-reg">Create your account &rarr;</button>
           </div>
         </div>
-        <!-- VIEW B: REGISTER WIREFRAME (SPEC AUTH-2.0) -->
+
+        <!-- VIEW B: REGISTER -->
         <div id="view-auth-register" style="display:none;">
-          <div class="wf-spec-banner">
-            <span class="wf-spec-tag">SPEC AUTH-2.0</span>
-            <span><strong>Sign Up Flow:</strong> Inserts into <code class="wf-code-pill">USER (id PK AUTOINCREMENT, name, email, phone)</code>. Enforces unique email constraint.</span>
-          </div>
-          <div class="wf-card auth-card">
+          <div class="auth-card">
             <div class="auth-header-row">
-              <div class="auth-icon-circle">&#43;</div>
+              <div class="auth-icon-circle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              </div>
               <div style="flex:1;">
-                <strong style="font-size:0.92rem; display:block;">New Player Registration</strong>
-                <span class="wf-meta">Create customer record in USER table</span>
+                <strong style="font-size:0.95rem; color:var(--glacier-950); display:block;">Create Player Account</strong>
+                <span class="wf-meta">Join today to reserve courts &amp; collect rewards</span>
               </div>
             </div>
+
             <div class="wf-dotted-sep"></div>
+
             <form id="form-register">
               <div class="wf-form-group">
-                <label class="wf-label">Full Name: *</label>
-                <input type="text" id="reg-name" class="wf-input" placeholder="e.g. Kylian Mbappe" required>
-                <span class="wf-field-hint">Target field: <code class="wf-code-pill">USER.name VARCHAR(100)</code></span>
+                <label class="wf-label" for="reg-name">Full Name *</label>
+                <div class="wf-input-wrap">
+                  <input type="text" id="reg-name" class="wf-input" placeholder="e.g. Kylian Mbappe" required>
+                  <span class="wf-input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </span>
+                </div>
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div class="wf-form-group">
-                  <label class="wf-label">Email Address: *</label>
+                  <label class="wf-label" for="reg-email">Email Address *</label>
                   <input type="email" id="reg-email" class="wf-input" placeholder="player@domain.com" required>
-                  <span class="wf-field-hint"><code class="wf-code-pill">USER.email (Unique)</code></span>
                 </div>
                 <div class="wf-form-group">
-                  <label class="wf-label">Phone Number: *</label>
-                  <input type="text" id="reg-phone" class="wf-input" placeholder="+1-555-0199" required>
-                  <span class="wf-field-hint"><code class="wf-code-pill">USER.phone (SMS alerts)</code></span>
+                  <label class="wf-label" for="reg-phone">Phone Number *</label>
+                  <input type="tel" id="reg-phone" class="wf-input" placeholder="+1-555-0199" required>
                 </div>
               </div>
+
               <div class="wf-form-group">
-                <label class="wf-label">Create Password: *</label>
-                <input type="password" id="reg-password" class="wf-input" placeholder="Minimum 8 characters" minlength="8" value="password123" required>
+                <label class="wf-label" for="reg-password">Create Password *</label>
+                <div class="wf-input-wrap">
+                  <input type="password" id="reg-password" class="wf-input" placeholder="Min. 8 characters" minlength="8" value="password123" required>
+                  <button type="button" class="btn-input-icon" id="toggle-reg-pass" title="Show / Hide password">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
               </div>
+
               <div class="wf-form-group">
-                <label class="wf-label">Confirm Password: *</label>
-                <input type="password" id="reg-confirm-password" class="wf-input" placeholder="Re-type password" value="password123" required>
+                <label class="wf-label" for="reg-confirm-password">Confirm Password *</label>
+                <div class="wf-input-wrap">
+                  <input type="password" id="reg-confirm-password" class="wf-input" placeholder="Re-type password" value="password123" required>
+                  <button type="button" class="btn-input-icon" id="toggle-reg-confirm-pass" title="Show / Hide password">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
               </div>
+
               <label class="wf-checkbox-label">
-                <input type="checkbox" id="reg-agree-terms" required checked> I agree to the Playground Terms of Service &amp; Sports Facility Waiver
+                <input type="checkbox" id="reg-agree-terms" required checked>
+                <span>I agree to the Terms of Service &amp; Facility Waiver</span>
               </label>
-              <button type="submit" class="wf-btn auth-submit-btn">Create Player Account (INSERT USER)</button>
+
+              <button type="submit" class="wf-btn auth-submit-btn">
+                <span>Create Player Account</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
             </form>
+          </div>
+
+          <div class="auth-switch-card">
+            <span class="auth-switch-text">Already registered?</span>
+            <button type="button" class="auth-switch-link" id="btn-switch-to-login">Sign In to account &rarr;</button>
           </div>
         </div>
       </section>
@@ -142,7 +222,7 @@
             <span class="wf-title-sm">Current Promo</span>
             <span class="reward-badge" id="badge-promo-rate">10% Rewards</span>
           </div>
-          <p class="wf-meta">Book any court today and get <strong id="lbl-promo-text">10%</strong> rewards into your wallet!</p>
+          <p class="wf-meta">Book any court today and get <strong id="lbl-promo-text" style="color:var(--glacier-900);">10%</strong> rewards into your wallet!</p>
         </div>
         <p class="wf-label">Select Sport Category:</p>
         <div class="sports-grid" id="sports-grid-container">
@@ -174,11 +254,11 @@
             <span id="slot-screen-date-pill" class="wf-pill">2026-11-13</span>
           </div>
           <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px;">
-            <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-slot-prev-day" style="padding: 4px 8px; font-size: 0.75rem;">&larr; Prev</button>
-            <input type="date" id="input-slot-screen-date" class="wf-input" style="flex: 1; padding: 4px 6px; font-size: 0.8rem; text-align: center;">
-            <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-slot-next-day" style="padding: 4px 8px; font-size: 0.75rem;">Next &rarr;</button>
+            <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-slot-prev-day" style="padding: 6px 12px; font-size: 0.75rem;">&larr; Prev</button>
+            <input type="date" id="input-slot-screen-date" class="wf-input" style="flex: 1; padding: 6px 8px; font-size: 0.8rem; text-align: center;">
+            <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-slot-next-day" style="padding: 6px 12px; font-size: 0.75rem;">Next &rarr;</button>
           </div>
-          <p class="wf-meta" style="margin-top: 6px;">Tap an available time slot below to proceed.</p>
+          <p class="wf-meta" style="margin-top: 8px;">Tap an available time slot below to proceed.</p>
         </div>
         <p class="wf-label">Daily Hourly Slots (08:00 - 21:00):</p>
         <div class="slots-grid" id="slots-grid-container">
@@ -191,14 +271,14 @@
           <div class="wf-card-header"><span class="wf-title-sm">Booking Summary</span><span class="wf-pill">Review</span></div>
           <div style="font-size: 0.82rem; line-height: 1.5;">
             <div>Sport: <strong id="chk-sport">Table Tennis</strong> &bull; Facility: <strong id="chk-court">Table 1</strong></div>
-            <div>Date: <strong id="chk-date">2026-11-13</strong> &bull; Time: <strong id="chk-time">18:00 - 19:00</strong> &bull; Fee: <strong id="chk-price">$35.00</strong></div>
+            <div>Date: <strong id="chk-date">2026-11-13</strong> &bull; Time: <strong id="chk-time">18:00 - 19:00</strong> &bull; Fee: <strong id="chk-price" style="color:var(--glacier-950); font-family:var(--font-mono);">$35.00</strong></div>
           </div>
         </div>
         <!-- Reward Points / Wallet Balance Option (Applied via Checkbox, Capped by Admin Max Limit) -->
         <div class="wf-card highlight" style="margin: 10px 0;">
           <div class="wf-card-header" style="margin-bottom: 6px;">
             <label style="font-weight:700; font-size:0.84rem; cursor:pointer; display:flex; align-items:center; gap:8px;">
-              <input type="checkbox" id="chk-use-wallet" checked style="accent-color:#000; width:16px; height:16px; cursor:pointer;">
+              <input type="checkbox" id="chk-use-wallet" checked style="accent-color:var(--glacier-700); width:16px; height:16px; cursor:pointer;">
               <span>Pay with Reward Points / Balance</span>
             </label>
             <span class="header-pill" id="badge-checkout-discount-cap">Max Cap: 30%</span>
@@ -208,13 +288,13 @@
               <span class="wf-meta">Available Reward Balance:</span>
               <strong id="chk-wallet-avail">$0.00</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; color:#0f766e; font-weight:700;">
+            <div style="display:flex; justify-content:space-between; color:var(--emerald-accent); font-weight:700;">
               <span>Reward Points Applied:</span>
               <span id="chk-wallet-deduction">-$0.00</span>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #ccc;">
+            <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed var(--glacier-200);">
               <span style="font-weight:700;">Net Payable:</span>
-              <strong id="chk-net-payable" style="font-size:0.92rem;">$0.00</strong>
+              <strong id="chk-net-payable" style="font-size:0.95rem; color:var(--glacier-950); font-family:var(--font-mono);">$0.00</strong>
             </div>
           </div>
         </div>
@@ -224,27 +304,29 @@
             <span class="reward-badge" id="chk-reward-badge">10% Active</span>
           </div>
           <div>Admin Reward Rate: <span id="chk-reward-rate">10%</span></div>
-          <div>Cashback Credited: <strong id="chk-reward-amount">+$3.50</strong></div>
-          <small style="color:var(--bw-gray-700); display:block; margin-top:4px;">*Stored in IndexedDB &amp; instantly credited to your wallet balance.</small>
+          <div>Cashback Credited: <strong id="chk-reward-amount" style="color:var(--emerald-accent);">+$3.50</strong></div>
+          <small style="color:var(--text-muted); display:block; margin-top:4px;">*Instantly credited to your rewards wallet upon booking confirmation.</small>
         </div>
         <button type="button" class="wf-btn" id="btn-confirm-checkout">Confirm &amp; Book Slot</button>
       </section>
       <!-- SCREEN 6: BOOKING SUCCESS / DIGITAL PASS -->
       <section class="wireframe-screen" id="screen-success">
-        <div class="wf-card highlight" style="text-align: center; padding: 20px 14px;">
-          <div style="font-size: 2rem; margin-bottom: 6px;">[PASS &#10003;]</div>
-          <h3 style="font-size: 1rem; text-transform: uppercase;">Reservation Confirmed!</h3>
-          <p class="wf-meta">Booking ID: <strong id="pass-id">#101</strong></p>
-          <div style="border: 2px dashed #000; padding: 12px; margin: 12px auto; max-width: 140px; font-family: monospace;">
-            [ QR CODE MOCK ]
+        <div class="wf-card highlight" style="text-align: center; padding: 22px 16px;">
+          <div class="pass-success-icon">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--emerald-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
-          <div class="reward-callout" style="text-align: left; margin: 10px 0;">
+          <h3 style="font-size: 1.05rem; font-weight: 800; color:var(--glacier-950); text-transform: uppercase; margin-top:6px;">Reservation Confirmed!</h3>
+          <p class="wf-meta">Booking ID: <strong id="pass-id">#101</strong></p>
+          <div class="qr-mock-box">
+            <div class="qr-mock-inner">DIGITAL PASS QR</div>
+          </div>
+          <div class="reward-callout" style="text-align: left; margin: 12px 0;">
             <div>Wallet Credits Used: <strong id="pass-wallet-paid">$15.00</strong></div>
-            <div>Reward Credited: <strong id="pass-reward">+$3.50</strong></div>
-            <div>New Wallet Balance: <strong id="pass-wallet">$18.50</strong></div>
+            <div>Reward Credited: <strong id="pass-reward" style="color:var(--emerald-accent);">+$3.50</strong></div>
+            <div>New Wallet Balance: <strong id="pass-wallet" style="color:var(--glacier-900);">$18.50</strong></div>
           </div>
           <button class="wf-btn" id="btn-pass-view-bookings">View in My Bookings</button>
-          <button class="wf-btn wf-btn-secondary" id="btn-pass-book-another">Book Another Sport</button>
+          <button class="wf-btn wf-btn-secondary" id="btn-pass-book-another" style="margin-top:6px;">Book Another Sport</button>
         </div>
       </section>
       <!-- SCREEN 7: MY BOOKINGS (EDIT & CANCEL) -->
@@ -259,15 +341,15 @@
       </section>
       <!-- SCREEN 8: REWARDS WALLET -->
       <section class="wireframe-screen" id="screen-wallet">
-        <div class="wf-card highlight" style="text-align: center;">
+        <div class="wf-card highlight wallet-hero-card">
           <span class="wf-meta">Total Reward Balance</span>
-          <h2 style="font-size: 1.8rem; font-family: var(--font-mono); margin: 6px 0;" id="wallet-balance-display">$15.00</h2>
+          <h2 class="wallet-balance-amount" id="wallet-balance-display">$15.00</h2>
           <span class="reward-badge">Ready for Next Booking</span>
 
           <!-- Reward Expiry Policy & Notice -->
-          <div id="wallet-expiry-callout" style="margin-top: 8px; padding: 8px 10px; border-radius: 4px; background: #fff; border: 1px solid var(--bw-border); font-size: 0.78rem;">
+          <div id="wallet-expiry-callout" class="wallet-expiry-box">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>Reward Expiry Policy:</strong>
+              <strong style="color:var(--glacier-950);">Reward Expiry Policy:</strong>
               <span id="wallet-validity-pill" class="wf-pill">60 Days</span>
             </div>
             <div id="wallet-expiry-text" class="wf-meta" style="margin-top: 4px; text-align: left;">
@@ -276,17 +358,32 @@
           </div>
         </div>
         <p class="wf-label">Reward Points &amp; Cashback History:</p>
-        <div class="wf-card" id="wallet-history-container" style="padding: 6px 12px;">
+        <div class="wf-card" id="wallet-history-container" style="padding: 8px 14px;">
           <!-- Populated from IndexedDB wallet_ledger store -->
         </div>
-        <button type="button" class="wf-btn wf-btn-danger wf-btn-sm" id="btn-wallet-logout" style="margin-top:10px; width:100%;">Sign Out of Account</button>
+        <button type="button" class="wf-btn wf-btn-danger wf-btn-sm" id="btn-wallet-logout" style="margin-top:12px; width:100%;">Sign Out of Account</button>
       </section>
     </main>
     <!-- Bottom Tab Navigation -->
     <nav class="mobile-bottom-nav">
-      <button class="nav-tab-item active" data-target="screen-sports"><span class="tab-icon">&#9917;</span><span>Sports</span></button>
-      <button class="nav-tab-item" data-target="screen-bookings"><span class="tab-icon">&#128197;</span><span>Bookings</span></button>
-      <button class="nav-tab-item" data-target="screen-wallet"><span class="tab-icon">&#128176;</span><span>Wallet</span></button>
+      <button class="nav-tab-item active" data-target="screen-sports">
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        </span>
+        <span>Sports</span>
+      </button>
+      <button class="nav-tab-item" data-target="screen-bookings">
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        <span>Bookings</span>
+      </button>
+      <button class="nav-tab-item" data-target="screen-wallet">
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+        </span>
+        <span>Wallet</span>
+      </button>
     </nav>
     <!-- MODAL 1: EDIT / RESCHEDULE BOOKING (ENFORCES ADMIN X-HOUR CUTOFF RULE) -->
     <div class="wf-modal-overlay" id="modal-edit-booking">
@@ -295,9 +392,9 @@
         <p class="wf-meta" id="edit-modal-meta" style="margin-bottom: 8px;">Booking #101</p>
 
         <!-- Live Cutoff Rule Status Box for Reschedule -->
-        <div id="reschedule-cutoff-notice" class="wf-card" style="margin-bottom: 10px; font-size: 0.8rem; background: var(--bw-gray-100); border: 2px solid var(--bw-black);">
+        <div id="reschedule-cutoff-notice" class="wf-card cutoff-notice-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <strong>Slot Change Rule:</strong>
+            <strong style="color:var(--glacier-950);">Slot Change Rule:</strong>
             <span id="reschedule-modal-rule-pill" class="wf-pill">12h Cutoff</span>
           </div>
           <div id="reschedule-modal-timing-meta" class="wf-meta">Validating slot timing...</div>
@@ -316,19 +413,19 @@
             <span>Selected New Slot:</span>
             <strong id="edit-new-price">$35.00</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-top:1px dashed var(--bw-border); padding-top:3px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:3px; border-top:1px dashed var(--glacier-200); padding-top:3px;">
             <span>Price Difference:</span>
-            <strong id="edit-price-diff" style="color:#000;">+$15.00</strong>
+            <strong id="edit-price-diff" style="color:var(--glacier-950);">+$15.00</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:3px; color:var(--bw-gray-700);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:3px; color:var(--text-muted);">
             <span>Wallet Cut (Admin Ratio <span id="edit-admin-ratio">100%</span>):</span>
-            <strong id="edit-wallet-cut" style="color:#c00;">-$15.00</strong>
+            <strong id="edit-wallet-cut" style="color:var(--rose-accent);">-$15.00</strong>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
             <span>Remaining Net Payable:</span>
             <strong id="edit-net-payable">$0.00</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--bw-border); padding-top:3px; color:green;">
+          <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--glacier-200); padding-top:3px; color:var(--emerald-accent); font-weight:700;">
             <span>Reward Cashback Adjustment:</span>
             <strong id="edit-reward-delta">+$1.50</strong>
           </div>
@@ -344,17 +441,17 @@
         <p class="wf-meta" style="margin-bottom: 8px;">Target: <strong id="cancel-modal-title">Booking #101</strong></p>
         
         <!-- Live Cutoff Rule Status Box -->
-        <div id="cancel-cutoff-notice" class="wf-card" style="margin-bottom: 10px; font-size: 0.8rem; background: var(--bw-gray-100); border: 2px solid var(--bw-black);">
+        <div id="cancel-cutoff-notice" class="wf-card cutoff-notice-box">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <strong>Cancellation Rule:</strong>
+            <strong style="color:var(--glacier-950);">Cancellation Rule:</strong>
             <span id="cancel-modal-rule-pill" class="wf-pill">12h Cutoff</span>
           </div>
           <div id="cancel-modal-timing-meta" class="wf-meta">Validating slot timing...</div>
         </div>
 
         <div class="reward-callout" style="margin-bottom: 10px;">
-          <div><strong>Reward Reversal:</strong> <span id="cancel-modal-reward">-$3.50</span> will be reversed from your wallet.</div>
-          <div style="margin-top: 4px; font-size: 0.75rem;"><strong>Admin Refund:</strong> Facility admin will manually determine and disburse your refund to your wallet balance.</div>
+          <div><strong>Reward Reversal:</strong> <span id="cancel-modal-reward" style="color:var(--rose-accent); font-weight:700;">-$3.50</span> will be reversed from your wallet.</div>
+          <div style="margin-top: 4px; font-size: 0.75rem; color:var(--text-muted);"><strong>Admin Refund:</strong> Facility admin will manually determine and disburse your refund to your wallet balance.</div>
         </div>
 
         <button class="wf-btn wf-btn-danger" id="btn-submit-cancel">Confirm Cancellation</button>

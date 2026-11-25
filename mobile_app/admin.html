@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Admin Panel - Sports Slot Wireframe</title>
+  <title>Admin Portal - Pastel Glacier Blue Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+ 
+
   <!-- Mobile Prototype Device Shell -->
   <div class="mobile-device-shell">
     
@@ -14,16 +19,23 @@
     <header class="mobile-status-bar">
       <span>9:41</span>
       <div class="notch-pill"></div>
-      <span class="header-pill">ADMIN</span>
+      <div class="status-bar-icons">
+        <span class="header-pill">ADMIN</span>
+      </div>
     </header>
+
     <!-- Top Action Bar -->
     <div class="mobile-header">
       <a href="index.html" class="header-btn" title="Jump to User App Prototype">&larr; User App</a>
       <span class="header-title" id="header-admin-title">Admin Panel</span>
-      <button class="header-btn" id="btn-admin-refresh">&#8635;</button>
+      <button class="header-btn" id="btn-admin-refresh" title="Refresh DB State">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
     </div>
-    <!-- Wireframe Toast Notification -->
+
+    <!-- Toast Notification -->
     <div class="wf-toast" id="admin-toast">Admin updated successfully</div>
+
     <!-- Scrollable Screen Content Viewport -->
     <main class="mobile-viewport">
       
@@ -38,25 +50,37 @@
         </div>
         <div class="stat-grid-2">
           <div class="stat-box">
+            <div class="stat-icon-wrap icon-games">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            </div>
             <span class="stat-number" id="stat-games-count">4</span>
             <span class="stat-label">Active Sports</span>
           </div>
           <div class="stat-box">
+            <div class="stat-icon-wrap icon-users">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
             <span class="stat-number" id="stat-users-count">1</span>
             <span class="stat-label">Registered Users</span>
           </div>
           <div class="stat-box">
+            <div class="stat-icon-wrap icon-rewards">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
             <span class="stat-number" id="stat-reward-rate">10%</span>
             <span class="stat-label">Cashback Rate</span>
           </div>
           <div class="stat-box">
+            <div class="stat-icon-wrap icon-bookings">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
             <span class="stat-number" id="stat-bookings-count">0</span>
             <span class="stat-label">Total Bookings</span>
           </div>
         </div>
 
         <!-- Rules & Policies Quick Summary Card (Navigates to Rules Tab) -->
-        <div class="wf-card highlight" style="border: 2px solid #000; margin-top: 10px;">
+        <div class="wf-card highlight" style="margin-top: 10px;">
           <div class="wf-card-header">
             <div>
               <strong class="wf-title-sm">Active Rules &amp; Availability:</strong>
@@ -65,20 +89,21 @@
             <span class="header-pill" id="badge-overview-rules-count">Rules Active</span>
           </div>
           <div style="font-size:0.78rem; line-height:1.6; margin:6px 0;">
-            <div>&#128197; <strong>Closed Dates &amp; Time Blackouts:</strong> <span id="overview-closed-count">0 set</span></div>
-            <div>&#9888; <strong>Ground &amp; Academy Blocks:</strong> <span id="overview-unavail-count">0 set</span></div>
-            <div>&#9200; <strong>Cancellation &amp; Reschedule Cutoff:</strong> <span id="overview-cutoff-text">12 hrs</span></div>
-            <div>&#128176; <strong>Max Discount Limit:</strong> <span id="overview-discount-cap">30%</span></div>
+            <div>📅 <strong>Closed Dates &amp; Time Blackouts:</strong> <span id="overview-closed-count">0 set</span></div>
+            <div>⚠️ <strong>Ground &amp; Academy Blocks:</strong> <span id="overview-unavail-count">0 set</span></div>
+            <div>⏱️ <strong>Cancellation &amp; Reschedule Cutoff:</strong> <span id="overview-cutoff-text">12 hrs</span></div>
+            <div>💰 <strong>Max Discount Limit:</strong> <span id="overview-discount-cap">30%</span></div>
           </div>
-          <button type="button" class="wf-btn wf-btn-sm" id="btn-goto-rules" style="margin-top:4px;">&#9881; Manage Rules &amp; Availability (Rules Tab)</button>
+          <button type="button" class="wf-btn wf-btn-sm" id="btn-goto-rules" style="margin-top:4px;">⚙️ Manage Rules &amp; Availability</button>
         </div>
 
         <div class="wf-card" style="margin-top:10px;">
-          <strong class="wf-title-sm" style="display:block; margin-bottom: 6px;">Quick Management:</strong>
-          <button class="wf-btn wf-btn-sm" id="btn-quick-add-game" style="margin-bottom: 6px;">+ Add New Sport / Game</button>
+          <strong class="wf-title-sm" style="display:block; margin-bottom: 8px;">Quick Management:</strong>
+          <button class="wf-btn wf-btn-sm" id="btn-quick-add-game" style="margin-bottom: 8px;">+ Add New Sport / Game</button>
           <button class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-quick-pricing">Manage Slot Pricing (Weekday / Weekend)</button>
         </div>
       </section>
+
       <!-- SCREEN 2: GAMES / SPORTS MANAGEMENT (ADD, UPDATE, DELETE) -->
       <section class="admin-screen" id="screen-games">
         <div class="wf-card-header" style="margin-bottom: 8px;">
@@ -92,6 +117,7 @@
           <!-- Populated from IndexedDB sports store -->
         </div>
       </section>
+
       <!-- SCREEN: TIME-TIERED SLOT PRICING -->
       <section class="admin-screen" id="screen-pricing">
         <div class="wf-card highlight">
@@ -99,7 +125,7 @@
           <p class="wf-meta">Set custom slot price for a particular game and selected slot.</p>
         </div>
         <form id="form-peak-pricing" class="wf-card">
-          <strong class="wf-title-sm" style="display:block; margin-bottom:6px;">Set Game &amp; Slot Rate:</strong>
+          <strong class="wf-title-sm" style="display:block; margin-bottom:8px;">Set Game &amp; Slot Rate:</strong>
           <div class="wf-form-group">
             <label class="wf-label">Select Game / Sport:</label>
             <select id="pricing-sport-select" class="wf-input" required></select>
@@ -117,7 +143,7 @@
                 <option value="WEEKEND">Weekend (Sat-Sun)</option>
               </select>
             </div>
-            <div style="width:75px;">
+            <div style="width:85px;">
               <label class="wf-label">Rate ($):</label>
               <input type="number" id="price-rate-value" class="wf-input" value="45" min="5" step="1" required>
             </div>
@@ -130,6 +156,7 @@
         </div>
         <div id="pricing-tiers-container"></div>
       </section>
+
       <!-- SCREEN 3: REGISTERED USERS LIST -->
       <section class="admin-screen" id="screen-users">
         <div class="wf-card-header" style="margin-bottom: 8px;">
@@ -143,9 +170,10 @@
           <!-- Populated from IndexedDB users store -->
         </div>
       </section>
+
       <!-- SCREEN 4: REWARD SETTINGS, AVAILABILITY & RULES -->
       <section class="admin-screen" id="screen-rewards">
-        <div class="wf-card highlight" style="border: 2px solid #000;">
+        <div class="wf-card highlight">
           <div class="wf-card-header">
             <span class="wf-title-sm">Facility Rules &amp; Policies</span>
             <span class="header-pill">Rules Engine</span>
@@ -153,15 +181,13 @@
           <p class="wf-meta">Configure closed dates &amp; blackouts, ground &amp; academy unavailability, cancellation/reschedule cutoffs, and reward policies.</p>
         </div>
 
-        <!-- ============================================== -->
         <!-- SECTION 1: FACILITY BLACKOUTS & AVAILABILITY RULES -->
-        <!-- ============================================== -->
-        <div style="margin: 14px 0 6px 0; border-bottom: 2px solid #000; padding-bottom: 4px;">
-          <strong style="font-size: 0.9rem; text-transform: uppercase;">1. Facility Availability &amp; Blackout Rules</strong>
+        <div class="form-section-title">
+          <span>1. Facility Availability &amp; Blackout Rules</span>
         </div>
 
-        <!-- Facility Closed Dates & Time-Based Blackout Rule (e.g. 14/11/2026 from 10 AM to 2 PM) -->
-        <div class="wf-card" style="border: 2px solid #000;">
+        <!-- Facility Closed Dates & Time-Based Blackout Rule -->
+        <div class="wf-card">
           <div class="wf-card-header">
             <div>
               <strong class="wf-title-sm">Closed Dates / Blackouts:</strong>
@@ -182,7 +208,7 @@
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; padding:4px 0;">
               <label style="font-size:0.78rem; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                <input type="checkbox" id="chk-close-full-day" checked style="accent-color:#000;">
+                <input type="checkbox" id="chk-close-full-day" checked style="accent-color:var(--glacier-700);">
                 <span>Full Day Closure (All 24 Hours)</span>
               </label>
               <span id="lbl-close-window-hint" class="wf-meta" style="font-size:0.72rem;">All day</span>
@@ -198,7 +224,7 @@
               </div>
             </div>
             <button type="submit" class="wf-btn wf-btn-danger wf-btn-sm">+ Mark Date / Time As Closed</button>
-            <div style="display:flex; gap:4px; margin-top:6px;">
+            <div style="display:flex; gap:4px; margin-top:8px;">
               <button type="button" class="header-btn btn-quick-close-chip" data-offset="0" style="flex:1; font-size:0.68rem;">Today</button>
               <button type="button" class="header-btn btn-quick-close-chip" data-offset="1" style="flex:1; font-size:0.68rem;">Tomorrow</button>
               <button type="button" class="header-btn btn-quick-close-time-chip" data-start="10:00" data-end="14:00" style="flex:1; font-size:0.68rem;">10 AM - 2 PM Window</button>
@@ -209,8 +235,8 @@
           </div>
         </div>
 
-        <!-- Playground & Academy Time-Window Unavailability Rule (10 AM - 5 PM) -->
-        <div class="wf-card highlight" style="border: 2px solid #000; margin-top: 10px;">
+        <!-- Playground & Academy Time-Window Unavailability Rule -->
+        <div class="wf-card highlight" style="margin-top: 10px;">
           <div class="wf-card-header">
             <div>
               <strong class="wf-title-sm">Ground &amp; Academy Unavailability:</strong>
@@ -260,15 +286,13 @@
           </div>
         </div>
 
-        <!-- ============================================== -->
         <!-- SECTION 2: CANCELLATION & RESCHEDULING RULES -->
-        <!-- ============================================== -->
-        <div style="margin: 18px 0 6px 0; border-bottom: 2px solid #000; padding-bottom: 4px;">
-          <strong style="font-size: 0.9rem; text-transform: uppercase;">2. Cancellation &amp; Reschedule Cutoff Rules</strong>
+        <div class="form-section-title">
+          <span>2. Cancellation &amp; Reschedule Cutoff Rules</span>
         </div>
 
-        <!-- SLOT CANCELLATION & REFUND POLICY (ADMIN CONTROLLED) -->
-        <div class="wf-card highlight" style="margin-top: 10px;">
+        <!-- SLOT CANCELLATION & REFUND POLICY -->
+        <div class="wf-card highlight">
           <div class="wf-card-header">
             <span class="wf-title-sm">Slot Cancellation Cutoff Policy</span>
             <span class="header-pill">Time Rule</span>
@@ -280,9 +304,9 @@
             <label class="wf-label">Cancellation Advance Cutoff (Hours Before Slot):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-cutoff-input" class="wf-input" min="1" max="168" step="1" value="12" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">Hours</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">Hours</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Quick Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Quick Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-cutoff-chip" data-hours="6">6 Hours</button>
               <button type="button" class="header-btn btn-cutoff-chip" data-hours="12">12 Hours</button>
@@ -299,9 +323,9 @@
             <label class="wf-label">Default Policy Refund Amount (% of Slot Fee):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-refund-pct-input" class="wf-input" min="0" max="100" step="1" value="100" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">%</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">%</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Standard Policy Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Standard Policy Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-policy-refund-chip" data-pct="100">100% (Full)</button>
               <button type="button" class="header-btn btn-policy-refund-chip" data-pct="80">80% (20% Fee)</button>
@@ -312,7 +336,7 @@
           <button type="submit" class="wf-btn">Save Default Refund Rate %</button>
         </form>
 
-        <!-- SLOT CHANGE / RESCHEDULE CUTOFF POLICY (ADMIN CONTROLLED) -->
+        <!-- SLOT CHANGE / RESCHEDULE CUTOFF POLICY -->
         <div class="wf-card highlight" style="margin-top: 10px;">
           <div class="wf-card-header">
             <span class="wf-title-sm">Slot Change / Reschedule Cutoff Policy</span>
@@ -325,9 +349,9 @@
             <label class="wf-label">Slot Change Cutoff Window (X Hours Before Slot):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-reschedule-cutoff-input" class="wf-input" min="0" max="168" step="1" value="6" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">Hours</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">Hours</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Quick Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Quick Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
               <button type="button" class="header-btn btn-reschedule-chip" data-hours="0" style="font-weight:700;">0 Hours (Anytime)</button>
               <button type="button" class="header-btn btn-reschedule-chip" data-hours="2">2 Hours</button>
@@ -352,9 +376,9 @@
             <label class="wf-label">Max Wallet Deduction Ratio for Price Increase (%):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-upgrade-ratio-input" class="wf-input" min="0" max="100" step="1" value="100" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">%</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">%</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Ratio Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Ratio Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="100">100% (Full Wallet)</button>
               <button type="button" class="header-btn btn-upgrade-ratio-chip" data-ratio="80">80%</button>
@@ -365,15 +389,13 @@
           <button type="submit" class="wf-btn">Update Wallet Upgrade Ratio</button>
         </form>
 
-        <!-- ============================================== -->
         <!-- SECTION 3: REWARD & DISCOUNT POLICY RULES -->
-        <!-- ============================================== -->
-        <div style="margin: 18px 0 6px 0; border-bottom: 2px solid #000; padding-bottom: 4px;">
-          <strong style="font-size: 0.9rem; text-transform: uppercase;">3. Reward &amp; Discount Limit Rules</strong>
+        <div class="form-section-title">
+          <span>3. Reward &amp; Discount Limit Rules</span>
         </div>
 
-        <!-- HIGHEST LIMIT OF DISCOUNT (ADMIN CONTROLLED) -->
-        <div class="wf-card highlight" style="margin-top: 10px;">
+        <!-- HIGHEST LIMIT OF DISCOUNT -->
+        <div class="wf-card highlight">
           <div class="wf-card-header">
             <span class="wf-title-sm">Maximum Limit of Discount</span>
             <span class="header-pill">Discount Cap</span>
@@ -385,9 +407,9 @@
             <label class="wf-label">Highest Discount Cap Percentage (%):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-max-discount-input" class="wf-input" min="0" max="100" step="1" value="30" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">%</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">%</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Cap Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Cap Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-max-discount-chip" data-cap="15">15%</button>
               <button type="button" class="header-btn btn-max-discount-chip" data-cap="20">20%</button>
@@ -412,9 +434,9 @@
             <label class="wf-label">Reward Rate Percentage (X%):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-reward-input" class="wf-input" min="0" max="100" step="1" value="10" required>
-              <span style="font-weight: 800; font-size: 1.1rem;">%</span>
+              <span style="font-weight: 800; font-size: 1.1rem; color:var(--glacier-900);">%</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Quick Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Quick Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-rate-chip" data-rate="5">5%</button>
               <button type="button" class="header-btn btn-rate-chip" data-rate="10">10%</button>
@@ -425,7 +447,7 @@
           <button type="submit" class="wf-btn">Update &amp; Save Reward % to DB</button>
         </form>
 
-        <!-- REWARD EXPIRY POLICY (ADMIN CONTROLLED) -->
+        <!-- REWARD EXPIRY POLICY -->
         <div class="wf-card highlight" style="margin-top: 10px;">
           <div class="wf-card-header">
             <span class="wf-title-sm">Reward Cashback Expiry Policy</span>
@@ -438,9 +460,9 @@
             <label class="wf-label">Reward Validity Period (Days until Expiry):</label>
             <div style="display:flex; align-items:center; gap: 8px;">
               <input type="number" id="admin-expiry-days-input" class="wf-input" min="1" max="730" step="1" value="60" required>
-              <span style="font-weight: 800; font-size: 1.0rem;">Days</span>
+              <span style="font-weight: 800; font-size: 1.0rem; color:var(--glacier-900);">Days</span>
             </div>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Standard Validity Presets:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Standard Validity Presets:</small>
             <div style="display: flex; gap: 6px; margin-top: 6px;">
               <button type="button" class="header-btn btn-expiry-days-chip" data-days="30">30 Days (1 Mo)</button>
               <button type="button" class="header-btn btn-expiry-days-chip" data-days="60">60 Days (2 Mo)</button>
@@ -452,11 +474,12 @@
           <button type="submit" class="wf-btn">Update &amp; Save Reward Expiry Days</button>
         </form>
 
-        <div class="wf-card" style="border-style: dashed; margin-top: 10px;">
-          <strong>Admin Rules Engine Active:</strong>
-          <p class="wf-meta" style="margin-top: 4px;">All rules are saved in IndexedDB and instantly enforced across slot schedules, checkout discounts, cancellations, and wallet balances.</p>
+        <div class="wf-card dashed" style="margin-top: 10px;">
+          <strong style="color:var(--glacier-950);">Admin Rules Engine Active:</strong>
+          <p class="wf-meta" style="margin-top: 4px;">All rules are securely saved and instantly enforced across slot schedules, checkout discounts, cancellations, and wallet balances.</p>
         </div>
       </section>
+
       <!-- SCREEN 5: ALL RESERVATIONS AUDIT & MANUAL REFUND DISBURSEMENT -->
       <section class="admin-screen" id="screen-bookings">
         <div class="wf-card-header" style="margin-bottom: 8px;">
@@ -467,10 +490,10 @@
         </div>
 
         <!-- Filter tabs -->
-        <div style="display:flex; gap:6px; margin-bottom: 10px;">
-          <button type="button" class="header-btn btn-booking-filter active" data-filter="all">All Bookings</button>
-          <button type="button" class="header-btn btn-booking-filter" data-filter="CONFIRMED">Confirmed</button>
-          <button type="button" class="header-btn btn-booking-filter" data-filter="CANCELLED">Cancelled / Refunds</button>
+        <div class="feed-filter-bar">
+          <button type="button" class="wf-btn wf-btn-sm btn-booking-filter active" data-filter="all">All Bookings</button>
+          <button type="button" class="wf-btn wf-btn-sm wf-btn-secondary btn-booking-filter" data-filter="CONFIRMED">Confirmed</button>
+          <button type="button" class="wf-btn wf-btn-sm wf-btn-secondary btn-booking-filter" data-filter="CANCELLED">Cancelled / Refunds</button>
         </div>
 
         <div id="admin-bookings-list-container">
@@ -478,33 +501,47 @@
         </div>
       </section>
     </main>
+
     <!-- Bottom Tab Navigation -->
     <nav class="mobile-bottom-nav">
       <button class="nav-tab-item active" data-target="screen-overview">
-        <span class="tab-icon">&#128202;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        </span>
         <span>Overview</span>
       </button>
       <button class="nav-tab-item" data-target="screen-games">
-        <span class="tab-icon">&#9917;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        </span>
         <span>Games</span>
       </button>
       <button class="nav-tab-item" data-target="screen-pricing">
-        <span class="tab-icon">&#128178;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
         <span>Pricing</span>
       </button>
       <button class="nav-tab-item" data-target="screen-rewards">
-        <span class="tab-icon">&#9881;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
         <span>Rules</span>
       </button>
       <button class="nav-tab-item" data-target="screen-bookings">
-        <span class="tab-icon">&#128197;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
         <span>Bookings</span>
       </button>
       <button class="nav-tab-item" data-target="screen-users">
-        <span class="tab-icon">&#128101;</span>
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
         <span>Users</span>
       </button>
     </nav>
+
     <!-- MODAL: ADD / EDIT GAME -->
     <div class="wf-modal-overlay" id="modal-game-form">
       <div class="wf-modal-sheet">
@@ -531,13 +568,14 @@
             <small class="wf-meta">Auto-generates courts and daily slots (08:00 - 21:00) in DB.</small>
           </div>
           <div class="wf-form-group">
-            <label class="wf-label">Wireframe Icon Tag:</label>
-            <input type="text" id="game-input-icon" class="wf-input" placeholder="e.g. [TT], [PB], [SQ]" value="[SP]" required>
+            <label class="wf-label">Sport Icon Tag:</label>
+            <input type="text" id="game-input-icon" class="wf-input" placeholder="e.g. TT, PB, SQ" value="SP" required>
           </div>
           <button type="submit" class="wf-btn" id="btn-save-game-submit">Save Game to Database</button>
         </form>
       </div>
     </div>
+
     <!-- MODAL: DELETE GAME CONFIRMATION -->
     <div class="wf-modal-overlay" id="modal-delete-game">
       <div class="wf-modal-sheet">
@@ -546,13 +584,14 @@
           <button class="header-btn" id="btn-close-delete-modal">&#10005;</button>
         </div>
         <p class="wf-meta" style="margin-bottom: 12px;">Are you sure you want to delete <strong id="delete-game-name">Sport</strong>?</p>
-        <div class="wf-card" style="border-style: dashed; font-size: 0.8rem;">
-          <strong>Warning:</strong> This sport and all its associated courts and slots will be permanently removed from IndexedDB.
+        <div class="wf-card dashed" style="font-size: 0.8rem; margin-bottom: 12px;">
+          <strong style="color:var(--rose-accent);">Warning:</strong> This sport and all its associated courts and slots will be permanently removed from the system.
         </div>
         <button class="wf-btn wf-btn-danger" id="btn-confirm-delete-game">Confirm Delete Game</button>
         <button class="wf-btn wf-btn-secondary" id="btn-abort-delete-game" style="margin-top: 6px;">Cancel</button>
       </div>
     </div>
+
     <!-- MODAL: DELETE USER CONFIRMATION -->
     <div class="wf-modal-overlay" id="modal-delete-user">
       <div class="wf-modal-sheet">
@@ -561,13 +600,14 @@
           <button class="header-btn" id="btn-close-delete-user-modal">&#10005;</button>
         </div>
         <p class="wf-meta" style="margin-bottom: 12px;">Are you sure you want to remove <strong id="delete-user-name">User</strong> (<span id="delete-user-email">email</span>)?</p>
-        <div class="wf-card" style="border-style: dashed; font-size: 0.8rem;">
-          <strong>Warning:</strong> This player account and all their associated bookings and wallet credits will be permanently removed from IndexedDB.
+        <div class="wf-card dashed" style="font-size: 0.8rem; margin-bottom: 12px;">
+          <strong style="color:var(--rose-accent);">Warning:</strong> This player account and all their associated bookings and wallet credits will be permanently removed from the system.
         </div>
-        <button class="wf-btn wf-btn-danger" id="btn-confirm-delete-user" style="margin-top: 10px;">Confirm Remove User</button>
+        <button class="wf-btn wf-btn-danger" id="btn-confirm-delete-user">Confirm Remove User</button>
         <button class="wf-btn wf-btn-secondary" id="btn-abort-delete-user" style="margin-top: 6px;">Cancel</button>
       </div>
     </div>
+
     <!-- MODAL 3: PROCESS MANUAL REFUND -->
     <div class="wf-modal-overlay" id="modal-admin-refund">
       <div class="wf-modal-sheet">
@@ -577,7 +617,7 @@
         </div>
         <div class="wf-card highlight" style="margin-bottom: 10px; font-size:0.8rem;">
           <div id="refund-modal-booking-meta"><strong>Booking #...</strong></div>
-          <div style="margin-top: 4px;">Original Slot Price: <strong id="refund-modal-price">$0.00</strong></div>
+          <div style="margin-top: 4px;">Original Slot Price: <strong id="refund-modal-price" style="color:var(--glacier-950);">$0.00</strong></div>
           <div id="refund-modal-cancel-timing" class="wf-meta" style="margin-top: 3px;">Cancelled: ...</div>
         </div>
         <form id="form-admin-disburse-refund">
@@ -585,7 +625,7 @@
           <div class="wf-form-group">
             <label class="wf-label">Refund Amount to Send ($):</label>
             <input type="number" id="refund-input-amount" class="wf-input" min="0" step="0.5" required>
-            <small style="color:var(--bw-gray-700); display:block; margin-top:6px;">Preset Ratios:</small>
+            <small style="color:var(--text-muted); display:block; margin-top:6px;">Preset Ratios:</small>
             <div style="display:flex; gap:6px; margin-top:6px;">
               <button type="button" class="header-btn btn-refund-preset" data-pct="100">100% Full</button>
               <button type="button" class="header-btn btn-refund-preset" data-pct="80">80%</button>
@@ -597,7 +637,7 @@
             <label class="wf-label">Admin Reason / Note (Shown to Player):</label>
             <input type="text" id="refund-input-note" class="wf-input" placeholder="e.g. Approved 100% refund for 12h cancellation">
           </div>
-          <button type="submit" class="wf-btn" style="background:#000; color:#fff;">Confirm &amp; Send Refund to Player</button>
+          <button type="submit" class="wf-btn">Confirm &amp; Send Refund to Player</button>
           <button type="button" class="wf-btn wf-btn-secondary" id="btn-abort-refund" style="margin-top:6px;">Dismiss</button>
         </form>
       </div>
