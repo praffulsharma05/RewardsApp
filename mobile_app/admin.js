@@ -3,9 +3,16 @@
  * Orchestrates and bootstraps the MobileAdminApp instance
  */
 
-// Initialize and bootstrap admin application on DOM ready
-window.addEventListener("DOMContentLoaded", () => {
+const bootstrapAdmin = async () => {
   if (typeof MobileAdminApp !== "undefined") {
     window.adminApp = new MobileAdminApp();
+    await window.adminApp.init();
   }
-});
+};
+
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", bootstrapAdmin);
+} else {
+  bootstrapAdmin();
+}
+

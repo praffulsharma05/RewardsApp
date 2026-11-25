@@ -14,7 +14,7 @@ class MobileWireframeApp {
       sportId: 1, // Default Table Tennis
       sportName: "Table Tennis",
       courtId: 1,
-      courtName: "Table 1 (Pro Stiga Arena)",
+      courtName: "Table 1",
       date: this.getTodayDateString(),
       slotId: null,
       slotTime: "",

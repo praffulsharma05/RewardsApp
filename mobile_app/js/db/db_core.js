@@ -3,8 +3,8 @@
  * Mocks asynchronous backend APIs with IndexedDB persistence.
  */
 
-const DB_NAME = "SportsSlotWireframeDB";
-const DB_VERSION = 1;
+const DB_NAME = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.DB?.NAME) || "SportsSlotWireframeDB";
+const DB_VERSION = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.DB?.VERSION) || 1;
 
 class MockAPI {
   constructor() {

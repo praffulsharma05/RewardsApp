@@ -59,8 +59,7 @@ Object.assign(MockAPI.prototype, {
             start_time: "10:00",
             end_time: "17:00",
             date: "ALL_DAYS",
-            reason: "Academy Coaching Session (10 AM - 5 PM)"
-          },
+           },
           {
             id: 2,
             court_id: 0,
@@ -68,8 +67,7 @@ Object.assign(MockAPI.prototype, {
             start_time: "10:00",
             end_time: "17:00",
             date: "2026-11-15",
-            reason: "Junior Academy Tournament (10 AM - 5 PM)"
-          }
+           }
         ]
       });
     }

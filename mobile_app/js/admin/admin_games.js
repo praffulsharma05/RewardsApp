@@ -98,11 +98,11 @@ Object.assign(MobileAdminApp.prototype, {
       if (editId) {
         // Update existing game
         await window.api.updateSport(editId, { name, category, courts_count, icon });
-        this.showToast(`Sport #${editId} (${name}) updated!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.SPORT_UPDATED(editId, name));
       } else {
         // Add new game
         const created = await window.api.addSport({ name, category, courts_count, icon });
-        this.showToast(`New Sport #${created.id} (${name}) added to database!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.SPORT_ADDED(created.id, name));
       }
 
       this.closeGameModal();
@@ -135,7 +135,7 @@ Object.assign(MobileAdminApp.prototype, {
 
     try {
       await window.api.deleteSport(this.pendingDeleteSportId);
-      this.showToast(`Sport #${this.pendingDeleteSportId} and associated courts deleted.`);
+      this.showToast(APP_CONSTANTS.MESSAGES.SPORT_DELETED(this.pendingDeleteSportId));
       this.closeDeleteModal();
       await this.renderGamesList();
       await this.populateUnavailabilityCourts();

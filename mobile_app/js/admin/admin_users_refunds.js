@@ -20,16 +20,19 @@ Object.assign(MobileAdminApp.prototype, {
 
     container.innerHTML = users.map(u => `
       <div class="user-row-card" id="user-row-${u.id}">
-        <div class="user-row-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <strong style="font-size:0.88rem;">${u.name}</strong>
-            <small class="wf-meta" style="display:block;">${u.email} &bull; User ID: #${u.id}</small>
+        <div class="user-row-header">
+          <div class="user-row-info">
+            <div class="user-row-name-group">
+              <strong class="user-row-name">${u.name}</strong>
+              <span class="user-id-badge">#${u.id}</span>
+            </div>
+            <span class="user-row-email">${u.email}</span>
           </div>
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div class="user-row-actions">
             <span class="user-balance-pill" title="Current Reward Balance">
               $${(u.wallet_balance || 0).toFixed(2)}
             </span>
-            <button type="button" class="wf-btn wf-btn-danger wf-btn-sm btn-delete-user" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}" style="padding:4px 8px; font-size:0.75rem;">
+            <button type="button" class="btn-user-remove btn-delete-user" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}">
               Remove
             </button>
           </div>
@@ -40,7 +43,7 @@ Object.assign(MobileAdminApp.prototype, {
     container.querySelectorAll(".btn-delete-user").forEach(btn => {
       btn.addEventListener("click", () => {
         const id = Number(btn.getAttribute("data-id"));
-        const name = btn.getAttribute("data-name") || "Player";
+        const name = btn.getAttribute("data-name") || "";
         const email = btn.getAttribute("data-email") || "";
         this.openDeleteUserModal(id, name, email);
       });
@@ -70,7 +73,7 @@ Object.assign(MobileAdminApp.prototype, {
 
     try {
       await window.api.deleteUser(id);
-      this.showToast(`User #${id} removed successfully.`);
+      this.showToast(APP_CONSTANTS.MESSAGES.USER_REMOVED(id));
       this.closeDeleteUserModal();
       await this.renderUsersList();
       await this.refreshOverview();
@@ -138,7 +141,7 @@ Object.assign(MobileAdminApp.prototype, {
     inputAmount.max = booking.price;
 
     const inputNote = document.getElementById("refund-input-note");
-    inputNote.value = booking.admin_refund_note || "Full refund per 12h policy";
+    inputNote.value = booking.admin_refund_note;
 
     document.getElementById("modal-admin-refund")?.classList.add("active");
   },
@@ -169,36 +172,46 @@ Object.assign(MobileAdminApp.prototype, {
       const isRefundPending = b.status === "CANCELLED" && b.refund_status === "PENDING";
 
       return `
-        <div class="wf-card ${isConfirmed ? "" : "highlight"}" style="${isRefundPending ? 'border: 1.5px dashed var(--rose-border); background: var(--rose-bg);' : ''}">
-          <div class="wf-card-header">
-            <div>
-              <strong style="font-size:0.88rem; color:var(--glacier-950);">Booking #${b.id} &bull; ${b.sport_name}</strong>
-              <small class="wf-meta" style="display:block;">User ID #${b.user_id} &bull; ${b.date}</small>
+        <div class="wf-card ${isConfirmed ? "" : "highlight"} admin-booking-card ${isRefundPending ? "refund-pending" : ""}">
+          <div class="admin-booking-header">
+            <div class="admin-booking-title-group">
+              <div class="admin-booking-title">
+                <span>Booking #${b.id}</span>
+                <span class="wf-meta">&bull;</span>
+                <span>${b.sport_name}</span>
+              </div>
+              <small class="wf-meta d-block mt-2">User ID #${b.user_id} &bull; <span class="facility-date-badge">${b.date}</span></small>
             </div>
-            <div style="display:flex; gap:4px; align-items:center;">
-              <span class="header-pill" style="font-size:0.68rem; ${isConfirmed ? 'background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border);' : 'background:var(--rose-bg); color:var(--rose-accent); border:1px solid var(--rose-border);'}">
+            <div class="admin-booking-badges">
+              <span class="header-pill pill-sm ${isConfirmed ? "pill-confirmed" : "pill-cancelled"}">
                 ${b.status}
               </span>
               ${b.status === "CANCELLED" ? `
-                <span class="header-pill" style="font-size:0.68rem; ${isRefunded ? 'background:var(--glacier-100); color:var(--glacier-800); border:1px solid var(--glacier-200);' : 'background:var(--rose-bg); color:var(--rose-accent); border:1px solid var(--rose-border);'}">
-                  ${isRefunded ? `REFUNDED $${Number(b.refund_amount || 0).toFixed(2)}` : 'AWAITING REFUND'}
+                <span class="header-pill pill-sm ${isRefunded ? "pill-refunded" : "pill-awaiting-refund"}">
+                  ${isRefunded ? `REFUNDED $${Number(b.refund_amount || 0).toFixed(2)}` : "AWAITING REFUND"}
                 </span>
-              ` : ''}
+              ` : ""}
             </div>
           </div>
-          <div style="font-size:0.78rem; line-height:1.5;">
-            <div>Facility: <strong>${b.court_name}</strong> (${b.start_time} - ${b.end_time})</div>
-            <div>Slot Fee: <strong>$${b.price.toFixed(2)}</strong> | Net Paid: <strong>$${(b.net_paid || b.price).toFixed(2)}</strong></div>
+          <div class="admin-booking-body">
+            <div class="admin-booking-detail-row">
+              <span class="admin-booking-detail-item">Facility: <strong>${b.court_name}</strong></span>
+              <span class="facility-date-badge">${b.start_time} - ${b.end_time}</span>
+            </div>
+            <div class="admin-booking-detail-row">
+              <span>Slot Fee: <strong>$${b.price.toFixed(2)}</strong></span>
+              <span class="wf-meta">|</span>
+              <span>Net Paid: <strong class="text-glacier-dark">$${(b.net_paid || b.price).toFixed(2)}</strong></span>
+            </div>
             
             ${b.status === "CANCELLED" ? `
-              <div style="margin-top:8px; padding:10px 12px; background:#ffffff; border:1.5px solid var(--glacier-200); border-radius:12px;">
-                <div><strong>Cancellation Timing:</strong> ${b.hours_before_slot != null ? `${b.hours_before_slot} hrs before slot (Policy compliant)` : 'Registered cancellation'}</div>
-                <div style="margin-top:4px;"><strong>Refund State:</strong> ${isRefunded ? `<span style="color:var(--emerald-accent); font-weight:700;">Sent $${Number(b.refund_amount).toFixed(2)} to Player Wallet</span> (${b.admin_refund_note || 'Approved'})` : '<span style="color:var(--rose-accent); font-weight:700;">Pending manual admin refund review</span>'}</div>
-                <button type="button" class="wf-btn wf-btn-sm btn-open-refund-modal" data-id="${b.id}" style="margin-top:8px; width:100%; font-size:0.75rem;">
-                  ${isRefunded ? 'Edit / Adjust Refund' : 'Set & Send Refund to User'}
+              <div class="admin-refund-box">
+                <div><strong>Cancellation Timing:</strong> ${b.hours_before_slot != null ? `${b.hours_before_slot} hrs before slot (Policy compliant)` : "Registered cancellation"}</div>
+                 <button type="button" class="wf-btn wf-btn-sm btn-open-refund-modal mt-8" data-id="${b.id}">
+                  ${isRefunded ? "Edit / Adjust Refund" : "Set & Send Refund to User"}
                 </button>
               </div>
-            ` : ''}
+            ` : ""}
           </div>
         </div>
       `;

@@ -40,7 +40,7 @@ Object.assign(MobileAdminApp.prototype, {
       const prevVal = slotSelect.value;
       slotSelect.innerHTML = `
         <optgroup label="Single Slot Times">
-          ${tiers.map(t => `<option value="${t.start}-${t.end}">${t.start} - ${t.end} (Current: $${t.price})</option>`).join("")}
+          ${tiers.map(t => `<option value="${t.start}-${t.end}">${t.start} - ${t.end}</option>`).join("")}
         </optgroup>
         <optgroup label="Bulk Window Presets">
           <option value="peak">Peak Evening (18:00 - 23:00)</option>
@@ -70,19 +70,68 @@ Object.assign(MobileAdminApp.prototype, {
       `;
     }).join("");
 
+    this.bindSlotPriceModalEvents();
+
     container.querySelectorAll(".btn-edit-single-tier").forEach(btn => {
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", () => {
         const start = btn.dataset.start;
         const end = btn.dataset.end;
-        const currentPrice = btn.dataset.price;
-        const input = prompt(`Set new price ($) for [${sportTitle}] at slot ${start} - ${end}:`, currentPrice);
-        if (input !== null && !isNaN(Number(input)) && Number(input) > 0) {
-          const newPrice = Number(input);
-          await window.api.updateSlotPriceForSport(this.selectedPricingSportId, start, end, newPrice);
-          this.showToast(`Updated ${sportTitle} [${start} - ${end}] to $${newPrice.toFixed(2)}!`);
-          await this.renderPricingSchedule();
-        }
+        const currentPrice = Number(btn.dataset.price);
+        this.openEditSlotPriceModal(start, end, currentPrice, sportTitle);
       });
+    });
+  },
+
+  openEditSlotPriceModal(start, end, currentPrice, sportTitle) {
+    this.pendingEditSlot = { start, end, sportTitle };
+    const meta = document.getElementById("edit-slot-price-meta");
+    if (meta) meta.textContent = `${sportTitle} \u2022 ${start} - ${end}`;
+    const input = document.getElementById("input-edit-slot-price");
+    if (input) {
+      input.value = currentPrice;
+      setTimeout(() => input.focus(), 80);
+    }
+    document.getElementById("modal-edit-slot-price")?.classList.add("active");
+  },
+
+  closeEditSlotPriceModal() {
+    document.getElementById("modal-edit-slot-price")?.classList.remove("active");
+    this.pendingEditSlot = null;
+  },
+
+  bindSlotPriceModalEvents() {
+    if (this._slotPriceModalBound) return;
+    this._slotPriceModalBound = true;
+
+    document.getElementById("btn-close-slot-price-modal")?.addEventListener("click", () => this.closeEditSlotPriceModal());
+    document.getElementById("btn-cancel-slot-price")?.addEventListener("click", () => this.closeEditSlotPriceModal());
+
+    document.querySelectorAll(".btn-quick-price-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const price = btn.dataset.price;
+        const input = document.getElementById("input-edit-slot-price");
+        if (input) input.value = price;
+      });
+    });
+
+    document.getElementById("form-edit-slot-price")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!this.pendingEditSlot) return;
+      const { start, end, sportTitle } = this.pendingEditSlot;
+      const newPrice = Number(document.getElementById("input-edit-slot-price").value);
+      if (isNaN(newPrice) || newPrice <= 0) return;
+
+      try {
+        await window.api.updateSlotPriceForSport(this.selectedPricingSportId, start, end, newPrice);
+        this.closeEditSlotPriceModal();
+        const msg = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.SLOT_PRICE_UPDATED) ?
+          APP_CONSTANTS.MESSAGES.SLOT_PRICE_UPDATED(sportTitle, start, end, newPrice) :
+          `${sportTitle} (${start}-${end}): Set to $${newPrice}`;
+        this.showToast(msg);
+        await this.renderPricingSchedule();
+      } catch (err) {
+        alert(err.message);
+      }
     });
   }
 

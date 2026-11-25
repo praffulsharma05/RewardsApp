@@ -14,17 +14,8 @@ Object.assign(MobileAdminApp.prototype, {
       const price = Number(document.getElementById("price-rate-value").value);
 
       try {
-        let count = 0;
-        if (slotVal === "peak" || slotVal === "day" || slotVal === "all-slots") {
-          let start = "00:00", end = "24:00";
-          if (slotVal === "peak") { start = "18:00"; end = "23:00"; }
-          else if (slotVal === "day") { start = "08:00"; end = "18:00"; }
-          count = await window.api.updateSlotDayWisePrice(sportId, slotVal, dayType, price);
-          this.showToast(`Updated ${slotVal} slots for ${sportName} (${dayType}) to $${price}! (${count} slots)`);
-        } else {
-          count = await window.api.updateSlotDayWisePrice(sportId, slotVal, dayType, price);
-          this.showToast(`Updated ${sportName} [${slotVal}] (${dayType}) to $${price}! (${count} slots)`);
-        }
+        const count = await window.api.updateSlotDayWisePrice(sportId, slotVal, dayType, price);
+        this.showToast(APP_CONSTANTS.MESSAGES.PRICING_UPDATED(sportName, count, price));
         await this.renderPricingSchedule();
       } catch (err) {
         alert(err.message);
@@ -74,7 +65,7 @@ Object.assign(MobileAdminApp.prototype, {
       const newRate = Number(document.getElementById("admin-reward-input").value);
       try {
         const saved = await window.api.setRewardRate(newRate);
-        this.showToast(`IndexedDB Updated: Reward rate set to ${saved}%!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.REWARD_RATE_SAVED(saved));
         await this.refreshOverview();
       } catch (err) {
         alert(err.message);
@@ -96,7 +87,7 @@ Object.assign(MobileAdminApp.prototype, {
       const days = Number(document.getElementById("admin-expiry-days-input").value);
       try {
         const saved = await window.api.setRewardExpiryDays(days);
-        this.showToast(`IndexedDB Updated: Reward validity period set to ${saved} Days!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.REWARD_EXPIRY_SAVED(saved));
       } catch (err) {
         alert(err.message);
       }
@@ -117,7 +108,7 @@ Object.assign(MobileAdminApp.prototype, {
       const hours = Number(document.getElementById("admin-cutoff-input").value);
       try {
         const saved = await window.api.setCancellationCutoffHours(hours);
-        this.showToast(`IndexedDB Updated: Cancellation cutoff set to ${saved} Hours!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.CUTOFF_SAVED(saved));
       } catch (err) {
         alert(err.message);
       }
@@ -138,7 +129,7 @@ Object.assign(MobileAdminApp.prototype, {
       const hours = Number(document.getElementById("admin-reschedule-cutoff-input").value);
       try {
         const saved = await window.api.setRescheduleCutoffHours(hours);
-        this.showToast(`IndexedDB Updated: Slot change cutoff set to ${saved} Hours!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.RESCHEDULE_CUTOFF_SAVED(saved));
       } catch (err) {
         alert(err.message);
       }
@@ -159,7 +150,7 @@ Object.assign(MobileAdminApp.prototype, {
       const ratio = Number(document.getElementById("admin-upgrade-ratio-input").value);
       try {
         const saved = await window.api.setWalletUpgradeRatio(ratio);
-        this.showToast(`IndexedDB Updated: Slot upgrade wallet ratio set to ${saved}%!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.UPGRADE_RATIO_SAVED(saved));
       } catch (err) {
         alert(err.message);
       }
@@ -180,7 +171,7 @@ Object.assign(MobileAdminApp.prototype, {
       const pct = Number(document.getElementById("admin-refund-pct-input").value);
       try {
         const saved = await window.api.setDefaultRefundPercent(pct);
-        this.showToast(`IndexedDB Updated: Default refund rate set to ${saved}%!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.REFUND_RATE_SAVED(saved));
       } catch (err) {
         alert(err.message);
       }
@@ -220,7 +211,7 @@ Object.assign(MobileAdminApp.prototype, {
       try {
         const res = await window.api.processManualRefund(bookingId, amount, note);
         this.closeRefundModal();
-        this.showToast(`IndexedDB Refund Sent: $${amount.toFixed(2)} to User #${res.booking.user_id}!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.REFUND_SENT(amount, res.booking.user_id));
         await this.renderAllBookings();
         await this.refreshOverview();
       } catch (err) {

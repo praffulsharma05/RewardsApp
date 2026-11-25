@@ -3,9 +3,16 @@
  * Orchestrates and bootstraps the MobileWireframeApp instance
  */
 
-// Initialize and bootstrap application on DOM ready
-window.addEventListener("DOMContentLoaded", () => {
+const bootstrapApp = async () => {
   if (typeof MobileWireframeApp !== "undefined") {
     window.app = new MobileWireframeApp();
+    await window.app.init();
   }
-});
+};
+
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", bootstrapApp);
+} else {
+  bootstrapApp();
+}
+

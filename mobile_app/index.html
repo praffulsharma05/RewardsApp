@@ -61,9 +61,20 @@
             </svg>
           </div>
           <h1 class="auth-brand-title">Sports Slot</h1>
-         </div>
+          <p class="auth-brand-subtitle">Reserve facility courts &amp; earn instant wallet rewards</p>
+        </div>
 
-       
+        <!-- Segmented Tab Switcher (Sign In / Register) -->
+        <div class="auth-tab-bar">
+          <button type="button" class="auth-tab-btn active" id="btn-auth-tab-login">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <span>Sign In</span>
+          </button>
+          <button type="button" class="auth-tab-btn" id="btn-auth-tab-reg">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            <span>Create Account</span>
+          </button>
+        </div>
 
         <!-- VIEW A: SIGN IN -->
         <div id="view-auth-login">
@@ -74,11 +85,26 @@
               </div>
               <div style="flex:1;">
                 <strong style="font-size:0.95rem; color:var(--glacier-950); display:block;">Welcome Back</strong>
-               </div>
+                <span class="wf-meta">Sign in to manage your bookings and wallet</span>
+              </div>
             </div>
 
-          
- 
+            <div class="wf-dotted-sep"></div>
+
+            <!-- Single Sign-On -->
+            <span class="wf-micro-label">QUICK ACCESS WITH SOCIAL ACCOUNTS:</span>
+            <div style="display:flex; gap:8px; margin:8px 0 12px;">
+              <button type="button" class="sso-btn" id="btn-sso-google">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span>Google</span>
+              </button>
+              <button type="button" class="sso-btn" id="btn-sso-apple">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.89c.65-.79 1.09-1.89.97-3-.99.04-2.19.66-2.9 1.49-.62.72-1.16 1.85-1.02 2.93 1.1.09 2.22-.56 2.95-1.42z"/></svg>
+                <span>Apple ID</span>
+              </button>
+            </div>
+
+            <div class="wf-text-divider"><span>OR ENTER CREDENTIALS</span></div>
             <form id="form-login" style="margin-top:12px;">
               <div class="wf-form-group">
                 <label class="wf-label" for="login-email">Email or Phone Number *</label>
@@ -259,11 +285,32 @@
       </section>
       <!-- SCREEN 5: BOOKING CHECKOUT & REWARD SUMMARY -->
       <section class="wireframe-screen" id="screen-checkout">
-        <div class="wf-card">
-          <div class="wf-card-header"><span class="wf-title-sm">Booking Summary</span><span class="wf-pill">Review</span></div>
-          <div style="font-size: 0.82rem; line-height: 1.5;">
-            <div>Sport: <strong id="chk-sport">Table Tennis</strong> &bull; Facility: <strong id="chk-court">Table 1</strong></div>
-            <div>Date: <strong id="chk-date">2026-11-13</strong> &bull; Time: <strong id="chk-time">18:00 - 19:00</strong> &bull; Fee: <strong id="chk-price" style="color:var(--glacier-950); font-family:var(--font-mono);">$35.00</strong></div>
+        <div class="wf-card checkout-summary-card">
+          <div class="wf-card-header">
+            <span class="wf-title-sm">Booking Summary</span>
+            <span class="wf-pill">Review</span>
+          </div>
+          <div class="checkout-summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Sport</span>
+              <strong class="summary-value" id="chk-sport">Table Tennis</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Facility</span>
+              <strong class="summary-value" id="chk-court">Table 1</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Date</span>
+              <strong class="summary-value" id="chk-date">2026-11-13</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Time</span>
+              <strong class="summary-value" id="chk-time">18:00 - 19:00</strong>
+            </div>
+            <div class="summary-fee-row">
+              <span class="summary-fee-label">Total Slot Fee</span>
+              <strong class="summary-fee-amount" id="chk-price">$35.00</strong>
+            </div>
           </div>
         </div>
         <!-- Reward Points / Wallet Balance Option (Applied via Checkbox, Capped by Admin Max Limit) -->
@@ -296,8 +343,8 @@
             <span class="reward-badge" id="chk-reward-badge">10% Active</span>
           </div>
           <div>Admin Reward Rate: <span id="chk-reward-rate">10%</span></div>
-          <div>Cashback Credited: <strong id="chk-reward-amount" style="color:var(--emerald-accent);">+$3.50</strong></div>
-          <small style="color:var(--text-muted); display:block; margin-top:4px;">*Instantly credited to your rewards wallet upon booking confirmation.</small>
+          <div>Cashback Credited: <strong id="chk-reward-amount" style="color:var(--emerald-accent);">+$3.50</strong></div> 
+          <small style="color:var(--text-muted); display:block; margin-top:4px;"></small>
         </div>
         <button type="button" class="wf-btn" id="btn-confirm-checkout">Confirm &amp; Book Slot</button>
       </section>
@@ -325,7 +372,10 @@
       <section class="wireframe-screen" id="screen-bookings">
         <div class="wf-card-header" style="margin-bottom: 10px;">
           <p class="wf-label" style="margin: 0;">My Reservations:</p>
-          <button class="header-btn" id="btn-refresh-bookings-list">Refresh</button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" class="header-btn" id="btn-toggle-all-bookings" style="font-size:0.7rem; padding:4px 10px;" title="Expand or collapse all">Expand All</button>
+            <button type="button" class="header-btn" id="btn-refresh-bookings-list" style="font-size:0.7rem; padding:4px 10px;">Refresh</button>
+          </div>
         </div>
         <div id="bookings-list-container">
           <!-- Populated from IndexedDB bookings store -->
@@ -451,6 +501,9 @@
       </div>
     </div>
   </div>
+  <!-- Application Constants & Strings -->
+  <script src="js/constants.js"></script>
+
   <!-- Database Layer Modules (<300 lines each) -->
   <script src="js/db/db_core.js"></script>
   <script src="js/db/db_seed.js"></script>

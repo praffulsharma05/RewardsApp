@@ -33,7 +33,7 @@ Object.assign(MobileWireframeApp.prototype, {
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const currentHourMin = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
-    container.innerHTML = bookings.map(b => {
+    container.innerHTML = bookings.map((b, idx) => {
       const isConfirmed = b.status === "CONFIRMED";
       const isPastGame = isConfirmed && ((b.date < todayStr) || (b.date === todayStr && (b.end_time || b.start_time) <= currentHourMin));
 
@@ -42,62 +42,101 @@ Object.assign(MobileWireframeApp.prototype, {
         statusBadge = `<span class="wf-pill" style="background:var(--glacier-100); color:var(--glacier-800); border-color:var(--glacier-200);">COMPLETED</span>`;
       }
 
+      // Default the first reservation to expanded, others collapsed
+      const isExpanded = idx === 0;
+
       return `
-        <div class="wf-card ${isConfirmed ? "" : "highlight"}" data-booking-id="${b.id}">
-          <div class="wf-card-header">
+        <div class="wf-card ${isConfirmed ? "" : "highlight"} booking-accordion-card ${isExpanded ? "expanded" : ""}" data-booking-id="${b.id}">
+          <div class="booking-collapse-header" title="Tap to expand or collapse details">
             <div>
               <strong style="font-size:0.88rem; color:var(--glacier-950);">${b.sport_name}</strong>
-              <small class="wf-meta" style="display:block;">Booking #${b.id} &bull; ${b.date}</small>
+              <small class="wf-meta" style="display:block;">${b.date} &bull; ${b.start_time} - ${b.end_time}</small>
             </div>
-            ${statusBadge}
-          </div>
-
-          <div style="font-size:0.8rem; margin-bottom: 8px;">
-            <div>Facility: <strong>${b.court_name}</strong></div>
-            <div>Time Slot: <strong>${b.start_time} - ${b.end_time}</strong> ($${b.price.toFixed(2)})</div>
-            ${b.wallet_applied > 0 ? `<div>Paid with Wallet: <strong>-$${b.wallet_applied.toFixed(2)}</strong> (Net Paid: $${b.net_paid.toFixed(2)})</div>` : ''}
-            <div style="margin-top: 4px;">
-              Reward: <strong>${isConfirmed ? `+` : `Reversed `}$${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</strong>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${statusBadge}
+              <span class="booking-chevron" aria-label="Toggle details">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
             </div>
           </div>
 
-          ${isConfirmed ? (isPastGame ? `
-            <div style="margin-top:8px; padding:8px 12px; background:var(--glacier-50); border:1px solid var(--glacier-200); border-radius:12px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
-              &#10003; <strong>Game Completed</strong> &bull; Past reservations cannot be edited or cancelled.
-            </div>
-          ` : `
-            <div style="display:flex; gap:6px; margin-top:8px;">
-              <button class="wf-btn wf-btn-secondary wf-btn-sm btn-edit-booking" data-id="${b.id}" style="flex:1;">
-                Edit / Reschedule
-              </button>
-              <button class="wf-btn wf-btn-danger wf-btn-sm btn-cancel-booking" data-id="${b.id}" style="flex:1;">
-                Cancel Slot
-              </button>
-            </div>
-          `) : `
-            <div style="margin-top: 8px; padding: 10px 12px; border: 1.5px dashed var(--glacier-300); border-radius: 12px; background: var(--glacier-50); font-size: 0.78rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <strong style="color:var(--glacier-950);">Refund Status:</strong>
-                ${b.refund_status === 'REFUNDED' 
-                  ? `<span class="wf-pill" style="background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border);">Refunded $${Number(b.refund_amount || 0).toFixed(2)}</span>` 
-                  : `<span class="wf-pill" style="border-style:dashed; color:var(--rose-accent); background:var(--rose-bg); border-color:var(--rose-border);">Pending Admin Review</span>`}
+          <div class="booking-collapse-body">
+            <div style="font-size:0.8rem; margin-bottom: 8px;">
+              <div>Facility: <strong>${b.court_name}</strong> &bull; Booking ID: <strong>#${b.id}</strong></div>
+              <div>Slot Fee: <strong>$${b.price.toFixed(2)}</strong></div>
+              ${b.wallet_applied > 0 ? `<div>Paid with Wallet: <strong>-$${b.wallet_applied.toFixed(2)}</strong> (Net Paid: $${b.net_paid.toFixed(2)})</div>` : ''}
+              <div style="margin-top: 4px;">
+                Reward: <strong>${isConfirmed ? `+` : `Reversed `}$${b.reward_amount.toFixed(2)} (${b.reward_percent}%)</strong>
               </div>
-              ${b.refund_status === 'REFUNDED' 
-                ? `<div style="color:var(--text-muted);">${b.admin_refund_note ? `Admin Note: "${b.admin_refund_note}"` : 'Refund credited to your wallet balance.'}</div>` 
-                : `<div style="color:var(--text-muted);">Slot cancelled ${b.hours_before_slot != null ? `(${b.hours_before_slot}h before slot)` : ''}. Admin will manually review & disburse refund.</div>`}
             </div>
-          `}
+
+            ${isConfirmed ? (isPastGame ? `
+              <div style="margin-top:8px; padding:8px 12px; background:var(--glacier-50); border:1px solid var(--glacier-200); border-radius:12px; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+                &#10003; <strong>Game Completed</strong> &bull; Past reservations cannot be edited or cancelled.
+              </div>
+            ` : `
+              <div style="display:flex; gap:6px; margin-top:8px;">
+                <button class="wf-btn wf-btn-secondary wf-btn-sm btn-edit-booking" data-id="${b.id}" style="flex:1;">
+                  Edit / Reschedule
+                </button>
+                <button class="wf-btn wf-btn-danger wf-btn-sm btn-cancel-booking" data-id="${b.id}" style="flex:1;">
+                  Cancel Slot
+                </button>
+              </div>
+            `) : `
+              <div style="margin-top: 8px; padding: 10px 12px; border: 1.5px dashed var(--glacier-300); border-radius: 12px; background: var(--glacier-50); font-size: 0.78rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="color:var(--glacier-950);">Refund Status:</strong>
+                  ${b.refund_status === 'REFUNDED' 
+                    ? `<span class="wf-pill" style="background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border);">Refunded $${Number(b.refund_amount || 0).toFixed(2)}</span>` 
+                    : `<span class="wf-pill" style="border-style:dashed; color:var(--rose-accent); background:var(--rose-bg); border-color:var(--rose-border);">Pending Admin Review</span>`}
+                </div>
+                ${b.refund_status === 'REFUNDED' 
+                  ? `<div style="color:var(--text-muted);">${b.admin_refund_note ? `Admin Note: "${b.admin_refund_note}"` : 'Refund credited to your wallet balance.'}</div>` 
+                  : `<div style="color:var(--text-muted);">Slot cancelled ${b.hours_before_slot != null ? `(${b.hours_before_slot}h before slot)` : ''}. Admin will manually review & disburse refund.</div>`}
+              </div>
+            `}
+          </div>
         </div>
       `;
     }).join("");
 
-    // Bind Edit & Cancel Buttons
+    // Bind Expand / Collapse Toggle on Header Click
+    container.querySelectorAll(".booking-collapse-header").forEach(hdr => {
+      hdr.addEventListener("click", (e) => {
+        const card = hdr.closest(".booking-accordion-card");
+        if (card) {
+          card.classList.toggle("expanded");
+        }
+      });
+    });
+
+    // Expand All / Collapse All Header Button
+    const toggleAllBtn = document.getElementById("btn-toggle-all-bookings");
+    if (toggleAllBtn) {
+      toggleAllBtn.onclick = () => {
+        const allCards = container.querySelectorAll(".booking-accordion-card");
+        const hasCollapsed = Array.from(allCards).some(c => !c.classList.contains("expanded"));
+        allCards.forEach(c => {
+          c.classList.toggle("expanded", hasCollapsed);
+        });
+        toggleAllBtn.textContent = hasCollapsed ? APP_CONSTANTS.UI.COLLAPSE_ALL : APP_CONSTANTS.UI.EXPAND_ALL;
+      };
+    }
+
+    // Bind Edit & Cancel Buttons (prevent bubbling to accordion toggle)
     container.querySelectorAll(".btn-edit-booking").forEach(btn => {
-      btn.addEventListener("click", () => this.openEditModal(Number(btn.dataset.id)));
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openEditModal(Number(btn.dataset.id));
+      });
     });
 
     container.querySelectorAll(".btn-cancel-booking").forEach(btn => {
-      btn.addEventListener("click", () => this.openCancelModal(Number(btn.dataset.id)));
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openCancelModal(Number(btn.dataset.id));
+      });
     });
   },
 

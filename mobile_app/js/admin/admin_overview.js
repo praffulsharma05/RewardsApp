@@ -67,12 +67,11 @@ Object.assign(MobileAdminApp.prototype, {
     let globalClosedCard = "";
     if (!facilityStatus.isOpen) {
       globalClosedCard = `
-        <div class="wf-card highlight" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:8px; border:1.5px dashed var(--glacier-400); border-radius:14px;">
-          <div>
-            <strong style="font-size:0.82rem; color:var(--rose-accent);">CLOSED TODAY &bull; Active Status</strong>
-            <small class="wf-meta" style="display:block;">${facilityStatus.reason}</small>
+        <div class="wf-card highlight facility-rule-item global-closed">
+          <div class="facility-rule-info">
+            <strong class="facility-rule-title text-rose-accent">CLOSED TODAY &bull; Active Status</strong>
           </div>
-          <button type="button" class="header-btn" id="btn-reopen-global" style="font-size:0.7rem;">Re-Open Today</button>
+          <button type="button" class="header-btn btn-reopen-rule" id="btn-reopen-global">Re-Open Today</button>
         </div>
       `;
     }
@@ -81,7 +80,7 @@ Object.assign(MobileAdminApp.prototype, {
     if (badge) badge.textContent = `${totalClosed} Closed`;
 
     if (closedDates.length === 0 && facilityStatus.isOpen) {
-      container.innerHTML = `<p class="wf-meta" style="padding:4px 0;">No blackout dates set. Facility is open for all upcoming days.</p>`;
+      container.innerHTML = `<p class="wf-meta" style="padding:4px 0;"> </p>`;
       return;
     }
 
@@ -91,22 +90,21 @@ Object.assign(MobileAdminApp.prototype, {
       const entryKey = d.id || d.date;
 
       return `
-        <div class="wf-card highlight" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; margin-bottom:6px;">
-          <div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <strong style="font-size:0.85rem;">${isFullDay ? 'CLOSED DATE' : 'TIMED BLACKOUT'}: ${d.date}</strong>
-              <span class="header-pill" style="font-size:0.65rem;">${timeStr}</span>
+        <div class="wf-card highlight facility-rule-item">
+          <div class="facility-rule-info">
+            <strong class="facility-rule-title">${isFullDay ? 'CLOSED DATE' : 'TIMED BLACKOUT'}: ${d.date}</strong>
+            <div class="facility-rule-badges">
+              <span class="header-pill pill-sm">${timeStr}</span>
             </div>
-            <small class="wf-meta" style="display:block; margin-top:2px;">Reason: ${d.reason}</small>
           </div>
-          <button type="button" class="header-btn btn-reopen-date" data-id="${entryKey}" style="font-size:0.7rem;">Re-Open</button>
+          <button type="button" class="header-btn btn-reopen-rule btn-reopen-date" data-id="${entryKey}">Re-Open</button>
         </div>
       `;
     }).join("");
 
     document.getElementById("btn-reopen-global")?.addEventListener("click", async () => {
       await window.api.setFacilityStatus(true, "Normal Operations");
-      this.showToast("Facility re-opened today!");
+      this.showToast(APP_CONSTANTS.MESSAGES.FACILITY_REOPENED_TODAY);
       await this.renderClosedDatesList();
       await this.renderOverviewRulesSummary();
     });
@@ -115,7 +113,7 @@ Object.assign(MobileAdminApp.prototype, {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.id;
         await window.api.removeClosedDate(id);
-        this.showToast(`Blackout re-opened for bookings!`);
+        this.showToast(APP_CONSTANTS.MESSAGES.BLACKOUT_REOPENED);
         await this.renderClosedDatesList();
         await this.renderOverviewRulesSummary();
       });
@@ -129,15 +127,15 @@ Object.assign(MobileAdminApp.prototype, {
     const sports = await window.api.getSports();
     const courts = await window.api.getCourts();
 
-    let html = `<option value="court:0:All Academy Grounds (Entire Facility)">All Academy Grounds (Entire Facility)</option>`;
+    let html = `<option value="court:0:All Grounds">All Grounds</option>`;
 
     for (const sport of sports) {
       const sportCourts = courts.filter(c => c.sport_id === sport.id);
-      const icon = (sport.icon || "SP").replace(/[\[\]]/g, "");
-      html += `<optgroup label="${icon} ${sport.name} (${sportCourts.length} Ground${sportCourts.length === 1 ? '' : 's'})">`;
-      html += `<option value="sport:${sport.id}:All ${sport.name} Grounds">All ${sport.name} Grounds (Entire Sport)</option>`;
+      if (sportCourts.length === 0) continue;
+      html += `<optgroup label="${sport.name}">`;
       for (const c of sportCourts) {
-        html += `<option value="court:${c.id}:${c.name}">${c.name} (${c.surface || 'Standard'})</option>`;
+        const cleanName = (c.name || "Ground").replace(/\s*\([^)]*\)/g, "").trim();
+        html += `<option value="court:${c.id}:${cleanName}">${cleanName}</option>`;
       }
       html += `</optgroup>`;
     }
@@ -157,30 +155,30 @@ Object.assign(MobileAdminApp.prototype, {
     if (badge) badge.textContent = `${list.length} Block${list.length === 1 ? '' : 's'}`;
 
     if (list.length === 0) {
-      container.innerHTML = `<p class="wf-meta" style="padding:4px 0;">No playground or academy hours blocked. Grounds are available as per schedule.</p>`;
+      container.innerHTML = `<p class="wf-meta" style="padding:4px 0;">Grounds are available as per schedule.</p>`;
       return;
     }
 
     container.innerHTML = list.map(u => {
       let targetName = u.court_name;
       if (!targetName) {
-        if (u.court_id === 0 && (!u.sport_id || u.sport_id === 0)) targetName = "All Academy Grounds (Entire Facility)";
+        if (u.court_id === 0 && (!u.sport_id || u.sport_id === 0)) targetName = "All Grounds";
         else if (u.sport_id && u.court_id === 0) targetName = `All Sport #${u.sport_id} Grounds`;
         else targetName = courtMap.get(u.court_id) || `Court #${u.court_id}`;
       }
+      targetName = targetName.replace(/\s*\([^)]*\)/g, "").trim();
       const dateLabel = (u.date === "ALL_DAYS") ? "Daily" : u.date;
 
       return `
-        <div class="wf-card highlight" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; margin-bottom:6px;">
-          <div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <strong style="font-size:0.83rem;">${targetName}</strong>
-              <span class="header-pill" style="font-size:0.65rem;">${u.start_time} - ${u.end_time}</span>
-              <span class="wf-meta" style="font-size:0.7rem;">(${dateLabel})</span>
+        <div class="wf-card highlight facility-rule-item">
+          <div class="facility-rule-info">
+            <strong class="facility-rule-title">${targetName}</strong>
+            <div class="facility-rule-badges">
+              <span class="header-pill pill-sm">${u.start_time} - ${u.end_time}</span>
+              <span class="facility-date-badge">${dateLabel}</span>
             </div>
-            <small class="wf-meta" style="display:block; margin-top:2px;">Reason: ${u.reason || 'Academy Coaching'}</small>
           </div>
-          <button type="button" class="header-btn btn-delete-unavail" data-id="${u.id}" style="font-size:0.7rem; color:#c00;">Unblock</button>
+          <button type="button" class="header-btn btn-unblock-rule btn-delete-unavail" data-id="${u.id}">Unblock</button>
         </div>
       `;
     }).join("");
@@ -189,7 +187,7 @@ Object.assign(MobileAdminApp.prototype, {
       btn.addEventListener("click", async () => {
         const id = Number(btn.dataset.id);
         await window.api.deletePlaygroundUnavailability(id);
-        this.showToast("Unblocked court/academy time window!");
+        this.showToast(APP_CONSTANTS.MESSAGES.UNBLOCKED_COURT);
         await this.renderUnavailabilityList();
         await this.renderOverviewRulesSummary();
       });
