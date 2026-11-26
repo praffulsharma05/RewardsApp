@@ -230,6 +230,20 @@ Object.assign(MockAPI.prototype, {
     const parsed = Math.max(0, Math.min(100, Number(percent)));
     await this._put("settings", { key: "max_discount_percent", value: parsed });
     return parsed;
+  },
+
+  // Admin Settings: New User Welcome Reward Points / Balance (₹)
+  async getWelcomeBonusAmount() {
+    await this._simulateDelay(20);
+    const item = await this._get("settings", "welcome_bonus_amount");
+    return item ? Number(item.value) : 10;
+  },
+
+  async setWelcomeBonusAmount(amount) {
+    await this._simulateDelay(60);
+    const parsed = Math.max(0, Math.min(10000, Number(amount)));
+    await this._put("settings", { key: "welcome_bonus_amount", value: parsed });
+    return parsed;
   }
 
 });

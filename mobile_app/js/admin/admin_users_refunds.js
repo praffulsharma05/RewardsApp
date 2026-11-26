@@ -32,6 +32,9 @@ Object.assign(MobileAdminApp.prototype, {
             <span class="user-balance-pill" title="Current Reward Balance">
               ₹${(u.wallet_balance || 0).toFixed(2)}
             </span>
+            <button type="button" class="btn-user-book" data-id="${u.id}">
+              Book
+            </button>
             <button type="button" class="btn-user-remove btn-delete-user" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}">
               Remove
             </button>
@@ -39,6 +42,15 @@ Object.assign(MobileAdminApp.prototype, {
         </div>
       </div>
     `).join("");
+
+    container.querySelectorAll(".btn-user-book").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-id"));
+        if (typeof this.openBookSlotModal === "function") {
+          this.openBookSlotModal(id);
+        }
+      });
+    });
 
     container.querySelectorAll(".btn-delete-user").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -109,6 +121,10 @@ Object.assign(MobileAdminApp.prototype, {
     const expiryDays = await window.api.getRewardExpiryDays();
     const expiryDaysInput = document.getElementById("admin-expiry-days-input");
     if (expiryDaysInput) expiryDaysInput.value = expiryDays;
+
+    const welcomeBonus = await window.api.getWelcomeBonusAmount();
+    const welcomeBonusInput = document.getElementById("admin-welcome-bonus-input");
+    if (welcomeBonusInput) welcomeBonusInput.value = welcomeBonus;
 
     const maxDiscount = await window.api.getMaxDiscountPercent();
     const maxDiscountInput = document.getElementById("admin-max-discount-input");

@@ -261,11 +261,20 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
-          <p class="wf-meta mt-8">Tap an available time slot below to proceed.</p>
+          <p class="wf-meta mt-8">Tap one or more available time slots below, then proceed to checkout.</p>
         </div>
         <p class="wf-label">Daily Hourly Slots (08:00 - 21:00):</p>
         <div class="slots-grid" id="slots-grid-container">
           <!-- Populated from IndexedDB slots store -->
+        </div>
+        <div class="wf-card highlight mt-10 d-none user-multi-slot-bar" id="user-multi-slot-bar">
+          <div class="user-multi-slot-inner">
+            <div class="user-multi-slot-info">
+              <span class="user-multi-slot-count" id="user-multi-slot-count">0 slots selected</span>
+              <strong class="user-multi-slot-total" id="user-multi-slot-total">Total: ₹0.00</strong>
+            </div>
+            <button type="button" class="wf-btn wf-btn-sm user-multi-slot-btn" id="btn-proceed-multi-slots">Proceed &rarr;</button>
+          </div>
         </div>
       </section>
       <!-- SCREEN 5: BOOKING CHECKOUT & REWARD SUMMARY -->
@@ -544,6 +553,32 @@
 
         <button class="wf-btn wf-btn-danger" id="btn-submit-cancel">Confirm Cancellation</button>
         <button class="wf-btn wf-btn-secondary mt-6" id="btn-abort-cancel">Keep My Booking</button>
+      </div>
+    </div>
+
+    <!-- MODAL 3: FORGOT / RESET PASSWORD -->
+    <div class="wf-modal-overlay" id="modal-forgot-password">
+      <div class="wf-modal-sheet">
+        <div class="wf-card-header mb-10">
+          <strong class="wf-title-sm">Reset Password</strong>
+          <button type="button" class="header-btn" id="btn-close-forgot-modal">&#10005;</button>
+        </div>
+        <form id="form-forgot-password">
+          <div class="wf-form-group">
+            <label class="wf-label" for="forgot-identifier">Registered Email or Phone *</label>
+            <input type="text" id="forgot-identifier" class="wf-input" placeholder="player@domain.com" required>
+          </div>
+          <div class="wf-form-group">
+            <label class="wf-label" for="forgot-new-password">New Password *</label>
+            <input type="password" id="forgot-new-password" class="wf-input" placeholder="Min 4 characters" minlength="4" required>
+          </div>
+          <div class="wf-form-group">
+            <label class="wf-label" for="forgot-confirm-password">Confirm New Password *</label>
+            <input type="password" id="forgot-confirm-password" class="wf-input" placeholder="Re-enter new password" minlength="4" required>
+          </div>
+          <button type="submit" class="wf-btn">Update Password</button>
+          <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-cancel-forgot-modal">Cancel</button>
+        </form>
       </div>
     </div>
   </div>

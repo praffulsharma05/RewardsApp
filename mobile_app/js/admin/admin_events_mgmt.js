@@ -93,6 +93,27 @@ Object.assign(MobileAdminApp.prototype, {
       }
     });
 
+    // New User Welcome Bonus Preset Chips
+    document.querySelectorAll(".btn-welcome-bonus-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const amt = btn.dataset.amount;
+        const input = document.getElementById("admin-welcome-bonus-input");
+        if (input) input.value = amt;
+      });
+    });
+
+    // New User Welcome Bonus Form Submit
+    document.getElementById("form-admin-welcome-bonus-config")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const amt = Number(document.getElementById("admin-welcome-bonus-input").value);
+      try {
+        const saved = await window.api.setWelcomeBonusAmount(amt);
+        this.showToast(APP_CONSTANTS.MESSAGES.WELCOME_BONUS_SAVED(saved));
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
     // Admin UPI ID Form Submit
     document.getElementById("form-admin-upi-config")?.addEventListener("submit", async (e) => {
       e.preventDefault();

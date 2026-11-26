@@ -18,33 +18,55 @@ Object.assign(MockAPI.prototype, {
     return { id: user.id, name: user.name, email: user.email, phone: user.phone || "+1-555-0199", wallet_balance: user.wallet_balance };
   },
 
+  async resetPassword(identifier, newPassword) {
+    await this._simulateDelay(80);
+    const users = await this._getAll("users");
+    const idClean = (identifier || "").trim().toLowerCase();
+    const user = users.find(u =>
+      u.email.toLowerCase() === idClean ||
+      (u.phone && u.phone.trim().toLowerCase() === idClean) ||
+      (idClean === "alex.morgan@sportsmail.com" && u.email.toLowerCase() === "alex@sport.com") ||
+      (idClean === "alex@sport.com" && u.email.toLowerCase() === "alex.morgan@sportsmail.com")
+    );
+    if (!user) throw new Error("Account with this email or phone does not exist.");
+    if (!newPassword || newPassword.length < 4) {
+      throw new Error("New password must be at least 4 characters.");
+    }
+    user.password = newPassword;
+    await this._put("users", user);
+    return { id: user.id, name: user.name, email: user.email };
+  },
+
   async register(name, email, password, phone = "") {
     await this._simulateDelay(100);
     const users = await this._getAll("users");
     if (users.some(u => u.email.toLowerCase() === email.trim().toLowerCase())) {
       throw new Error("An account with this email already exists.");
     }
+    const welcomeBonus = await this.getWelcomeBonusAmount();
     const newUser = {
       name: name.trim(),
       email: email.trim(),
       phone: (phone || "").trim(),
       password,
-      wallet_balance: 10.00 // 10 sign up bonus
+      wallet_balance: welcomeBonus
     };
     const id = await this._put("users", newUser);
     newUser.id = id;
 
-    // Log welcome reward with expiry
-    const welcomeExpiryDays = await this.getRewardExpiryDays();
-    await this._put("wallet_ledger", {
-      user_id: id,
-      booking_id: null,
-      type: "WELCOME_BONUS",
-      description: "Welcome sports signup reward",
-      amount: 10.00,
-      expires_at: new Date(Date.now() + welcomeExpiryDays * 86400000).toISOString(),
-      created_at: new Date().toISOString()
-    });
+    // Log welcome reward with expiry if bonus > 0
+    if (welcomeBonus > 0) {
+      const welcomeExpiryDays = await this.getRewardExpiryDays();
+      await this._put("wallet_ledger", {
+        user_id: id,
+        booking_id: null,
+        type: "WELCOME_BONUS",
+        description: "Welcome sports signup reward",
+        amount: welcomeBonus,
+        expires_at: new Date(Date.now() + welcomeExpiryDays * 86400000).toISOString(),
+        created_at: new Date().toISOString()
+      });
+    }
 
     return { id: newUser.id, name: newUser.name, email: newUser.email, wallet_balance: newUser.wallet_balance };
   },

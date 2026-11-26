@@ -264,9 +264,9 @@ body::before {
 /* Toast Notification - Small & Compact */
 .wf-toast {
   position: absolute;
-  bottom: 76px;
+  top: 64px;
   left: 50%;
-  transform: translateX(-50%) translateY(10px);
+  transform: translateX(-50%) translateY(-10px);
   background: rgba(13, 34, 56, 0.94);
   backdrop-filter: blur(8px);
   color: #ffffff;
@@ -1660,7 +1660,13 @@ select.wf-input option {
   padding: 18px 18px 26px;
   max-height: 85%;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wf-modal-sheet::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes slideUp {
@@ -1668,7 +1674,147 @@ select.wf-input option {
   to { transform: translateY(0); }
 }
 
+/* Admin Book Slot Modal Grid & User Book Button */
+.btn-user-book {
+  background: var(--glacier-100);
+  color: var(--glacier-800);
+  border: 1px solid var(--glacier-300);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.btn-user-book:hover {
+  background: var(--glacier-200);
+}
+
+.admin-book-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 185px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px;
+}
+
+.admin-book-slots-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-slot-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--glacier-200);
+  background: var(--glacier-50);
+  color: var(--glacier-950);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.16s ease;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-slot-chip:hover:not(.disabled):not(.selected) {
+  border-color: var(--glacier-500);
+  background: #ffffff;
+}
+
+.admin-slot-chip.selected,
+.admin-slot-chip.selected:hover {
+  border-color: #91ccfe !important;
+  background: linear-gradient(135deg, #155fa2 0%, #459de5 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(21, 95, 162, 0.28);
+}
+
+.admin-slot-chip.selected .admin-slot-time,
+.admin-slot-chip.selected .admin-slot-meta {
+  color: #ffffff !important;
+}
+
+.admin-slot-chip.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.admin-slot-time {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.admin-slot-meta {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--glacier-700);
+}
+
+.admin-slot-chip.disabled .admin-slot-meta {
+  color: #dc2626;
+}
+
+.admin-user-mode-toggle {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.admin-user-mode-toggle .header-btn.active {
+  background: var(--glacier-700);
+  color: #ffffff;
+  border-color: var(--glacier-700);
+}
+
+.admin-book-upi-box {
+  text-align: center;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-book-upi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.admin-book-upi-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 8px;
+}
+
+.admin-book-upi-qr-img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1.5px solid var(--glacier-200);
+  background: #ffffff;
+  padding: 6px;
+}
+
+.admin-book-upi-id-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+}
+
 /* Responsive Adaptation */
+
 @media (max-width: 540px) {
   body {
     padding: 0;

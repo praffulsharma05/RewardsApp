@@ -18,7 +18,8 @@ class MobileWireframeApp {
       date: this.getTodayDateString(),
       slotId: null,
       slotTime: "",
-      price: 35.00
+      price: 35.00,
+      selectedSlots: []
     };
 
     // Modal State

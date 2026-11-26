@@ -119,6 +119,9 @@ class MobileAdminApp {
     if (typeof this.bindManagementEvents === "function") {
       this.bindManagementEvents();
     }
+    if (typeof this.bindBookSlotEvents === "function") {
+      this.bindBookSlotEvents();
+    }
   }
 
   getDateString(offsetDays = 0) {

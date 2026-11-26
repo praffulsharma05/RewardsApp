@@ -27,6 +27,7 @@ const APP_CONSTANTS = Object.freeze({
     MAX_DISCOUNT_PERCENT: 30,
     REWARD_RATE_PERCENT: 10,
     REWARD_EXPIRY_DAYS: 60,
+    WELCOME_BONUS_AMOUNT: 10,
     UPGRADE_RATIO_PERCENT: 100,
     REFUND_PERCENT: 100,
     CLOSE_START_TIME: "10:00",
@@ -65,6 +66,7 @@ const APP_CONSTANTS = Object.freeze({
     UNBLOCKED_COURT: "Court unblocked!",
     REWARD_RATE_SAVED: (rate) => `Reward: ${rate}%`,
     REWARD_EXPIRY_SAVED: (days) => `Expiry: ${days}d`,
+    WELCOME_BONUS_SAVED: (amt) => `Welcome Bonus: ₹${amt}`,
     ADMIN_UPI_SAVED: (upi) => "UPI saved!",
     CUTOFF_SAVED: (hours) => `Cutoff: ${hours}h`,
     RESCHEDULE_CUTOFF_SAVED: (hours) => `Cutoff: ${hours}h`,
@@ -75,6 +77,7 @@ const APP_CONSTANTS = Object.freeze({
     SPORT_UPDATED: (id, name) => `${name} updated!`,
     SPORT_DELETED: (id) => "Sport deleted!",
     USER_REMOVED: (id) => "User removed!",
+    ADMIN_BOOKING_CREATED: (userName) => `Slot booked for ${userName}!`,
     CLOSED_DATE_MARKED: (date, label, reason) => "Marked closed!",
     GROUND_BLOCKED: (target, start, end) => "Court blocked!",
 

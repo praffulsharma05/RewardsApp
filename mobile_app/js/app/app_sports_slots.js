@@ -162,6 +162,27 @@ Object.assign(MobileWireframeApp.prototype, {
     }
 
     const slots = await window.api.getSlots(courtId, dateStr);
+    const availableMap = new Map(
+      slots.filter(s => !s.is_booked && !s.is_unavailable && !s.is_past).map(s => [s.id, s])
+    );
+
+    if (!Array.isArray(this.draft.selectedSlots)) {
+      this.draft.selectedSlots = [];
+    }
+    this.draft.selectedSlots = this.draft.selectedSlots
+      .filter(sel => Number(sel.courtId) === Number(courtId) && sel.date === dateStr && availableMap.has(Number(sel.id)))
+      .map(sel => {
+        const fresh = availableMap.get(Number(sel.id));
+        return {
+          id: fresh.id,
+          time: `${fresh.start_time} - ${fresh.end_time}`,
+          price: Number(fresh.price),
+          courtId: Number(courtId),
+          date: dateStr
+        };
+      });
+
+    const selectedIds = new Set(this.draft.selectedSlots.map(s => Number(s.id)));
 
     container.innerHTML = slots.map(s => {
       if (s.is_past) {
@@ -190,14 +211,33 @@ Object.assign(MobileWireframeApp.prototype, {
           </div>
         `;
       }
-      const dayLabel = s.day_type === "WEEKEND" ? `<span style="font-size:0.65rem; color:#000; font-weight:700;">(W/E)</span>` : "";
+      const isSelected = selectedIds.has(Number(s.id));
+      const dayLabel = s.day_type === "WEEKEND" ? `<span style="font-size:0.65rem; font-weight:700;">(W/E)</span>` : "";
       return `
-        <div class="slot-box" data-slot-id="${s.id}" data-time="${s.start_time} - ${s.end_time}" data-price="${s.price}">
+        <div class="slot-box ${isSelected ? "selected" : ""}" data-slot-id="${s.id}" data-time="${s.start_time} - ${s.end_time}" data-price="${s.price}">
           <span class="slot-time">${s.start_time} - ${s.end_time}</span>
           <span class="slot-price">₹${s.price.toFixed(2)} ${dayLabel}</span>
         </div>
       `;
     }).join("");
+
+    const updateMultiSlotBar = () => {
+      const bar = document.getElementById("user-multi-slot-bar");
+      const countEl = document.getElementById("user-multi-slot-count");
+      const totalEl = document.getElementById("user-multi-slot-total");
+      const list = this.draft.selectedSlots || [];
+      if (!bar) return;
+      if (list.length === 0) {
+        bar.classList.add("d-none");
+        return;
+      }
+      const total = list.reduce((sum, item) => sum + Number(item.price || 0), 0);
+      bar.classList.remove("d-none");
+      if (countEl) countEl.textContent = `${list.length} slot${list.length === 1 ? "" : "s"} selected`;
+      if (totalEl) totalEl.textContent = `Total: ₹${total.toFixed(2)}`;
+    };
+
+    updateMultiSlotBar();
 
     container.querySelectorAll(".slot-box.unavailable").forEach(box => {
       box.addEventListener("click", () => {
@@ -206,14 +246,44 @@ Object.assign(MobileWireframeApp.prototype, {
     });
 
     container.querySelectorAll(".slot-box:not(.booked):not(.unavailable)").forEach(box => {
-      box.addEventListener("click", async () => {
-        this.draft.slotId = Number(box.dataset.slotId);
-        this.draft.slotTime = box.dataset.time;
-        this.draft.price = Number(box.dataset.price);
-        this.navigateTo("screen-checkout");
-        await this.renderCheckout();
+      box.addEventListener("click", () => {
+        const slotId = Number(box.dataset.slotId);
+        const slotTime = box.dataset.time;
+        const slotPrice = Number(box.dataset.price);
+        const existingIdx = this.draft.selectedSlots.findIndex(item => Number(item.id) === slotId);
+
+        if (existingIdx >= 0) {
+          this.draft.selectedSlots.splice(existingIdx, 1);
+          box.classList.remove("selected");
+        } else {
+          this.draft.selectedSlots.push({
+            id: slotId,
+            time: slotTime,
+            price: slotPrice,
+            courtId: Number(courtId),
+            date: dateStr
+          });
+          box.classList.add("selected");
+        }
+        updateMultiSlotBar();
       });
     });
+
+    const btnProceed = document.getElementById("btn-proceed-multi-slots");
+    if (btnProceed) {
+      btnProceed.onclick = async () => {
+        const list = this.draft.selectedSlots || [];
+        if (list.length === 0) {
+          this.showToast("Please select at least one slot.");
+          return;
+        }
+        this.draft.slotId = list[0].id;
+        this.draft.slotTime = list.map(s => s.time).join(", ");
+        this.draft.price = list.reduce((sum, s) => sum + Number(s.price || 0), 0);
+        this.navigateTo("screen-checkout");
+        await this.renderCheckout();
+      };
+    }
   }
 
 });

@@ -131,7 +131,44 @@ Object.assign(MobileWireframeApp.prototype, {
 
     document.getElementById("link-forgot-pass")?.addEventListener("click", (e) => {
       e.preventDefault();
-      alert("Password reset OTP simulated: Sent to registered email/phone.");
+      const loginEmail = document.getElementById("login-email")?.value?.trim() || "";
+      const forgotIdInput = document.getElementById("forgot-identifier");
+      const forgotNewPass = document.getElementById("forgot-new-password");
+      const forgotConfirmPass = document.getElementById("forgot-confirm-password");
+      if (forgotIdInput) forgotIdInput.value = loginEmail;
+      if (forgotNewPass) forgotNewPass.value = "";
+      if (forgotConfirmPass) forgotConfirmPass.value = "";
+      document.getElementById("modal-forgot-password")?.classList.add("active");
+    });
+
+    const closeForgotModal = () => {
+      document.getElementById("modal-forgot-password")?.classList.remove("active");
+    };
+    document.getElementById("btn-close-forgot-modal")?.addEventListener("click", closeForgotModal);
+    document.getElementById("btn-cancel-forgot-modal")?.addEventListener("click", closeForgotModal);
+
+    document.getElementById("form-forgot-password")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const identifier = document.getElementById("forgot-identifier")?.value?.trim() || "";
+      const newPass = document.getElementById("forgot-new-password")?.value || "";
+      const confirmPass = document.getElementById("forgot-confirm-password")?.value || "";
+
+      if (newPass !== confirmPass) {
+        this.showToast("Passwords do not match!");
+        return;
+      }
+
+      try {
+        await window.api.resetPassword(identifier, newPass);
+        const loginEmailInput = document.getElementById("login-email");
+        const loginPassInput = document.getElementById("login-password");
+        if (loginEmailInput) loginEmailInput.value = identifier;
+        if (loginPassInput) loginPassInput.value = newPass;
+        closeForgotModal();
+        this.showToast("Password updated! Please sign in.");
+      } catch (err) {
+        this.showToast(err.message || "Reset failed!");
+      }
     });
 
     // Register Form Submit (SPEC AUTH-2.0: name, email, phone, password)

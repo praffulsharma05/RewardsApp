@@ -187,43 +187,64 @@ Object.assign(MobileWireframeApp.prototype, {
 
     const useWallet = document.getElementById("chk-use-wallet")?.checked || false;
     const paymentMethod = this.draft.paymentMethod || "UPI";
+    const slotsToBook = (Array.isArray(this.draft.selectedSlots) && this.draft.selectedSlots.length > 0)
+      ? this.draft.selectedSlots
+      : [{ id: this.draft.slotId, time: this.draft.slotTime, price: this.draft.price }];
 
+    let bookedCount = 0;
     try {
-      const result = await window.api.createBooking({
-        userId: this.currentUser.id,
-        sportId: this.draft.sportId,
-        courtId: this.draft.courtId,
-        slotId: this.draft.slotId,
-        date: this.draft.date,
-        useWallet: useWallet,
-        paymentMethod: paymentMethod
-      });
+      let lastResult = null;
+      let totalWalletApplied = 0;
+      let totalRewardAmount = 0;
 
-      this.currentUser.wallet_balance = result.updatedWallet;
+      for (const s of slotsToBook) {
+        const res = await window.api.createBooking({
+          userId: this.currentUser.id,
+          sportId: this.draft.sportId,
+          courtId: this.draft.courtId,
+          slotId: s.id,
+          date: this.draft.date,
+          useWallet: useWallet,
+          paymentMethod: paymentMethod
+        });
+        lastResult = res;
+        bookedCount++;
+        totalWalletApplied += Number(res.booking.wallet_applied || 0);
+        totalRewardAmount += Number(res.booking.reward_amount || 0);
+      }
+
+      if (!lastResult) return;
+
+      this.currentUser.wallet_balance = lastResult.updatedWallet;
       this.updateUserHeaderPill();
+      this.draft.selectedSlots = [];
 
       // Render Success Pass
       const passIdEl = document.getElementById("pass-id");
-      if (passIdEl) passIdEl.textContent = `#${result.booking.id}`;
+      if (passIdEl) {
+        passIdEl.textContent = bookedCount > 1
+          ? `#${lastResult.booking.id} (${bookedCount} slots)`
+          : `#${lastResult.booking.id}`;
+      }
       const walletPaidElem = document.getElementById("pass-wallet-paid");
       if (walletPaidElem) {
-        walletPaidElem.textContent = result.booking.wallet_applied > 0 ? 
-          `-₹${result.booking.wallet_applied.toFixed(2)}` : "₹0.00";
+        walletPaidElem.textContent = totalWalletApplied > 0 ? 
+          `-₹${totalWalletApplied.toFixed(2)}` : "₹0.00";
       }
       const passRewardEl = document.getElementById("pass-reward");
       if (passRewardEl) {
-        passRewardEl.textContent = `+₹${result.booking.reward_amount.toFixed(2)} (${result.booking.reward_percent}%)`;
+        passRewardEl.textContent = `+₹${totalRewardAmount.toFixed(2)} (${lastResult.booking.reward_percent}%)`;
       }
       const passWalletEl = document.getElementById("pass-wallet");
       if (passWalletEl) {
-        passWalletEl.textContent = `₹${result.updatedWallet.toFixed(2)}`;
+        passWalletEl.textContent = `₹${lastResult.updatedWallet.toFixed(2)}`;
       }
 
       const passMethodElem = document.getElementById("pass-payment-method");
       if (passMethodElem) {
-        passMethodElem.textContent = result.booking.payment_method === "COD" 
+        passMethodElem.textContent = lastResult.booking.payment_method === "COD" 
           ? "COD (Pay at Venue)" 
-          : (result.booking.payment_method === "WALLET" ? "100% Wallet Credits" : "UPI (Paid Online)");
+          : (lastResult.booking.payment_method === "WALLET" ? "100% Wallet Credits" : "UPI (Paid Online)");
       }
 
       // Render dynamic SVG QR pass for UPI/Online or Pay-at-Venue Card for COD
@@ -231,27 +252,30 @@ Object.assign(MobileWireframeApp.prototype, {
       const codPassCard = document.getElementById("pass-cod-card");
       const codBookingIdSpan = document.getElementById("pass-cod-booking-id");
 
-      if (result.booking.payment_method === "COD") {
+      if (lastResult.booking.payment_method === "COD") {
         if (qrPassBox) qrPassBox.classList.add("d-none");
         if (codPassCard) {
           codPassCard.classList.remove("d-none");
-          if (codBookingIdSpan) codBookingIdSpan.textContent = `#${result.booking.id}`;
+          if (codBookingIdSpan) codBookingIdSpan.textContent = `#${lastResult.booking.id}`;
         }
       } else {
         if (codPassCard) codPassCard.classList.add("d-none");
         if (qrPassBox) {
           qrPassBox.classList.remove("d-none");
           if (window.generateQRCodeSVG) {
-            qrPassBox.innerHTML = window.generateQRCodeSVG(`PASS-${result.booking.id}-${this.draft.date}-${this.draft.slotTime}`, 140);
+            qrPassBox.innerHTML = window.generateQRCodeSVG(`PASS-${lastResult.booking.id}-${this.draft.date}-${this.draft.slotTime}`, 140);
           }
         }
       }
 
-      this.showToast("Slot booked!");
+      this.showToast(bookedCount > 1 ? `${bookedCount} slots booked!` : "Slot booked!");
       await this.renderBookingsList();
       this.navigateTo("screen-bookings");
 
     } catch (err) {
+      if (bookedCount > 0) {
+        await this.renderBookingsList();
+      }
       this.showToast(err.message || "Booking failed");
     }
   }

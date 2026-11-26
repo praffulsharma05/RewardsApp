@@ -84,6 +84,10 @@
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               <span>Slot Pricing</span>
             </button>
+            <button type="button" class="wf-btn wf-btn-sm btn-quick-mgmt" id="btn-quick-book-slot">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Book Slot</span>
+            </button>
           </div>
         </div>
       </section>
@@ -463,7 +467,7 @@
               <span>3. Reward &amp; Discount Limit Rules</span>
             </span>
             <div class="d-flex items-center gap-6">
-              <span class="header-pill pill-sm">4 Rules</span>
+              <span class="header-pill pill-sm">5 Rules</span>
               <span class="rules-chevron">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
@@ -570,6 +574,40 @@
               </div>
             </div>
 
+            <!-- NEW USER WELCOME REWARD -->
+            <div class="wf-card card-accordion mt-10">
+              <div class="card-collapse-header" title="Tap to expand or collapse">
+                <div>
+                  <strong class="wf-title-sm">New User Welcome Reward</strong>
+                </div>
+                <div class="d-flex items-center gap-6">
+                   <span class="card-chevron">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="card-collapse-body">
+                <form id="form-admin-welcome-bonus-config" class="mt-6">
+                  <div class="wf-form-group">
+                    <label class="wf-label">Welcome Reward Points / Credit (₹):</label>
+                    <div class="wf-unit-input-row">
+                      <span class="wf-unit-prefix">₹</span>
+                      <input type="number" id="admin-welcome-bonus-input" class="wf-input" min="0" max="10000" step="1" value="10" required>
+                    </div>
+                    <small class="wf-presets-label">Credited automatically when a new user registers or is added by admin:</small>
+                    <div class="wf-chip-row gap-6 mt-6 flex-wrap">
+                      <button type="button" class="header-btn btn-welcome-bonus-chip" data-amount="0">₹0 (None)</button>
+                      <button type="button" class="header-btn btn-welcome-bonus-chip" data-amount="10">₹10</button>
+                      <button type="button" class="header-btn btn-welcome-bonus-chip" data-amount="25">₹25</button>
+                      <button type="button" class="header-btn btn-welcome-bonus-chip" data-amount="50">₹50</button>
+                      <button type="button" class="header-btn btn-welcome-bonus-chip" data-amount="100">₹100</button>
+                    </div>
+                  </div>
+                  <button type="submit" class="wf-btn">Update &amp; Save Welcome Reward</button>
+                </form>
+              </div>
+            </div>
+
             <!-- ADMIN RECEIVING UPI ID CONFIGURATION -->
             <div class="wf-card card-accordion mt-10">
               <div class="card-collapse-header" title="Tap to expand or collapse">
@@ -603,6 +641,7 @@
           <div>
             <strong class="wf-title-sm">Facility Bookings &amp; Refunds</strong>
            </div>
+          <button type="button" class="wf-btn wf-btn-sm w-auto" id="btn-open-admin-book-slot">+ Book Slot</button>
         </div>
 
         <!-- Filter tabs -->
@@ -787,6 +826,118 @@
         </form>
       </div>
     </div>
+
+    <!-- MODAL: ADMIN BOOK SLOT FOR USER -->
+    <div class="wf-modal-overlay" id="modal-admin-book-slot">
+      <div class="wf-modal-sheet">
+        <div class="wf-card-header mb-10">
+          <div>
+            <strong class="wf-title-sm">Book Slot for User</strong>
+            <small class="wf-meta d-block">Create a confirmed reservation on behalf of a player</small>
+          </div>
+          <button type="button" class="header-btn" id="btn-close-book-slot-modal">&#10005;</button>
+        </div>
+
+        <form id="form-admin-book-slot">
+          <input type="hidden" id="admin-book-slot-id" value="">
+
+          <div class="wf-form-group">
+            <div class="d-flex justify-between items-center mb-6">
+              <label class="wf-label m-0">Player / User:</label>
+              <div class="admin-user-mode-toggle">
+                <button type="button" class="header-btn active" id="btn-book-mode-existing">Existing</button>
+                <button type="button" class="header-btn" id="btn-book-mode-new">+ New User</button>
+              </div>
+            </div>
+
+            <div id="admin-book-existing-user-wrap">
+              <select id="admin-book-user-select" class="wf-input"></select>
+            </div>
+
+            <div id="admin-book-new-user-wrap" class="d-none">
+              <input type="text" id="admin-book-new-name" class="wf-input mb-6" placeholder="Full Name *">
+              <input type="tel" id="admin-book-new-phone" class="wf-input mb-6" placeholder="Phone (optional)">
+              <input type="email" id="admin-book-new-email" class="wf-input mb-6" placeholder="Email Address *">
+              <input type="password" id="admin-book-new-password" class="wf-input" placeholder="Set Password *" minlength="4">
+              <small class="wf-meta d-block mt-4">Creates a new player account automatically.</small>
+            </div>
+          </div>
+
+          <div class="wf-form-group">
+            <label class="wf-label">Booking Date:</label>
+            <div class="wf-form-row items-center">
+              <div class="wf-form-col">
+                <input type="date" id="admin-book-date" class="wf-input" required>
+              </div>
+              <div class="wf-chip-row">
+                <button type="button" class="header-btn btn-admin-book-date-chip" data-offset="0">Today</button>
+                <button type="button" class="header-btn btn-admin-book-date-chip" data-offset="1">Tomorrow</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="wf-form-row">
+            <div class="wf-form-col">
+              <label class="wf-label">Sport / Game:</label>
+              <select id="admin-book-sport-select" class="wf-input" required></select>
+            </div>
+            <div class="wf-form-col">
+              <label class="wf-label">Court / Ground:</label>
+              <select id="admin-book-court-select" class="wf-input" required></select>
+            </div>
+          </div>
+
+          <div class="wf-form-group mt-8">
+            <div class="d-flex justify-between items-center mb-6">
+              <label class="wf-label m-0">Select Available Time Slots:</label>
+              <span class="header-pill pill-sm" id="admin-book-slots-count">0 Selected</span>
+            </div>
+            <div id="admin-book-slots-grid" class="admin-book-slots-grid"></div>
+          </div>
+
+          <div class="wf-form-group mt-8">
+            <label class="wf-label">Payment Method:</label>
+            <select id="admin-book-payment-method" class="wf-input">
+              <option value="COD">COD (Cash / Pay at Venue)</option>
+              <option value="UPI">UPI</option>
+            </select>
+          </div>
+
+          <div class="wf-card highlight admin-book-upi-box d-none" id="admin-book-upi-box">
+            <div class="admin-book-upi-header">
+              <strong class="wf-title-sm">Scan UPI QR to Pay</strong>
+              <span class="header-pill pill-sm" id="admin-book-upi-amount">₹0.00</span>
+            </div>
+            <div class="admin-book-upi-qr-wrap">
+              <img src="assets/upi_qr_code.png" alt="Scan to Pay via UPI" class="admin-book-upi-qr-img">
+            </div>
+            <div class="admin-book-upi-id-row">
+              <span class="wf-meta">UPI ID:</span>
+              <strong id="admin-book-upi-id">gyananiharish@ybl</strong>
+              <button type="button" class="header-btn" id="btn-admin-book-copy-upi">Copy</button>
+            </div>
+          </div>
+
+          <div class="wf-card highlight modal-summary-card">
+            <div class="d-flex justify-between">
+              <span>Slot Fee:</span>
+              <strong id="admin-book-summary-fee">₹0.00</strong>
+            </div>
+            <div class="d-flex justify-between mt-4">
+              <span>Net Payable:</span>
+              <strong id="admin-book-summary-net" class="text-glacier-dark">₹0.00</strong>
+            </div>
+            <div class="d-flex justify-between mt-4">
+              <span>Cashback Earned (Added to Wallet):</span>
+              <strong id="admin-book-summary-reward">+₹0.00</strong>
+            </div>
+          </div>
+
+          <button type="submit" class="wf-btn">Confirm &amp; Book Slot</button>
+          <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-abort-book-slot">Cancel</button>
+        </form>
+      </div>
+    </div>
   </div>
   <!-- Application Constants & Strings -->
   <script src="js/constants.js"></script>
@@ -811,6 +962,7 @@
   <script src="js/admin/admin_games.js"></script>
   <script src="js/admin/admin_pricing.js"></script>
   <script src="js/admin/admin_users_refunds.js"></script>
+  <script src="js/admin/admin_book_slot.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
