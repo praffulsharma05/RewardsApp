@@ -46,15 +46,19 @@ Object.assign(MobileWireframeApp.prototype, {
     const showLoginView = () => {
       tabLogin?.classList.add("active");
       tabReg?.classList.remove("active");
-      if (viewLogin) viewLogin.style.display = "block";
-      if (viewReg) viewReg.style.display = "none";
+      viewLogin?.classList.remove("d-none");
+      viewReg?.classList.add("d-none");
+      if (viewLogin) viewLogin.style.display = "";
+      if (viewReg) viewReg.style.display = "";
     };
 
     const showRegisterView = () => {
       tabReg?.classList.add("active");
       tabLogin?.classList.remove("active");
-      if (viewReg) viewReg.style.display = "block";
-      if (viewLogin) viewLogin.style.display = "none";
+      viewReg?.classList.remove("d-none");
+      viewLogin?.classList.add("d-none");
+      if (viewReg) viewReg.style.display = "";
+      if (viewLogin) viewLogin.style.display = "";
     };
 
     tabLogin?.addEventListener("click", showLoginView);

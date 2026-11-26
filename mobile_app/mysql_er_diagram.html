@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sports Slot Booking — Complete MySQL ER Diagram (17 Tables)</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #273449;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --pk: #f59e0b;
+      --fk: #a855f7;
+      --uk: #06b6d4;
+      --user-tag: #38bdf8;
+      --admin-tag: #f472b6;
+      --both-tag: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover { color: var(--text); border-color: var(--accent); }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #082f49;
+      border-color: var(--accent);
+    }
+
+    main {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 20px 24px 48px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--muted);
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-pk { background: rgba(245, 158, 11, 0.18); color: var(--pk); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-fk { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-uk { background: rgba(6, 182, 212, 0.18); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+
+    .scope-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .scope-user { background: rgba(56, 189, 248, 0.15); color: var(--user-tag); border: 1px solid rgba(56, 189, 248, 0.4); }
+    .scope-admin { background: rgba(244, 114, 182, 0.15); color: var(--admin-tag); border: 1px solid rgba(244, 114, 182, 0.4); }
+    .scope-both { background: rgba(52, 211, 153, 0.15); color: var(--both-tag); border: 1px solid rgba(52, 211, 153, 0.4); }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      background: var(--accent-2);
+      color: #052e16;
+      border-color: var(--accent-2);
+    }
+    .btn-primary:hover { filter: brightness(1.08); color: #052e16; }
+
+    .diagram-viewport {
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: auto;
+      height: 75vh;
+      padding: 20px;
+      display: block;
+      cursor: grab;
+      position: relative;
+    }
+
+    .diagram-viewport:active { cursor: grabbing; }
+
+    #diagram-zoom-wrap {
+      display: inline-block;
+      min-width: 100%;
+      transform-origin: top left;
+    }
+
+    #diagram-zoom-wrap svg {
+      display: block;
+      max-width: none !important;
+      height: auto;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 12px 14px; }
+      main { padding: 12px 12px 36px; }
+      .tables-grid { grid-template-columns: 1fr; }
+      .diagram-viewport { height: 68vh; padding: 12px; }
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 16px;
+    }
+
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .table-card-header {
+      background: var(--surface-2);
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-card-header h3 {
+      font-size: 0.96rem;
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .table-card-sub {
+      padding: 6px 14px;
+      font-size: 0.76rem;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.79rem;
+    }
+
+    th, td {
+      padding: 6px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.55);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td.col-name {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    td.col-type {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #7dd3fc;
+      font-size: 0.75rem;
+    }
+
+    pre {
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.81rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Sports Slot Booking — Complete MySQL ER Diagram (17 Tables)</h1>
+      <p>Full normalized MySQL 8.0 schema covering both User Website (index.html) &amp; Admin Portal (admin.html)</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="panel-er">ER Diagram</button>
+      <button class="tab-btn" data-tab="panel-tables">All 17 Tables &amp; Fields</button>
+      <button class="tab-btn" data-tab="panel-sql">MySQL DDL Script</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- PANEL 1: ER DIAGRAM -->
+    <section id="panel-er" class="panel active">
+      <div class="toolbar">
+        <div class="legend">
+          <span><span class="badge badge-pk">PK</span> Primary Key</span>
+          <span><span class="badge badge-fk">FK</span> Foreign Key</span>
+          <span><span class="badge badge-uk">UK</span> Unique Key</span>
+          <span>Engine: <strong>InnoDB</strong> &bull; Charset: <strong>utf8mb4</strong></span>
+        </div>
+        <div class="controls">
+          <button class="btn" id="btn-zoom-fit">Fit Screen</button>
+          <button class="btn" id="btn-zoom-out">- Zoom Out</button>
+          <button class="btn" id="btn-zoom-reset">100%</button>
+          <button class="btn" id="btn-zoom-in">+ Zoom In</button>
+          <button class="btn btn-primary" id="btn-download-svg">Download SVG</button>
+        </div>
+      </div>
+
+      <div class="diagram-viewport">
+        <div id="diagram-zoom-wrap">
+          <pre class="mermaid" id="mermaid-er">
+erDiagram
+    users {
+        BIGINT_UNSIGNED id PK
+        VARCHAR_120 name
+        VARCHAR_150 email UK
+        VARCHAR_25 phone UK
+        VARCHAR_255 password_hash
+        ENUM_USER_ADMIN role
+        DECIMAL_10_2 wallet_balance
+        TINYINT_1 is_active
+        DATETIME created_at
+    }
+
+    user_sessions {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED user_id FK
+        VARCHAR_255 session_token UK
+        VARCHAR_10 otp_code
+        DATETIME expires_at
+        DATETIME created_at
+    }
+
+    sports {
+        INT_UNSIGNED id PK
+        VARCHAR_100 name UK
+        ENUM_INDOOR_OUTDOOR category
+        INT_UNSIGNED courts_count
+        VARCHAR_20 icon_tag
+        TINYINT_1 is_active
+        DATETIME created_at
+    }
+
+    courts {
+        INT_UNSIGNED id PK
+        INT_UNSIGNED sport_id FK
+        VARCHAR_120 name
+        VARCHAR_100 surface
+        ENUM_ACTIVE_INACTIVE status
+        DATETIME created_at
+    }
+
+    time_slots {
+        INT_UNSIGNED id PK
+        INT_UNSIGNED court_id FK
+        TIME start_time
+        TIME end_time
+        TINYINT_1 is_active
+    }
+
+    slot_pricing_rules {
+        INT_UNSIGNED id PK
+        INT_UNSIGNED slot_id FK
+        INT_UNSIGNED sport_id FK
+        ENUM_ALL_WEEKDAY_WEEKEND day_type
+        DECIMAL_10_2 hourly_rate
+        DECIMAL_10_2 monthly_rate
+        DATETIME updated_at
+    }
+
+    facility_status {
+        TINYINT_UNSIGNED id PK
+        TINYINT_1 is_open
+        VARCHAR_255 reason
+        BIGINT_UNSIGNED updated_by FK
+        DATETIME updated_at
+    }
+
+    closed_dates {
+        BIGINT_UNSIGNED id PK
+        DATE blackout_date
+        VARCHAR_255 reason
+        TINYINT_1 is_full_day
+        TIME start_time
+        TIME end_time
+        BIGINT_UNSIGNED created_by FK
+        DATETIME created_at
+    }
+
+    ground_unavailability {
+        INT_UNSIGNED id PK
+        INT_UNSIGNED court_id FK
+        INT_UNSIGNED sport_id FK
+        VARCHAR_120 court_name
+        TIME start_time
+        TIME end_time
+        ENUM_ALL_TODAY_TOMORROW_SPECIFIC schedule_type
+        DATE specific_date
+        VARCHAR_255 reason
+        BIGINT_UNSIGNED created_by FK
+        DATETIME created_at
+    }
+
+    cancellation_reschedule_policies {
+        TINYINT_UNSIGNED id PK
+        INT_UNSIGNED cancellation_cutoff_hours
+        DECIMAL_5_2 default_refund_percent
+        INT_UNSIGNED reschedule_cutoff_hours
+        DECIMAL_5_2 wallet_upgrade_ratio_percent
+        BIGINT_UNSIGNED updated_by FK
+        DATETIME updated_at
+    }
+
+    reward_discount_policies {
+        TINYINT_UNSIGNED id PK
+        DECIMAL_5_2 max_discount_cap_percent
+        DECIMAL_5_2 reward_rate_percent
+        INT_UNSIGNED reward_expiry_days
+        VARCHAR_100 admin_upi_id
+        BIGINT_UNSIGNED updated_by FK
+        DATETIME updated_at
+    }
+
+    bookings {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED user_id FK
+        BIGINT_UNSIGNED booked_by_user_id FK
+        ENUM_USER_WEB_ADMIN_PORTAL booking_source
+        INT_UNSIGNED sport_id FK
+        INT_UNSIGNED court_id FK
+        ENUM_DAILY_MONTHLY booking_type
+        DATE start_date
+        DATE end_date
+        ENUM_WEEKDAY_WEEKEND day_type
+        DECIMAL_10_2 base_price
+        DECIMAL_10_2 discount_amount
+        DECIMAL_10_2 total_price
+        DECIMAL_10_2 wallet_applied
+        DECIMAL_10_2 net_paid
+        DECIMAL_5_2 reward_percent
+        DECIMAL_10_2 reward_amount
+        ENUM_CONFIRMED_CANCELLED_RESCHEDULED status
+        DATETIME created_at
+        DATETIME updated_at
+        DATETIME cancelled_at
+    }
+
+    booking_slots {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED booking_id FK
+        INT_UNSIGNED court_id FK
+        INT_UNSIGNED slot_id FK
+        DATE slot_date
+        TIME start_time
+        TIME end_time
+        DECIMAL_10_2 slot_price
+        ENUM_RESERVED_CANCELLED_COMPLETED status
+        TINYINT active_lock UK
+    }
+
+    payments {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED booking_id FK
+        BIGINT_UNSIGNED user_id FK
+        ENUM_UPI_COD_WALLET payment_method
+        DECIMAL_10_2 amount
+        VARCHAR_100 receiver_upi_id
+        VARCHAR_120 transaction_ref
+        ENUM_PENDING_PAID_FAILED payment_status
+        DATETIME paid_at
+        DATETIME created_at
+    }
+
+    booking_reschedules {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED booking_id FK
+        DATE old_date
+        INT_UNSIGNED old_slot_id FK
+        DATE new_date
+        INT_UNSIGNED new_slot_id FK
+        DECIMAL_10_2 price_delta
+        DECIMAL_10_2 wallet_cut
+        DECIMAL_10_2 net_payable
+        DECIMAL_10_2 reward_delta
+        DATETIME rescheduled_at
+    }
+
+    refunds {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED booking_id FK
+        BIGINT_UNSIGNED user_id FK
+        DECIMAL_6_1 hours_before_slot
+        DECIMAL_5_2 refund_percent
+        DECIMAL_10_2 estimated_refund
+        DECIMAL_10_2 refund_amount
+        ENUM_PENDING_REFUNDED_REJECTED refund_status
+        VARCHAR_255 admin_refund_note
+        BIGINT_UNSIGNED processed_by FK
+        DATETIME refunded_at
+        DATETIME created_at
+    }
+
+    wallet_ledger {
+        BIGINT_UNSIGNED id PK
+        BIGINT_UNSIGNED user_id FK
+        BIGINT_UNSIGNED booking_id FK
+        BIGINT_UNSIGNED refund_id FK
+        VARCHAR_40 type
+        VARCHAR_255 description
+        DECIMAL_10_2 amount
+        DECIMAL_10_2 remaining_points
+        DATETIME expires_at
+        DATETIME created_at
+    }
+
+    users ||--o{ user_sessions : "has_auth_sessions"
+    users ||--o{ bookings : "owns"
+    users ||--o{ bookings : "books_manually"
+    users ||--o{ payments : "pays"
+    users ||--o{ refunds : "receives_or_processes"
+    users ||--o{ wallet_ledger : "has_transactions"
+    users ||--o{ closed_dates : "creates"
+    users ||--o{ ground_unavailability : "creates"
+    users ||--o{ facility_status : "updates"
+    users ||--o{ cancellation_reschedule_policies : "updates"
+    users ||--o{ reward_discount_policies : "updates"
+
+    sports ||--o{ courts : "contains"
+    sports ||--o{ slot_pricing_rules : "priced_for"
+    sports ||--o{ bookings : "booked_for"
+    sports ||--o{ ground_unavailability : "scoped_to"
+
+    courts ||--o{ time_slots : "defines"
+    courts ||--o{ bookings : "assigned_to"
+    courts ||--o{ booking_slots : "locks_slot"
+    courts ||--o{ ground_unavailability : "blocked_by"
+
+    time_slots ||--o{ slot_pricing_rules : "has_rates"
+    time_slots ||--o{ booking_slots : "reserved_in"
+    time_slots ||--o{ booking_reschedules : "old_or_new_slot"
+
+    bookings ||--|{ booking_slots : "contains_slots"
+    bookings ||--o{ payments : "paid_via"
+    bookings ||--o{ booking_reschedules : "tracks_changes"
+    bookings ||--o| refunds : "may_trigger"
+    bookings ||--o{ wallet_ledger : "earns_or_spends"
+    refunds ||--o{ wallet_ledger : "credits_wallet"
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL 2: TABLES & FIELDS -->
+    <section id="panel-tables" class="panel">
+      <div class="filter-row">
+        <button class="btn" onclick="filterTables('ALL')">All (17 Tables)</button>
+        <button class="btn" onclick="filterTables('USER')">User App</button>
+        <button class="btn" onclick="filterTables('ADMIN')">Admin Portal</button>
+        <button class="btn" onclick="filterTables('BOTH')">Shared (Both)</button>
+      </div>
+      <div class="tables-grid" id="tables-grid"></div>
+    </section>
+
+    <!-- PANEL 3: MYSQL DDL -->
+    <section id="panel-sql" class="panel">
+      <div class="toolbar">
+        <div class="legend">
+          <span>MySQL 8.0+ Compatible DDL (`InnoDB`, `utf8mb4_unicode_ci`)</span>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="btn-copy-sql">Copy SQL</button>
+        </div>
+      </div>
+      <pre id="mysql-ddl-code"></pre>
+    </section>
+  </main>
+
+  <script>
+    const SCHEMA_TABLES = [
+      {
+        name: "users",
+        scope: "BOTH",
+        note: "User Login/Register + Admin Registered Players list & Wallet balance",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "name", type: "VARCHAR(120)", key: "", extra: "NOT NULL" },
+          { name: "email", type: "VARCHAR(150)", key: "UK", extra: "NOT NULL" },
+          { name: "phone", type: "VARCHAR(25)", key: "UK", extra: "NULL" },
+          { name: "password_hash", type: "VARCHAR(255)", key: "", extra: "NOT NULL" },
+          { name: "role", type: "ENUM('USER','ADMIN')", key: "", extra: "DEFAULT 'USER'" },
+          { name: "wallet_balance", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 10.00" },
+          { name: "is_active", type: "TINYINT(1)", key: "", extra: "DEFAULT 1" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "user_sessions",
+        scope: "USER",
+        note: "Remember Me (30 days) tokens & Forgot Password OTP resets",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "session_token", type: "VARCHAR(255)", key: "UK", extra: "NOT NULL" },
+          { name: "otp_code", type: "VARCHAR(10)", key: "", extra: "NULL (Forgot Password)" },
+          { name: "expires_at", type: "DATETIME", key: "", extra: "NOT NULL" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "sports",
+        scope: "BOTH",
+        note: "Admin Manage Sports (Add/Edit/Delete) & User Sport Selection",
+        columns: [
+          { name: "id", type: "INT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "name", type: "VARCHAR(100)", key: "UK", extra: "NOT NULL" },
+          { name: "category", type: "ENUM('Indoor','Outdoor')", key: "", extra: "DEFAULT 'Indoor'" },
+          { name: "courts_count", type: "INT UNSIGNED", key: "", extra: "DEFAULT 2" },
+          { name: "icon_tag", type: "VARCHAR(20)", key: "", extra: "DEFAULT 'SP'" },
+          { name: "is_active", type: "TINYINT(1)", key: "", extra: "DEFAULT 1" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "courts",
+        scope: "BOTH",
+        note: "Courts, Tables & Turf Grounds under each Sport",
+        columns: [
+          { name: "id", type: "INT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "sport_id", type: "INT UNSIGNED", key: "FK", extra: "-> sports.id" },
+          { name: "name", type: "VARCHAR(120)", key: "", extra: "NOT NULL" },
+          { name: "surface", type: "VARCHAR(100)", key: "", extra: "DEFAULT 'Standard Court'" },
+          { name: "status", type: "ENUM('Active','Inactive')", key: "", extra: "DEFAULT 'Active'" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "time_slots",
+        scope: "BOTH",
+        note: "Daily Hourly Slots (08:00 - 21:00+) per Court",
+        columns: [
+          { name: "id", type: "INT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "court_id", type: "INT UNSIGNED", key: "FK", extra: "-> courts.id" },
+          { name: "start_time", type: "TIME", key: "", extra: "NOT NULL" },
+          { name: "end_time", type: "TIME", key: "", extra: "NOT NULL" },
+          { name: "is_active", type: "TINYINT(1)", key: "", extra: "DEFAULT 1" }
+        ]
+      },
+      {
+        name: "slot_pricing_rules",
+        scope: "ADMIN",
+        note: "Admin Slot Pricing (All Days / Weekday / Weekend + Monthly Rate override)",
+        columns: [
+          { name: "id", type: "INT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "slot_id", type: "INT UNSIGNED", key: "FK", extra: "-> time_slots.id" },
+          { name: "sport_id", type: "INT UNSIGNED", key: "FK", extra: "-> sports.id" },
+          { name: "day_type", type: "ENUM('ALL','WEEKDAY','WEEKEND')", key: "", extra: "DEFAULT 'ALL'" },
+          { name: "hourly_rate", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "monthly_rate", type: "DECIMAL(10,2)", key: "", extra: "NULL (e.g. 12000 vs 18000)" },
+          { name: "updated_at", type: "DATETIME", key: "", extra: "ON UPDATE CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "facility_status",
+        scope: "ADMIN",
+        note: "Global Facility Open / Closed Status for Today",
+        columns: [
+          { name: "id", type: "TINYINT UNSIGNED", key: "PK", extra: "CHECK (id = 1)" },
+          { name: "is_open", type: "TINYINT(1)", key: "", extra: "DEFAULT 1" },
+          { name: "reason", type: "VARCHAR(255)", key: "", extra: "DEFAULT 'Normal Operations'" },
+          { name: "updated_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "updated_at", type: "DATETIME", key: "", extra: "ON UPDATE CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "closed_dates",
+        scope: "ADMIN",
+        note: "Rules Sec 1: Closed Dates & Partial-Day Time Blackouts (10 AM - 2 PM)",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "blackout_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "reason", type: "VARCHAR(255)", key: "", extra: "DEFAULT 'Facility Closed'" },
+          { name: "is_full_day", type: "TINYINT(1)", key: "", extra: "DEFAULT 1" },
+          { name: "start_time", type: "TIME", key: "", extra: "DEFAULT '00:00:00'" },
+          { name: "end_time", type: "TIME", key: "", extra: "DEFAULT '23:59:59'" },
+          { name: "created_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "ground_unavailability",
+        scope: "ADMIN",
+        note: "Rules Sec 1: Ground & Academy Time-Window Unavailability",
+        columns: [
+          { name: "id", type: "INT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "court_id", type: "INT UNSIGNED", key: "FK", extra: "-> courts.id (NULL = All)" },
+          { name: "sport_id", type: "INT UNSIGNED", key: "FK", extra: "-> sports.id (NULL = All)" },
+          { name: "court_name", type: "VARCHAR(120)", key: "", extra: "NOT NULL" },
+          { name: "start_time", type: "TIME", key: "", extra: "DEFAULT '10:00:00'" },
+          { name: "end_time", type: "TIME", key: "", extra: "DEFAULT '17:00:00'" },
+          { name: "schedule_type", type: "ENUM('ALL_DAYS','TODAY','TOMORROW','SPECIFIC')", key: "", extra: "DEFAULT 'ALL_DAYS'" },
+          { name: "specific_date", type: "DATE", key: "", extra: "NULL" },
+          { name: "reason", type: "VARCHAR(255)", key: "", extra: "NOT NULL" },
+          { name: "created_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "cancellation_reschedule_policies",
+        scope: "ADMIN",
+        note: "Rules Sec 2: Cancellation Cutoff, Default Refund %, Reschedule Cutoff & Upgrade Ratio",
+        columns: [
+          { name: "id", type: "TINYINT UNSIGNED", key: "PK", extra: "CHECK (id = 1)" },
+          { name: "cancellation_cutoff_hours", type: "INT UNSIGNED", key: "", extra: "DEFAULT 12" },
+          { name: "default_refund_percent", type: "DECIMAL(5,2)", key: "", extra: "DEFAULT 100.00" },
+          { name: "reschedule_cutoff_hours", type: "INT UNSIGNED", key: "", extra: "DEFAULT 0" },
+          { name: "wallet_upgrade_ratio_percent", type: "DECIMAL(5,2)", key: "", extra: "DEFAULT 100.00" },
+          { name: "updated_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "updated_at", type: "DATETIME", key: "", extra: "ON UPDATE CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "reward_discount_policies",
+        scope: "ADMIN",
+        note: "Rules Sec 3: Max Discount Cap %, Cashback Rate %, Expiry Days & Admin UPI ID",
+        columns: [
+          { name: "id", type: "TINYINT UNSIGNED", key: "PK", extra: "CHECK (id = 1)" },
+          { name: "max_discount_cap_percent", type: "DECIMAL(5,2)", key: "", extra: "DEFAULT 30.00" },
+          { name: "reward_rate_percent", type: "DECIMAL(5,2)", key: "", extra: "DEFAULT 10.00" },
+          { name: "reward_expiry_days", type: "INT UNSIGNED", key: "", extra: "DEFAULT 60" },
+          { name: "admin_upi_id", type: "VARCHAR(100)", key: "", extra: "DEFAULT 'gyananiharish@ybl'" },
+          { name: "updated_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "updated_at", type: "DATETIME", key: "", extra: "ON UPDATE CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "bookings",
+        scope: "BOTH",
+        note: "Booking Header (User Self-Booking & Admin Manual Booking, Daily & Monthly)",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id (Customer)" },
+          { name: "booked_by_user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id (User or Admin)" },
+          { name: "booking_source", type: "ENUM('USER_WEB','ADMIN_PORTAL')", key: "", extra: "DEFAULT 'USER_WEB'" },
+          { name: "sport_id", type: "INT UNSIGNED", key: "FK", extra: "-> sports.id" },
+          { name: "court_id", type: "INT UNSIGNED", key: "FK", extra: "-> courts.id" },
+          { name: "booking_type", type: "ENUM('DAILY','MONTHLY')", key: "", extra: "DEFAULT 'DAILY'" },
+          { name: "start_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "end_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "day_type", type: "ENUM('WEEKDAY','WEEKEND')", key: "", extra: "NOT NULL" },
+          { name: "base_price", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "discount_amount", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "total_price", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "wallet_applied", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "net_paid", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "reward_percent", type: "DECIMAL(5,2)", key: "", extra: "NOT NULL" },
+          { name: "reward_amount", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "status", type: "ENUM('CONFIRMED','CANCELLED','RESCHEDULED')", key: "", extra: "DEFAULT 'CONFIRMED'" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" },
+          { name: "updated_at", type: "DATETIME", key: "", extra: "NULL" },
+          { name: "cancelled_at", type: "DATETIME", key: "", extra: "NULL" }
+        ]
+      },
+      {
+        name: "booking_slots",
+        scope: "BOTH",
+        note: "Atomic Slot Reservations (Prevents Double-Booking across continuous & monthly dates)",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "booking_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> bookings.id" },
+          { name: "court_id", type: "INT UNSIGNED", key: "FK", extra: "-> courts.id" },
+          { name: "slot_id", type: "INT UNSIGNED", key: "FK", extra: "-> time_slots.id" },
+          { name: "slot_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "start_time", type: "TIME", key: "", extra: "NOT NULL" },
+          { name: "end_time", type: "TIME", key: "", extra: "NOT NULL" },
+          { name: "slot_price", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "status", type: "ENUM('RESERVED','CANCELLED','COMPLETED')", key: "", extra: "DEFAULT 'RESERVED'" },
+          { name: "active_lock", type: "TINYINT", key: "UK", extra: "GENERATED (court_id, slot_date, slot_id, active_lock)" }
+        ]
+      },
+      {
+        name: "payments",
+        scope: "USER",
+        note: "Checkout Payments (UPI QR, COD Venue Pay, Wallet Only)",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "booking_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> bookings.id" },
+          { name: "user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "payment_method", type: "ENUM('UPI','COD','WALLET')", key: "", extra: "DEFAULT 'UPI'" },
+          { name: "amount", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "receiver_upi_id", type: "VARCHAR(100)", key: "", extra: "NULL" },
+          { name: "transaction_ref", type: "VARCHAR(120)", key: "", extra: "NULL" },
+          { name: "payment_status", type: "ENUM('PENDING','PAID','FAILED')", key: "", extra: "DEFAULT 'PENDING'" },
+          { name: "paid_at", type: "DATETIME", key: "", extra: "NULL" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "booking_reschedules",
+        scope: "USER",
+        note: "User Edit / Reschedule Audit Log & Price Upgrade Delta",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "booking_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> bookings.id" },
+          { name: "old_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "old_slot_id", type: "INT UNSIGNED", key: "FK", extra: "-> time_slots.id" },
+          { name: "new_date", type: "DATE", key: "", extra: "NOT NULL" },
+          { name: "new_slot_id", type: "INT UNSIGNED", key: "FK", extra: "-> time_slots.id" },
+          { name: "price_delta", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "wallet_cut", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "net_payable", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "reward_delta", type: "DECIMAL(10,2)", key: "", extra: "DEFAULT 0.00" },
+          { name: "rescheduled_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "refunds",
+        scope: "ADMIN",
+        note: "Admin Manual Refund Disbursement for Cancelled Bookings",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "booking_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> bookings.id (UNIQUE)" },
+          { name: "user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "hours_before_slot", type: "DECIMAL(6,1)", key: "", extra: "NULL" },
+          { name: "refund_percent", type: "DECIMAL(5,2)", key: "", extra: "NOT NULL" },
+          { name: "estimated_refund", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "refund_amount", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "refund_status", type: "ENUM('PENDING','REFUNDED','REJECTED')", key: "", extra: "DEFAULT 'PENDING'" },
+          { name: "admin_refund_note", type: "VARCHAR(255)", key: "", extra: "NULL" },
+          { name: "processed_by", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "refunded_at", type: "DATETIME", key: "", extra: "NULL" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      },
+      {
+        name: "wallet_ledger",
+        scope: "BOTH",
+        note: "User Reward Points, Cashback History, Refunds & Expiry Tracking",
+        columns: [
+          { name: "id", type: "BIGINT UNSIGNED", key: "PK", extra: "AUTO_INCREMENT" },
+          { name: "user_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> users.id" },
+          { name: "booking_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> bookings.id (NULL)" },
+          { name: "refund_id", type: "BIGINT UNSIGNED", key: "FK", extra: "-> refunds.id (NULL)" },
+          { name: "type", type: "VARCHAR(40)", key: "", extra: "NOT NULL" },
+          { name: "description", type: "VARCHAR(255)", key: "", extra: "NOT NULL" },
+          { name: "amount", type: "DECIMAL(10,2)", key: "", extra: "NOT NULL" },
+          { name: "remaining_points", type: "DECIMAL(10,2)", key: "", extra: "NULL (FIFO Expiry)" },
+          { name: "expires_at", type: "DATETIME", key: "", extra: "NULL" },
+          { name: "created_at", type: "DATETIME", key: "", extra: "CURRENT_TIMESTAMP" }
+        ]
+      }
+    ];
+
+    const MYSQL_DDL = `-- Sports Slot Booking — Complete MySQL 8.0 Schema (17 Tables)
+CREATE DATABASE IF NOT EXISTS sports_slot_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE sports_slot_db;
+
+-- 1. Users (Players & Admins)
+CREATE TABLE users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  phone VARCHAR(25) NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+  wallet_balance DECIMAL(10,2) NOT NULL DEFAULT 10.00,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_users_email (email),
+  UNIQUE KEY uk_users_phone (phone)
+) ENGINE=InnoDB;
+
+-- 2. User Sessions & Password Reset OTPs
+CREATE TABLE user_sessions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  session_token VARCHAR(255) NOT NULL,
+  otp_code VARCHAR(10) NULL,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_session_token (session_token),
+  CONSTRAINT fk_sessions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 3. Sports
+CREATE TABLE sports (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  category ENUM('Indoor', 'Outdoor') NOT NULL DEFAULT 'Indoor',
+  courts_count INT UNSIGNED NOT NULL DEFAULT 2,
+  icon_tag VARCHAR(20) NOT NULL DEFAULT 'SP',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_sports_name (name)
+) ENGINE=InnoDB;
+
+-- 4. Courts / Grounds
+CREATE TABLE courts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  sport_id INT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  surface VARCHAR(100) NOT NULL DEFAULT 'Standard Court',
+  status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_courts_sport FOREIGN KEY (sport_id) REFERENCES sports(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 5. Time Slots (Master Hourly Slots per Court)
+CREATE TABLE time_slots (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  court_id INT UNSIGNED NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  CONSTRAINT fk_slots_court FOREIGN KEY (court_id) REFERENCES courts(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 6. Slot Pricing Rules (Day-Wise & Monthly Package Rates)
+CREATE TABLE slot_pricing_rules (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  slot_id INT UNSIGNED NOT NULL,
+  sport_id INT UNSIGNED NOT NULL,
+  day_type ENUM('ALL', 'WEEKDAY', 'WEEKEND') NOT NULL DEFAULT 'ALL',
+  hourly_rate DECIMAL(10,2) NOT NULL,
+  monthly_rate DECIMAL(10,2) NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_slot_day_type (slot_id, day_type),
+  CONSTRAINT fk_pricing_slot FOREIGN KEY (slot_id) REFERENCES time_slots(id) ON DELETE CASCADE,
+  CONSTRAINT fk_pricing_sport FOREIGN KEY (sport_id) REFERENCES sports(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 7. Facility Status (Open / Closed Today)
+CREATE TABLE facility_status (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  is_open TINYINT(1) NOT NULL DEFAULT 1,
+  reason VARCHAR(255) NOT NULL DEFAULT 'Normal Operations',
+  updated_by BIGINT UNSIGNED NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_facility_status_admin FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 8. Closed Dates & Partial Blackouts
+CREATE TABLE closed_dates (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  blackout_date DATE NOT NULL,
+  reason VARCHAR(255) NOT NULL DEFAULT 'Facility Closed',
+  is_full_day TINYINT(1) NOT NULL DEFAULT 1,
+  start_time TIME NOT NULL DEFAULT '00:00:00',
+  end_time TIME NOT NULL DEFAULT '23:59:59',
+  created_by BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_closed_date (blackout_date),
+  CONSTRAINT fk_closed_admin FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 9. Ground & Academy Unavailability
+CREATE TABLE ground_unavailability (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  court_id INT UNSIGNED NULL,
+  sport_id INT UNSIGNED NULL,
+  court_name VARCHAR(120) NOT NULL,
+  start_time TIME NOT NULL DEFAULT '10:00:00',
+  end_time TIME NOT NULL DEFAULT '17:00:00',
+  schedule_type ENUM('ALL_DAYS', 'TODAY', 'TOMORROW', 'SPECIFIC') NOT NULL DEFAULT 'ALL_DAYS',
+  specific_date DATE NULL,
+  reason VARCHAR(255) NOT NULL,
+  created_by BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_unavail_court FOREIGN KEY (court_id) REFERENCES courts(id) ON DELETE CASCADE,
+  CONSTRAINT fk_unavail_sport FOREIGN KEY (sport_id) REFERENCES sports(id) ON DELETE CASCADE,
+  CONSTRAINT fk_unavail_admin FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 10. Cancellation & Reschedule Policies
+CREATE TABLE cancellation_reschedule_policies (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  cancellation_cutoff_hours INT UNSIGNED NOT NULL DEFAULT 12,
+  default_refund_percent DECIMAL(5,2) NOT NULL DEFAULT 100.00,
+  reschedule_cutoff_hours INT UNSIGNED NOT NULL DEFAULT 0,
+  wallet_upgrade_ratio_percent DECIMAL(5,2) NOT NULL DEFAULT 100.00,
+  updated_by BIGINT UNSIGNED NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cancel_policy_admin FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 11. Reward & Discount Policies
+CREATE TABLE reward_discount_policies (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  max_discount_cap_percent DECIMAL(5,2) NOT NULL DEFAULT 30.00,
+  reward_rate_percent DECIMAL(5,2) NOT NULL DEFAULT 10.00,
+  reward_expiry_days INT UNSIGNED NOT NULL DEFAULT 60,
+  admin_upi_id VARCHAR(100) NOT NULL DEFAULT 'gyananiharish@ybl',
+  updated_by BIGINT UNSIGNED NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_reward_policy_admin FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 12. Bookings (Header)
+CREATE TABLE bookings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  booked_by_user_id BIGINT UNSIGNED NOT NULL,
+  booking_source ENUM('USER_WEB', 'ADMIN_PORTAL') NOT NULL DEFAULT 'USER_WEB',
+  sport_id INT UNSIGNED NOT NULL,
+  court_id INT UNSIGNED NOT NULL,
+  booking_type ENUM('DAILY', 'MONTHLY') NOT NULL DEFAULT 'DAILY',
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  day_type ENUM('WEEKDAY', 'WEEKEND') NOT NULL,
+  base_price DECIMAL(10,2) NOT NULL,
+  discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  total_price DECIMAL(10,2) NOT NULL,
+  wallet_applied DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  net_paid DECIMAL(10,2) NOT NULL,
+  reward_percent DECIMAL(5,2) NOT NULL,
+  reward_amount DECIMAL(10,2) NOT NULL,
+  status ENUM('CONFIRMED', 'CANCELLED', 'RESCHEDULED') NOT NULL DEFAULT 'CONFIRMED',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  cancelled_at DATETIME NULL,
+  KEY idx_bookings_user (user_id),
+  CONSTRAINT fk_bookings_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_bookings_actor FOREIGN KEY (booked_by_user_id) REFERENCES users(id),
+  CONSTRAINT fk_bookings_sport FOREIGN KEY (sport_id) REFERENCES sports(id),
+  CONSTRAINT fk_bookings_court FOREIGN KEY (court_id) REFERENCES courts(id)
+) ENGINE=InnoDB;
+
+-- 13. Booking Slots (Atomic Slot Reservations — Prevents Double-Booking)
+CREATE TABLE booking_slots (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT UNSIGNED NOT NULL,
+  court_id INT UNSIGNED NOT NULL,
+  slot_id INT UNSIGNED NOT NULL,
+  slot_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  slot_price DECIMAL(10,2) NOT NULL,
+  status ENUM('RESERVED', 'CANCELLED', 'COMPLETED') NOT NULL DEFAULT 'RESERVED',
+  active_lock TINYINT GENERATED ALWAYS AS (IF(status = 'RESERVED', 1, NULL)) STORED,
+  UNIQUE KEY uk_active_court_slot (court_id, slot_date, slot_id, active_lock),
+  CONSTRAINT fk_bslots_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+  CONSTRAINT fk_bslots_court FOREIGN KEY (court_id) REFERENCES courts(id),
+  CONSTRAINT fk_bslots_slot FOREIGN KEY (slot_id) REFERENCES time_slots(id)
+) ENGINE=InnoDB;
+
+-- 14. Payments
+CREATE TABLE payments (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  payment_method ENUM('UPI', 'COD', 'WALLET') NOT NULL DEFAULT 'UPI',
+  amount DECIMAL(10,2) NOT NULL,
+  receiver_upi_id VARCHAR(100) NULL,
+  transaction_ref VARCHAR(120) NULL,
+  payment_status ENUM('PENDING', 'PAID', 'FAILED') NOT NULL DEFAULT 'PENDING',
+  paid_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_payments_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+  CONSTRAINT fk_payments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 15. Booking Reschedules (Audit Log)
+CREATE TABLE booking_reschedules (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT UNSIGNED NOT NULL,
+  old_date DATE NOT NULL,
+  old_slot_id INT UNSIGNED NOT NULL,
+  new_date DATE NOT NULL,
+  new_slot_id INT UNSIGNED NOT NULL,
+  price_delta DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  wallet_cut DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  net_payable DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  reward_delta DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  rescheduled_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_resched_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+  CONSTRAINT fk_resched_old_slot FOREIGN KEY (old_slot_id) REFERENCES time_slots(id),
+  CONSTRAINT fk_resched_new_slot FOREIGN KEY (new_slot_id) REFERENCES time_slots(id)
+) ENGINE=InnoDB;
+
+-- 16. Refunds
+CREATE TABLE refunds (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  hours_before_slot DECIMAL(6,1) NULL,
+  refund_percent DECIMAL(5,2) NOT NULL,
+  estimated_refund DECIMAL(10,2) NOT NULL,
+  refund_amount DECIMAL(10,2) NOT NULL,
+  refund_status ENUM('PENDING', 'REFUNDED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+  admin_refund_note VARCHAR(255) NULL,
+  processed_by BIGINT UNSIGNED NULL,
+  refunded_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_refund_booking (booking_id),
+  CONSTRAINT fk_refunds_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+  CONSTRAINT fk_refunds_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_refunds_admin FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 17. Wallet Ledger
+CREATE TABLE wallet_ledger (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  booking_id BIGINT UNSIGNED NULL,
+  refund_id BIGINT UNSIGNED NULL,
+  type VARCHAR(40) NOT NULL,
+  description VARCHAR(255) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  remaining_points DECIMAL(10,2) NULL,
+  expires_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_wallet_user (user_id),
+  CONSTRAINT fk_wallet_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_wallet_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE SET NULL,
+  CONSTRAINT fk_wallet_refund FOREIGN KEY (refund_id) REFERENCES refunds(id) ON DELETE SET NULL
+) ENGINE=InnoDB;`;
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "dark",
+      er: { useMaxWidth: false }
+    });
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    function renderTableCards(scopeFilter = "ALL") {
+      const grid = document.getElementById("tables-grid");
+      const filtered = scopeFilter === "ALL"
+        ? SCHEMA_TABLES
+        : SCHEMA_TABLES.filter(t => t.scope === scopeFilter);
+
+      grid.innerHTML = filtered.map(tbl => `
+        <div class="table-card">
+          <div class="table-card-header">
+            <h3>${tbl.name}</h3>
+            <span class="scope-pill scope-${tbl.scope.toLowerCase()}">${tbl.scope}</span>
+          </div>
+          <div class="table-card-sub">${tbl.note}</div>
+          <table>
+            <thead>
+              <tr><th>Column</th><th>MySQL Type</th><th>Key</th><th>Constraint / Notes</th></tr>
+            </thead>
+            <tbody>
+              ${tbl.columns.map(c => `
+                <tr>
+                  <td class="col-name">${c.name}</td>
+                  <td class="col-type">${c.type}</td>
+                  <td>${c.key ? `<span class="badge badge-${c.key.toLowerCase()}">${c.key}</span>` : ""}</td>
+                  <td>${c.extra}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `).join("");
+    }
+
+    window.filterTables = renderTableCards;
+    renderTableCards("ALL");
+
+    document.getElementById("mysql-ddl-code").textContent = MYSQL_DDL;
+
+    let zoom = 1;
+    let baseWidth = 0;
+    let baseHeight = 0;
+    const viewport = document.querySelector(".diagram-viewport");
+    const zoomWrap = document.getElementById("diagram-zoom-wrap");
+
+    const applyZoom = () => {
+      const svg = zoomWrap.querySelector("svg");
+      if (!svg) return;
+      if (!baseWidth) {
+        const rect = svg.getBoundingClientRect();
+        baseWidth = svg.viewBox?.baseVal?.width || rect.width || 1200;
+        baseHeight = svg.viewBox?.baseVal?.height || rect.height || 800;
+      }
+      svg.style.width = `${Math.round(baseWidth * zoom)}px`;
+      svg.style.height = `${Math.round(baseHeight * zoom)}px`;
+    };
+
+    const fitToScreen = () => {
+      const svg = zoomWrap.querySelector("svg");
+      if (!svg || !viewport) return;
+      if (!baseWidth) {
+        const rect = svg.getBoundingClientRect();
+        baseWidth = svg.viewBox?.baseVal?.width || rect.width || 1200;
+        baseHeight = svg.viewBox?.baseVal?.height || rect.height || 800;
+      }
+      const availW = Math.max(300, viewport.clientWidth - 44);
+      zoom = Math.min(1, Math.max(0.2, +(availW / baseWidth).toFixed(2)));
+      applyZoom();
+      viewport.scrollLeft = 0;
+      viewport.scrollTop = 0;
+    };
+
+    document.getElementById("btn-zoom-fit").addEventListener("click", fitToScreen);
+    document.getElementById("btn-zoom-in").addEventListener("click", () => { zoom = Math.min(2.5, +(zoom + 0.15).toFixed(2)); applyZoom(); });
+    document.getElementById("btn-zoom-out").addEventListener("click", () => { zoom = Math.max(0.2, +(zoom - 0.15).toFixed(2)); applyZoom(); });
+    document.getElementById("btn-zoom-reset").addEventListener("click", () => { zoom = 1; applyZoom(); });
+
+    // Auto-fit once Mermaid finishes rendering SVG
+    const observer = new MutationObserver(() => {
+      if (zoomWrap.querySelector("svg")) {
+        observer.disconnect();
+        setTimeout(fitToScreen, 60);
+      }
+    });
+    observer.observe(zoomWrap, { childList: true, subtree: true });
+    window.addEventListener("resize", () => {
+      if (document.getElementById("panel-er").classList.contains("active")) fitToScreen();
+    });
+
+    // Drag-to-pan support
+    let isPanning = false, startX = 0, startY = 0, scrollL = 0, scrollT = 0;
+    viewport.addEventListener("mousedown", (e) => {
+      isPanning = true;
+      startX = e.pageX - viewport.offsetLeft;
+      startY = e.pageY - viewport.offsetTop;
+      scrollL = viewport.scrollLeft;
+      scrollT = viewport.scrollTop;
+    });
+    window.addEventListener("mouseup", () => { isPanning = false; });
+    viewport.addEventListener("mousemove", (e) => {
+      if (!isPanning) return;
+      e.preventDefault();
+      viewport.scrollLeft = scrollL - ((e.pageX - viewport.offsetLeft) - startX);
+      viewport.scrollTop = scrollT - ((e.pageY - viewport.offsetTop) - startY);
+    });
+
+    document.getElementById("btn-download-svg").addEventListener("click", () => {
+      const svg = document.querySelector("#diagram-zoom-wrap svg");
+      if (!svg) return alert("Diagram is still rendering.");
+      const blob = new Blob([svg.outerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sports_slot_mysql_er_diagram.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("btn-copy-sql").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(MYSQL_DDL);
+      const btn = document.getElementById("btn-copy-sql");
+      btn.textContent = "Copied!";
+      setTimeout(() => { btn.textContent = "Copy SQL"; }, 1500);
+    });
+  </script>
+</body>
+</html>
