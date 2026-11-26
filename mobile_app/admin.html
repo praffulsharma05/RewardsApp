@@ -148,9 +148,13 @@
                   </select>
                 </div>
                 <div class="wf-form-col-rate">
-                  <label class="wf-label">Rate (₹):</label>
+                  <label class="wf-label">Per-Day Rate (₹):</label>
                   <input type="number" id="price-rate-value" class="wf-input" value="45" min="5" step="1" required>
                 </div>
+              </div>
+              <div class="wf-form-group mt-6">
+                <label class="wf-label">Monthly Pass Rate (₹, optional override):</label>
+                <input type="number" id="price-monthly-rate-value" class="wf-input" min="1" step="1" placeholder="Leave blank to auto-apply Monthly Discount % rule">
               </div>
               <button type="submit" class="wf-btn wf-btn-sm">Set Price for Selected Game &amp; Slot</button>
             </form>
@@ -467,7 +471,7 @@
               <span>3. Reward &amp; Discount Limit Rules</span>
             </span>
             <div class="d-flex items-center gap-6">
-              <span class="header-pill pill-sm">5 Rules</span>
+              <span class="header-pill pill-sm">6 Rules</span>
               <span class="rules-chevron">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
@@ -504,6 +508,92 @@
                     </div>
                   </div>
                   <button type="submit" class="wf-btn">Update &amp; Save Max Discount</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- MONTHLY SLOT BOOKING & DISCOUNT RULE -->
+            <div class="wf-card card-accordion mt-10">
+              <div class="card-collapse-header" title="Tap to expand or collapse">
+                <div>
+                  <strong class="wf-title-sm">Monthly Slot Booking &amp; Discount Rule</strong>
+                </div>
+                <div class="d-flex items-center gap-6">
+                   <span class="card-chevron">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
+                </div>
+              </div>
+              <div class="card-collapse-body">
+                <form id="form-admin-monthly-rule-config" class="mt-6">
+                  <div class="wf-form-group">
+                    <label class="chk-wallet-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                      <input type="checkbox" id="admin-monthly-enabled-toggle" checked>
+                      <span class="wf-label" style="margin:0;">Enable Monthly Slot Pass Booking</span>
+                    </label>
+                  </div>
+                  <div class="wf-form-group">
+                    <label class="wf-label">Monthly Pass Discount (% off 30-day total):</label>
+                    <div class="wf-unit-input-row">
+                      <input type="number" id="admin-monthly-discount-input" class="wf-input" min="0" max="90" step="1" value="15" required>
+                      <span class="wf-unit-label">%</span>
+                    </div>
+                    <small class="wf-presets-label">Discount Presets:</small>
+                    <div class="wf-chip-row gap-6 mt-6">
+                      <button type="button" class="header-btn btn-monthly-discount-chip" data-discount="10">10%</button>
+                      <button type="button" class="header-btn btn-monthly-discount-chip" data-discount="15">15%</button>
+                      <button type="button" class="header-btn btn-monthly-discount-chip" data-discount="20">20%</button>
+                      <button type="button" class="header-btn btn-monthly-discount-chip" data-discount="25">25%</button>
+                      <button type="button" class="header-btn btn-monthly-discount-chip" data-discount="30">30%</button>
+                    </div>
+                  </div>
+                  <div class="wf-form-group">
+                    <label class="wf-label">Monthly Pass Duration (Days):</label>
+                    <div class="wf-unit-input-row">
+                      <input type="number" id="admin-monthly-days-input" class="wf-input" min="7" max="365" step="1" value="30" required>
+                      <span class="wf-unit-label">Days</span>
+                    </div>
+                    <div class="wf-chip-row gap-6 mt-6">
+                      <button type="button" class="header-btn btn-monthly-days-chip" data-days="28">28 Days</button>
+                      <button type="button" class="header-btn btn-monthly-days-chip" data-days="30">30 Days</button>
+                      <button type="button" class="header-btn btn-monthly-days-chip" data-days="31">31 Days</button>
+                    </div>
+                  </div>
+                  <div class="wf-form-group mt-8" style="border-top:1px dashed var(--glacier-200); padding-top:10px;">
+                    <label class="chk-wallet-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:6px;">
+                      <input type="checkbox" id="admin-monthly-reschedule-toggle" checked>
+                      <span class="wf-label" style="margin:0;">Allow Reschedule Single Day to Next Day</span>
+                    </label>
+                    <label class="wf-label">Max Days Allowed to Reschedule (0 = Unlimited):</label>
+                    <div class="wf-unit-input-row">
+                      <input type="number" id="admin-monthly-max-resched-input" class="wf-input" min="0" max="31" step="1" value="3" required>
+                      <span class="wf-unit-label">Days</span>
+                    </div>
+                    <div class="wf-chip-row gap-6 mt-6">
+                      <button type="button" class="header-btn btn-monthly-max-resched-chip" data-days="1">1 Day</button>
+                      <button type="button" class="header-btn btn-monthly-max-resched-chip" data-days="3">3 Days</button>
+                      <button type="button" class="header-btn btn-monthly-max-resched-chip" data-days="5">5 Days</button>
+                      <button type="button" class="header-btn btn-monthly-max-resched-chip" data-days="0">Unlimited</button>
+                    </div>
+                  </div>
+                  <div class="wf-form-group mt-8" style="border-top:1px dashed var(--glacier-200); padding-top:10px;">
+                    <label class="chk-wallet-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:6px;">
+                      <input type="checkbox" id="admin-monthly-midcancel-toggle" checked>
+                      <span class="wf-label" style="margin:0;">Allow Mid-Month Cancellation</span>
+                    </label>
+                    <label class="wf-label">Mid-Month Pro-Rata Refund % (on unused days):</label>
+                    <div class="wf-unit-input-row">
+                      <input type="number" id="admin-monthly-refund-pct-input" class="wf-input" min="0" max="100" step="1" value="80" required>
+                      <span class="wf-unit-label">%</span>
+                    </div>
+                    <div class="wf-chip-row gap-6 mt-6">
+                      <button type="button" class="header-btn btn-monthly-refund-chip" data-pct="100">100%</button>
+                      <button type="button" class="header-btn btn-monthly-refund-chip" data-pct="80">80%</button>
+                      <button type="button" class="header-btn btn-monthly-refund-chip" data-pct="50">50%</button>
+                      <button type="button" class="header-btn btn-monthly-refund-chip" data-pct="0">0%</button>
+                    </div>
+                  </div>
+                  <button type="submit" class="wf-btn">Update &amp; Save Monthly Rule</button>
                 </form>
               </div>
             </div>
@@ -762,6 +852,22 @@
       </div>
     </div>
 
+    <!-- MODAL: DELETE SLOT CONFIRMATION -->
+    <div class="wf-modal-overlay" id="modal-delete-slot-pricing">
+      <div class="wf-modal-sheet">
+        <div class="wf-card-header">
+          <strong class="wf-title-sm">Delete Slot?</strong>
+          <button type="button" class="header-btn" id="btn-close-delete-slot-price-modal">&#10005;</button>
+        </div>
+        <p class="wf-meta mb-12">Are you sure you want to delete <strong id="delete-slot-price-meta">08:00 - 09:00</strong>?</p>
+        <div class="wf-card dashed card-dashed-sm">
+          <strong class="text-rose-accent">Warning:</strong> This time slot and its pricing will be removed from the selected game(s).
+        </div>
+        <button type="button" class="wf-btn wf-btn-danger" id="btn-confirm-delete-slot-price">Confirm Delete Slot</button>
+        <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-abort-delete-slot-price">Cancel</button>
+      </div>
+    </div>
+
     <!-- MODAL 3: PROCESS MANUAL REFUND -->
     <div class="wf-modal-overlay" id="modal-admin-refund">
       <div class="wf-modal-sheet">
@@ -808,18 +914,42 @@
         </div>
         <form id="form-edit-slot-price" class="mt-10">
           <div class="wf-form-group">
-            <label class="wf-label">Slot Price (₹):</label>
+            <label class="wf-label">Base / All-Day Price (₹):</label>
             <div class="wf-unit-input-row">
               <span class="wf-unit-prefix">₹</span>
               <input type="number" id="input-edit-slot-price" class="wf-input" min="1" max="1000" step="0.5" required>
             </div>
-            <small class="wf-meta d-block mt-4">Applies to all courts for this time slot.</small>
           </div>
-          <div class="wf-chip-row mb-12 flex-wrap">
+          <div class="wf-form-row mt-6">
+            <div class="wf-form-col">
+              <label class="wf-label">Weekday Price (₹):</label>
+              <div class="wf-unit-input-row">
+                <span class="wf-unit-prefix">₹</span>
+                <input type="number" id="input-edit-slot-weekday-price" class="wf-input" min="1" max="1000" step="0.5" placeholder="Same as base">
+              </div>
+            </div>
+            <div class="wf-form-col">
+              <label class="wf-label">Weekend Price (₹):</label>
+              <div class="wf-unit-input-row">
+                <span class="wf-unit-prefix">₹</span>
+                <input type="number" id="input-edit-slot-weekend-price" class="wf-input" min="1" max="1000" step="0.5" placeholder="Same as base">
+              </div>
+            </div>
+          </div>
+          <small class="wf-meta d-block mt-4">Leave weekday/weekend blank to use the base price for all days.</small>
+          <div class="wf-chip-row mb-12 mt-6 flex-wrap">
             <button type="button" class="header-btn btn-quick-price-chip" data-price="20">₹20</button>
             <button type="button" class="header-btn btn-quick-price-chip" data-price="30">₹30</button>
             <button type="button" class="header-btn btn-quick-price-chip" data-price="40">₹40</button>
             <button type="button" class="header-btn btn-quick-price-chip" data-price="50">₹50</button>
+          </div>
+          <div class="wf-form-group">
+            <label class="wf-label">Monthly Slot Price (₹, optional override):</label>
+            <div class="wf-unit-input-row">
+              <span class="wf-unit-prefix">₹</span>
+              <input type="number" id="input-edit-slot-monthly-price" class="wf-input" min="1" step="1" placeholder="Auto-discounted if blank">
+            </div>
+            <small class="wf-meta d-block mt-4" id="edit-slot-monthly-hint">Auto monthly rate will use the Admin Monthly Discount % rule.</small>
           </div>
           <button type="submit" class="wf-btn">Save New Slot Price</button>
           <button type="button" class="wf-btn wf-btn-secondary mt-6" id="btn-cancel-slot-price">Cancel</button>
@@ -861,6 +991,17 @@
               <input type="password" id="admin-book-new-password" class="wf-input" placeholder="Set Password *" minlength="4">
               <small class="wf-meta d-block mt-4">Creates a new player account automatically.</small>
             </div>
+          </div>
+
+          <div class="wf-form-group" id="admin-book-type-wrap">
+            <div class="d-flex justify-between items-center mb-6">
+              <label class="wf-label m-0">Booking Type:</label>
+              <div class="admin-user-mode-toggle" id="admin-book-type-toggle">
+                <button type="button" class="header-btn active" id="btn-admin-book-daily">Daily</button>
+                <button type="button" class="header-btn" id="btn-admin-book-monthly">Monthly Pass <span id="badge-admin-book-monthly-pct"></span></button>
+              </div>
+            </div>
+            <div id="admin-book-monthly-banner" class="d-none" style="padding:6px 10px; border-radius:8px; background:var(--emerald-bg); border:1px solid var(--emerald-border); font-size:0.74rem; color:var(--emerald-accent); font-weight:600;"></div>
           </div>
 
           <div class="wf-form-group">

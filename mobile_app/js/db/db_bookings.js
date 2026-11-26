@@ -42,13 +42,11 @@ Object.assign(MockAPI.prototype, {
     const user = await this._get("users", Number(userId));
     if (!user) throw new Error("User session expired. Please sign in.");
 
-    // Conflict Check: Double-booking prevention
+    // Conflict Check: Double-booking prevention (including Monthly Pass bookings)
     const allBookings = await this._getAll("bookings");
     const conflict = allBookings.find(b => 
       b.court_id === Number(courtId) && 
-      b.slot_id === Number(slotId) && 
-      b.date === date && 
-      b.status === "CONFIRMED"
+      this._isBookingActiveOnDate(b, date, Number(slotId))
     );
     if (conflict) {
       throw new Error("This slot was just booked by other player!");
@@ -132,6 +130,130 @@ Object.assign(MockAPI.prototype, {
       booking_id: bookingId,
       type: "REWARD_EARNED",
       description: `${rewardPercent}% cashback reward for Booking #${bookingId} (${sport?.name || 'Sport'})`,
+      amount: rewardAmount,
+      expires_at: expiresAt,
+      created_at: new Date().toISOString()
+    });
+
+    return { booking: newBooking, updatedWallet: user.wallet_balance };
+  },
+
+  // Book a Slot for a Full Month (Discounted Monthly Pass)
+  async createMonthlyBooking({ userId, sportId, courtId, slotId, startDate, useWallet = false, paymentMethod = "UPI" }) {
+    await this._simulateDelay(140);
+
+    const monthlyConfig = await this.getMonthlyBookingConfig();
+    if (!monthlyConfig.enabled) {
+      throw new Error("Monthly slot booking is currently disabled by Admin.");
+    }
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const currentHourMin = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    const slot = await this._get("slots", Number(slotId));
+    if (!slot) throw new Error("Selected slot was not found.");
+
+    if (startDate < todayStr || (startDate === todayStr && slot.start_time <= currentHourMin)) {
+      throw new Error(`Cannot book monthly pass: Start slot (${slot.start_time} - ${slot.end_time}) on ${startDate} has already passed.`);
+    }
+
+    const court = await this._get("courts", Number(courtId));
+    const sport = await this._get("sports", Number(sportId));
+    const user = await this._get("users", Number(userId));
+    if (!user) throw new Error("User session expired. Please sign in.");
+
+    const pricing = this._calculateMonthlySlotPricing(slot, startDate, monthlyConfig);
+
+    // Conflict Check across all days in the month window
+    const allBookings = await this._getAll("bookings");
+    const courtBookings = allBookings.filter(b =>
+      b.court_id === Number(courtId) &&
+      b.status === "CONFIRMED"
+    );
+
+    for (const d of pricing.dates) {
+      const conflict = courtBookings.find(b => this._isBookingActiveOnDate(b, d, Number(slotId)));
+      if (conflict) {
+        throw new Error(`Monthly conflict: ${slot.start_time} - ${slot.end_time} is already booked on ${d}.`);
+      }
+      const unavail = await this.checkSlotUnavailability(courtId, d, slot.start_time, slot.end_time);
+      if (unavail.isUnavailable) {
+        throw new Error(`Monthly conflict on ${d}: ${unavail.reason}`);
+      }
+    }
+
+    const slotBasePrice = pricing.discountedPrice;
+    const maxDiscountCap = await this.getMaxDiscountPercent();
+    const maxPointsAllowable = Number(((slotBasePrice * maxDiscountCap) / 100).toFixed(2));
+
+    const currentWallet = Number(user.wallet_balance || 0);
+    let walletApplied = 0;
+    if (useWallet && currentWallet > 0) {
+      walletApplied = Math.min(currentWallet, maxPointsAllowable, slotBasePrice);
+    }
+    walletApplied = Number(walletApplied.toFixed(2));
+    const netPaid = Number((slotBasePrice - walletApplied).toFixed(2));
+
+    const rewardPercent = await this.getRewardRate();
+    const rewardAmount = Number(((slotBasePrice * rewardPercent) / 100).toFixed(2));
+
+    const newBooking = {
+      user_id: user.id,
+      sport_id: Number(sportId),
+      sport_name: sport ? sport.name : "Sport",
+      court_id: Number(courtId),
+      court_name: court ? court.name : "Court",
+      slot_id: Number(slotId),
+      start_time: slot.start_time,
+      end_time: slot.end_time,
+      booking_type: "MONTHLY",
+      duration_days: pricing.daysCount,
+      date: pricing.startDate,
+      end_date: pricing.endDate,
+      day_type: "MONTHLY",
+      regular_price: pricing.regularPrice,
+      monthly_discount_percent: pricing.discountPercent,
+      monthly_discount_amount: pricing.discountAmount,
+      base_price: slotBasePrice,
+      price: slotBasePrice,
+      wallet_applied: walletApplied,
+      net_paid: netPaid,
+      payment_method: netPaid === 0 ? "WALLET" : (paymentMethod || "UPI"),
+      reward_percent: rewardPercent,
+      reward_amount: rewardAmount,
+      status: "CONFIRMED",
+      created_at: new Date().toISOString()
+    };
+
+    const bookingId = await this._put("bookings", newBooking);
+    newBooking.id = bookingId;
+
+    let newBalance = currentWallet;
+    if (walletApplied > 0) {
+      newBalance = Number((newBalance - walletApplied).toFixed(2));
+      await this._put("wallet_ledger", {
+        user_id: user.id,
+        booking_id: bookingId,
+        type: "WALLET_PAYMENT",
+        description: `Wallet reward balance used for Monthly Booking #${bookingId}`,
+        amount: -walletApplied,
+        created_at: new Date().toISOString()
+      });
+    }
+
+    newBalance = Number((newBalance + rewardAmount).toFixed(2));
+    user.wallet_balance = newBalance;
+    await this._put("users", user);
+
+    const rewardExpiryDays = await this.getRewardExpiryDays();
+    const expiresAt = new Date(Date.now() + rewardExpiryDays * 86400000).toISOString();
+
+    await this._put("wallet_ledger", {
+      user_id: user.id,
+      booking_id: bookingId,
+      type: "REWARD_EARNED",
+      description: `${rewardPercent}% cashback reward for Monthly Pass #${bookingId} (${sport?.name || 'Sport'})`,
       amount: rewardAmount,
       expires_at: expiresAt,
       created_at: new Date().toISOString()

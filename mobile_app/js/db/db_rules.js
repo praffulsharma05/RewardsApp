@@ -62,10 +62,66 @@ Object.assign(MockAPI.prototype, {
   async checkCancellationEligibility(booking) {
     const cutoff = await this.getCancellationCutoffHours();
     const defaultRefundPct = await this.getDefaultRefundPercent();
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const currentHourMin = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    if (booking.booking_type === "MONTHLY") {
+      const mCfg = await this.getMonthlyBookingConfig();
+      const totalDays = Number(booking.duration_days || 30);
+      const activeDates = this.getMonthlyActiveDates
+        ? this.getMonthlyActiveDates(booking)
+        : (this._getDateRange ? this._getDateRange(booking.date, totalDays).map(d => ({ date: d, start_time: booking.start_time })) : []);
+
+      let usedDays = 0;
+      let remainingDays = 0;
+      for (const entry of activeDates) {
+        const st = entry.start_time || booking.start_time || "00:00";
+        if (entry.date < todayStr || (entry.date === todayStr && st <= currentHourMin)) {
+          usedDays++;
+        } else {
+          remainingDays++;
+        }
+      }
+
+      const isPast = remainingDays === 0;
+      const isMidMonth = usedDays > 0 && remainingDays > 0;
+      const isEligible = !isPast && (!isMidMonth || mCfg.allowMidMonthCancel);
+      const refundPct = isMidMonth ? Number(mCfg.midMonthRefundPercent ?? 80) : defaultRefundPct;
+      const unusedValue = (Number(booking.price) / Math.max(1, totalDays)) * remainingDays;
+      const estimatedRefund = Number(((unusedValue * refundPct) / 100).toFixed(2));
+
+      let reason = "";
+      if (isPast) {
+        reason = "Cannot cancel: All days in this Monthly Pass have already completed.";
+      } else if (!isEligible) {
+        reason = "Mid-month cancellation is disabled by Admin policy.";
+      } else if (isMidMonth) {
+        reason = `Mid-Month Cancel: ${remainingDays} of ${totalDays} days unused • ${refundPct}% pro-rata refund (₹${estimatedRefund.toFixed(2)}).`;
+      } else {
+        reason = `Pass not started yet (${remainingDays}/${totalDays} days unused) • ${refundPct}% refund (₹${estimatedRefund.toFixed(2)}).`;
+      }
+
+      return {
+        isEligible,
+        isPast,
+        isMonthly: true,
+        isMidMonth,
+        totalDays,
+        usedDays,
+        remainingDays,
+        diffHours: Number((remainingDays * 24).toFixed(1)),
+        cutoffHours: cutoff,
+        defaultRefundPct: refundPct,
+        estimatedRefund,
+        slotDateTimeStr: `${booking.date} to ${booking.end_date || booking.date}`,
+        reason
+      };
+    }
+
     const dateStr = booking.date;
     const timeStr = booking.start_time || "00:00";
     const slotDateTime = new Date(`${dateStr}T${timeStr}:00`);
-    const now = new Date();
     const diffHours = (slotDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     const isPast = diffHours <= 0;
@@ -244,6 +300,67 @@ Object.assign(MockAPI.prototype, {
     const parsed = Math.max(0, Math.min(10000, Number(amount)));
     await this._put("settings", { key: "welcome_bonus_amount", value: parsed });
     return parsed;
+  },
+
+  // Admin Settings: Monthly Slot Booking Rule (Enabled, Discount %, Duration Days, Reschedule & Mid-Month Refund)
+  async getMonthlyBookingConfig() {
+    await this._simulateDelay(20);
+    const enabledItem = await this._get("settings", "monthly_booking_enabled");
+    const discountItem = await this._get("settings", "monthly_discount_percent");
+    const daysItem = await this._get("settings", "monthly_days_count");
+    const reschedItem = await this._get("settings", "monthly_allow_reschedule");
+    const maxReschedItem = await this._get("settings", "monthly_max_reschedule_days");
+    const midCancelItem = await this._get("settings", "monthly_allow_mid_cancel");
+    const midRefundItem = await this._get("settings", "monthly_mid_refund_percent");
+
+    const defaultEnabled = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.DEFAULTS?.MONTHLY_BOOKING_ENABLED !== undefined)
+      ? APP_CONSTANTS.DEFAULTS.MONTHLY_BOOKING_ENABLED
+      : true;
+    const defaultDiscount = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.DEFAULTS?.MONTHLY_DISCOUNT_PERCENT !== undefined)
+      ? APP_CONSTANTS.DEFAULTS.MONTHLY_DISCOUNT_PERCENT
+      : 15;
+    const defaultDays = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.DEFAULTS?.MONTHLY_DAYS_COUNT !== undefined)
+      ? APP_CONSTANTS.DEFAULTS.MONTHLY_DAYS_COUNT
+      : 30;
+
+    return {
+      enabled: enabledItem ? Boolean(enabledItem.value) : defaultEnabled,
+      discountPercent: discountItem ? Number(discountItem.value) : defaultDiscount,
+      daysCount: daysItem ? Number(daysItem.value) : defaultDays,
+      allowSingleDayReschedule: reschedItem !== undefined ? Boolean(reschedItem.value) : true,
+      maxRescheduleDays: maxReschedItem !== undefined ? Number(maxReschedItem.value) : 3,
+      allowMidMonthCancel: midCancelItem !== undefined ? Boolean(midCancelItem.value) : true,
+      midMonthRefundPercent: midRefundItem !== undefined ? Number(midRefundItem.value) : 80
+    };
+  },
+
+  async setMonthlyBookingConfig({ enabled, discountPercent, daysCount, allowSingleDayReschedule = true, maxRescheduleDays = 3, allowMidMonthCancel = true, midMonthRefundPercent = 80 }) {
+    await this._simulateDelay(60);
+    const parsedEnabled = Boolean(enabled);
+    const parsedDiscount = Math.max(0, Math.min(90, Number(discountPercent)));
+    const parsedDays = Math.max(7, Math.min(365, Math.round(Number(daysCount) || 30)));
+    const parsedAllowResched = Boolean(allowSingleDayReschedule);
+    const parsedMaxResched = Math.max(0, Math.min(31, Math.round(Number(maxRescheduleDays) || 0)));
+    const parsedAllowMidCancel = Boolean(allowMidMonthCancel);
+    const parsedMidRefund = Math.max(0, Math.min(100, Number(midMonthRefundPercent)));
+
+    await this._put("settings", { key: "monthly_booking_enabled", value: parsedEnabled });
+    await this._put("settings", { key: "monthly_discount_percent", value: parsedDiscount });
+    await this._put("settings", { key: "monthly_days_count", value: parsedDays });
+    await this._put("settings", { key: "monthly_allow_reschedule", value: parsedAllowResched });
+    await this._put("settings", { key: "monthly_max_reschedule_days", value: parsedMaxResched });
+    await this._put("settings", { key: "monthly_allow_mid_cancel", value: parsedAllowMidCancel });
+    await this._put("settings", { key: "monthly_mid_refund_percent", value: parsedMidRefund });
+
+    return {
+      enabled: parsedEnabled,
+      discountPercent: parsedDiscount,
+      daysCount: parsedDays,
+      allowSingleDayReschedule: parsedAllowResched,
+      maxRescheduleDays: parsedMaxResched,
+      allowMidMonthCancel: parsedAllowMidCancel,
+      midMonthRefundPercent: parsedMidRefund
+    };
   }
 
 });

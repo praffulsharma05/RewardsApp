@@ -12,11 +12,36 @@ Object.assign(MobileWireframeApp.prototype, {
     const elTime = document.getElementById("chk-time");
     const elPrice = document.getElementById("chk-price");
 
+    const isMonthly = this.draft.bookingMode === "MONTHLY";
+    const fmtShort = (iso) => {
+      if (!iso || !iso.includes("-")) return iso || "";
+      const [, m, d] = iso.split("-").map(Number);
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${d} ${months[m - 1] || ""}`;
+    };
     if (elSport) elSport.textContent = this.draft.sportName || "";
     if (elCourt) elCourt.textContent = this.draft.courtName || "";
-    if (elDate) elDate.textContent = this.draft.date || "";
+    if (elDate) {
+      elDate.textContent = isMonthly
+        ? `${fmtShort(this.draft.date)} – ${fmtShort(this.draft.monthlyEndDate)} (${this.draft.monthlyDays || 30}d)`
+        : (this.draft.date || "");
+    }
     if (elTime) elTime.textContent = this.draft.slotTime || "";
     if (elPrice) elPrice.textContent = `₹${(this.draft.price || 0).toFixed(2)}`;
+
+    const regRow = document.getElementById("chk-monthly-regular-row");
+    const discRow = document.getElementById("chk-monthly-discount-row");
+    const regEl = document.getElementById("chk-monthly-regular-price");
+    const discEl = document.getElementById("chk-monthly-discount-amt");
+    if (isMonthly && Number(this.draft.monthlyDiscountAmount || 0) > 0) {
+      regRow?.classList.remove("d-none");
+      discRow?.classList.remove("d-none");
+      if (regEl) regEl.textContent = `₹${Number(this.draft.regularPrice || 0).toFixed(2)}`;
+      if (discEl) discEl.textContent = `-₹${Number(this.draft.monthlyDiscountAmount || 0).toFixed(2)}`;
+    } else {
+      regRow?.classList.add("d-none");
+      discRow?.classList.add("d-none");
+    }
 
     // Refresh user's live wallet balance
     if (this.currentUser) {
@@ -198,15 +223,25 @@ Object.assign(MobileWireframeApp.prototype, {
       let totalRewardAmount = 0;
 
       for (const s of slotsToBook) {
-        const res = await window.api.createBooking({
-          userId: this.currentUser.id,
-          sportId: this.draft.sportId,
-          courtId: this.draft.courtId,
-          slotId: s.id,
-          date: this.draft.date,
-          useWallet: useWallet,
-          paymentMethod: paymentMethod
-        });
+        const res = (this.draft.bookingMode === "MONTHLY")
+          ? await window.api.createMonthlyBooking({
+              userId: this.currentUser.id,
+              sportId: this.draft.sportId,
+              courtId: this.draft.courtId,
+              slotId: s.id,
+              startDate: this.draft.date,
+              useWallet: useWallet,
+              paymentMethod: paymentMethod
+            })
+          : await window.api.createBooking({
+              userId: this.currentUser.id,
+              sportId: this.draft.sportId,
+              courtId: this.draft.courtId,
+              slotId: s.id,
+              date: this.draft.date,
+              useWallet: useWallet,
+              paymentMethod: paymentMethod
+            });
         lastResult = res;
         bookedCount++;
         totalWalletApplied += Number(res.booking.wallet_applied || 0);

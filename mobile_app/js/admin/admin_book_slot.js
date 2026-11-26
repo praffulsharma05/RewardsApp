@@ -43,6 +43,14 @@ Object.assign(MobileAdminApp.prototype, {
       await this.setBookUserMode("new");
     });
 
+    document.getElementById("btn-admin-book-daily")?.addEventListener("click", async () => {
+      await this.setAdminBookMode("DAILY");
+    });
+
+    document.getElementById("btn-admin-book-monthly")?.addEventListener("click", async () => {
+      await this.setAdminBookMode("MONTHLY");
+    });
+
     document.getElementById("admin-book-date")?.addEventListener("change", async () => {
       await this.renderBookSlotGrid();
     });
@@ -77,6 +85,19 @@ Object.assign(MobileAdminApp.prototype, {
     this.bookSlotList = [];
     this.selectedBookSlots = [];
     this.bookUserMode = "existing";
+    this.adminBookMode = "DAILY";
+
+    const monthlyCfg = (window.api && window.api.getMonthlyBookingConfig)
+      ? await window.api.getMonthlyBookingConfig()
+      : { enabled: true, discountPercent: 15, daysCount: 30 };
+    this.adminBookMonthlyCfg = monthlyCfg;
+    const typeWrap = document.getElementById("admin-book-type-wrap");
+    const pctSpan = document.getElementById("badge-admin-book-monthly-pct");
+    if (typeWrap) typeWrap.classList.toggle("d-none", !monthlyCfg.enabled);
+    if (pctSpan) pctSpan.textContent = `(${monthlyCfg.discountPercent}% Off)`;
+    document.getElementById("btn-admin-book-daily")?.classList.add("active");
+    document.getElementById("btn-admin-book-monthly")?.classList.remove("active");
+    document.getElementById("admin-book-monthly-banner")?.classList.add("d-none");
 
     const dateInput = document.getElementById("admin-book-date");
     const today = this.getDateString(0);
@@ -119,6 +140,16 @@ Object.assign(MobileAdminApp.prototype, {
     document.getElementById("admin-book-new-user-wrap")?.classList.toggle("d-none", !isNew);
 
     await this.updateBookSlotSummary();
+  },
+
+  async setAdminBookMode(mode) {
+    const cfg = this.adminBookMonthlyCfg || { enabled: true, discountPercent: 15, daysCount: 30 };
+    this.adminBookMode = (mode === "MONTHLY" && cfg.enabled) ? "MONTHLY" : "DAILY";
+    const isMonthly = this.adminBookMode === "MONTHLY";
+
+    document.getElementById("btn-admin-book-daily")?.classList.toggle("active", !isMonthly);
+    document.getElementById("btn-admin-book-monthly")?.classList.toggle("active", isMonthly);
+    await this.renderBookSlotGrid();
   },
 
   closeBookSlotModal() {
@@ -199,7 +230,27 @@ Object.assign(MobileAdminApp.prototype, {
       return;
     }
 
-    const slots = await window.api.getSlots(courtId, dateStr);
+    const isMonthly = this.adminBookMode === "MONTHLY";
+    const monthlyCfg = this.adminBookMonthlyCfg || { enabled: true, discountPercent: 15, daysCount: 30 };
+    const monthlyBanner = document.getElementById("admin-book-monthly-banner");
+    if (monthlyBanner) {
+      if (isMonthly && window.api._getDateRange) {
+        const range = window.api._getDateRange(dateStr, monthlyCfg.daysCount);
+        const fmt = (iso) => {
+          const [, m, d] = iso.split("-").map(Number);
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          return `${d} ${months[m - 1] || ""}`;
+        };
+        monthlyBanner.classList.remove("d-none");
+        monthlyBanner.textContent = `Monthly Pass (${monthlyCfg.daysCount}d): ${fmt(dateStr)} – ${fmt(range[range.length - 1])} • ${monthlyCfg.discountPercent}% Off`;
+      } else {
+        monthlyBanner.classList.add("d-none");
+      }
+    }
+
+    const slots = isMonthly
+      ? await window.api.getMonthlySlots(courtId, dateStr)
+      : await window.api.getSlots(courtId, dateStr);
     this.bookSlotList = slots;
 
     if (slots.length === 0) {
@@ -210,9 +261,14 @@ Object.assign(MobileAdminApp.prototype, {
 
     container.innerHTML = slots.map(s => {
       const isDisabled = s.is_booked || s.is_unavailable;
-      const statusText = s.is_booked
-        ? "Booked"
-        : (s.is_unavailable ? (s.is_past ? "Passed" : "Closed") : `₹${s.price}`);
+      let statusText = `₹${s.price}`;
+      if (s.is_booked) {
+        statusText = (isMonthly && s.conflict_days) ? `Conflict (${s.conflict_days}d)` : "Booked";
+      } else if (s.is_unavailable) {
+        statusText = s.is_past ? "Passed" : "Closed";
+      } else if (isMonthly) {
+        statusText = `₹${Number(s.price).toFixed(0)}/mo (${s.discount_percent}% off)`;
+      }
       const titleAttr = s.is_booked
         ? "Already booked"
         : (s.unavailability_reason || `${s.start_time} - ${s.end_time}`);
@@ -251,6 +307,16 @@ Object.assign(MobileAdminApp.prototype, {
     });
 
     await this.updateBookSlotSummary();
+  },
+
+  async setAdminBookMode(mode) {
+    const cfg = this.adminBookMonthlyCfg || { enabled: true, discountPercent: 15, daysCount: 30 };
+    this.adminBookMode = (mode === "MONTHLY" && cfg.enabled) ? "MONTHLY" : "DAILY";
+    const isMonthly = this.adminBookMode === "MONTHLY";
+
+    document.getElementById("btn-admin-book-daily")?.classList.toggle("active", !isMonthly);
+    document.getElementById("btn-admin-book-monthly")?.classList.toggle("active", isMonthly);
+    await this.renderBookSlotGrid();
   },
 
   async updateBookSlotSummary() {
@@ -348,25 +414,40 @@ Object.assign(MobileAdminApp.prototype, {
     }
 
     let bookedCount = 0;
+    const isMonthly = this.adminBookMode === "MONTHLY";
     try {
       for (const s of selectedSlots) {
-        await window.api.createBooking({
-          userId,
-          sportId,
-          courtId,
-          slotId: s.id,
-          date,
-          useWallet,
-          paymentMethod
-        });
+        if (isMonthly) {
+          await window.api.createMonthlyBooking({
+            userId,
+            sportId,
+            courtId,
+            slotId: s.id,
+            startDate: date,
+            useWallet,
+            paymentMethod
+          });
+        } else {
+          await window.api.createBooking({
+            userId,
+            sportId,
+            courtId,
+            slotId: s.id,
+            date,
+            useWallet,
+            paymentMethod
+          });
+        }
         bookedCount++;
       }
 
-      const msg = bookedCount > 1
-        ? `${bookedCount} slots booked for ${userName}!`
-        : ((typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.ADMIN_BOOKING_CREATED)
-          ? APP_CONSTANTS.MESSAGES.ADMIN_BOOKING_CREATED(userName)
-          : `Slot booked for ${userName}!`);
+      const msg = isMonthly
+        ? `Monthly pass (${bookedCount} slot${bookedCount > 1 ? "s" : ""}) booked for ${userName}!`
+        : (bookedCount > 1
+          ? `${bookedCount} slots booked for ${userName}!`
+          : ((typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.ADMIN_BOOKING_CREATED)
+            ? APP_CONSTANTS.MESSAGES.ADMIN_BOOKING_CREATED(userName)
+            : `Slot booked for ${userName}!`));
 
       this.closeBookSlotModal();
       this.showToast(msg);

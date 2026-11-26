@@ -261,7 +261,14 @@
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
-          <p class="wf-meta mt-8">Tap one or more available time slots below, then proceed to checkout.</p>
+          <div class="booking-mode-toggle mt-8" id="slot-booking-mode-toggle" style="display:flex; gap:6px;">
+            <button type="button" class="wf-btn wf-btn-sm" id="btn-mode-daily" style="flex:1;">Daily Booking</button>
+            <button type="button" class="wf-btn wf-btn-secondary wf-btn-sm" id="btn-mode-monthly" style="flex:1;">
+              Monthly Pass <span class="wf-pill" id="badge-monthly-discount-pct" style="font-size:0.65rem; margin-left:4px;">Save 15%</span>
+            </button>
+          </div>
+          <div class="d-none mt-8" id="monthly-pass-banner" style="padding:8px 10px; border-radius:10px; background:var(--emerald-bg); border:1px solid var(--emerald-border); font-size:0.75rem; color:var(--emerald-accent); font-weight:600;"></div>
+          <p class="wf-meta mt-8" id="slot-mode-help-text">Tap one or more available time slots below, then proceed to checkout.</p>
         </div>
         <p class="wf-label">Daily Hourly Slots (08:00 - 21:00):</p>
         <div class="slots-grid" id="slots-grid-container">
@@ -300,6 +307,14 @@
             <div class="summary-item">
               <span class="summary-label">Time</span>
               <strong class="summary-value" id="chk-time">18:00 - 19:00</strong>
+            </div>
+            <div class="summary-fee-row d-none" id="chk-monthly-regular-row" style="border-top:none; padding-top:0;">
+              <span class="summary-label">Regular Total</span>
+              <s class="wf-meta" id="chk-monthly-regular-price">₹0.00</s>
+            </div>
+            <div class="summary-fee-row d-none" id="chk-monthly-discount-row" style="border-top:none; padding-top:0; color:var(--emerald-accent);">
+              <span class="summary-label" style="color:var(--emerald-accent);">Monthly Discount</span>
+              <strong id="chk-monthly-discount-amt">-₹0.00</strong>
             </div>
             <div class="summary-fee-row">
               <span class="summary-fee-label">Total Slot Fee</span>
@@ -499,6 +514,10 @@
           <span id="reschedule-modal-rule-pill" class="d-none"></span>
         </div>
 
+        <div class="wf-form-group d-none" id="edit-monthly-day-wrap">
+          <label class="wf-label">Select Pass Day to Move:</label>
+          <select id="edit-monthly-day-select" class="wf-input"></select>
+        </div>
         <div class="wf-form-group"><label class="wf-label">Change Date:</label><input type="date" id="edit-date-input" class="wf-input"></div>
         <div class="wf-form-group"><label class="wf-label">Pick Available Slot:</label><div class="slots-grid slots-scroll-container" id="edit-slots-container"></div></div>
 

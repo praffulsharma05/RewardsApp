@@ -15,6 +15,118 @@ Object.assign(MobileWireframeApp.prototype, {
         this.closeEditModal();
         return;
       }
+      this.activeEditBooking = booking;
+
+      const monthlyDayWrap = document.getElementById("edit-monthly-day-wrap");
+      const monthlyDaySelect = document.getElementById("edit-monthly-day-select");
+      const isMonthly = booking.booking_type === "MONTHLY";
+
+      if (isMonthly) {
+        const mCfg = await window.api.getMonthlyBookingConfig();
+        const todayStr = this.getTodayDateString();
+        const activeDates = window.api.getMonthlyActiveDates(booking).filter(d => d.date >= todayStr);
+        const usedReschedules = Array.isArray(booking.added_dates) ? booking.added_dates.length : 0;
+        const limitReached = mCfg.maxRescheduleDays > 0 && usedReschedules >= mCfg.maxRescheduleDays;
+
+        const fmt = (iso) => {
+          const [, m, d] = iso.split("-").map(Number);
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          return `${d} ${months[m - 1] || ""}`;
+        };
+
+        if (monthlyDayWrap) monthlyDayWrap.classList.remove("d-none");
+        if (monthlyDaySelect) {
+          monthlyDaySelect.innerHTML = activeDates.length > 0
+            ? activeDates.map(d => `<option value="${d.date}">${fmt(d.date)} (${d.start_time}${d.is_rescheduled ? " • Shifted" : ""})</option>`).join("")
+            : `<option value="">No upcoming days left in pass</option>`;
+        }
+
+        const metaEl = document.getElementById("edit-modal-meta");
+        if (metaEl) metaEl.textContent = `Pass #${booking.id} • ${booking.sport_name} (${usedReschedules}/${mCfg.maxRescheduleDays || "∞"} moved)`;
+
+        const dateInput = document.getElementById("edit-date-input");
+        const nextRange = window.api._getDateRange(booking.end_date || todayStr, 2);
+        const defaultNextDate = nextRange[1] > todayStr ? nextRange[1] : todayStr;
+        if (dateInput) {
+          dateInput.value = defaultNextDate;
+          dateInput.min = todayStr;
+        }
+
+        const noticeBox = document.getElementById("reschedule-cutoff-notice");
+        const timingMeta = document.getElementById("reschedule-modal-timing-meta");
+        const submitBtn = document.getElementById("btn-submit-edit");
+        const breakdownBox = document.getElementById("edit-price-breakdown");
+        if (breakdownBox) breakdownBox.style.display = "none";
+
+        if (!mCfg.allowSingleDayReschedule || limitReached || activeDates.length === 0) {
+          if (noticeBox) {
+            noticeBox.style.borderColor = "var(--rose-border, #fecdd3)";
+            noticeBox.style.background = "#fff1f2";
+          }
+          if (timingMeta) {
+            const msg = !mCfg.allowSingleDayReschedule
+              ? "Single-day reschedule is disabled by Admin."
+              : (limitReached ? `Limit reached (${usedReschedules}/${mCfg.maxRescheduleDays} days moved).` : "No upcoming days left to move.");
+            timingMeta.innerHTML = `<span style="color:var(--rose-accent, #e11d48); font-weight:700;">&#9888; ${msg}</span>`;
+          }
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("btn-locked");
+            submitBtn.textContent = "Reschedule Unavailable";
+          }
+        } else {
+          if (noticeBox) {
+            noticeBox.style.borderColor = "var(--emerald-accent, #10b981)";
+            noticeBox.style.background = "#f0fdf4";
+          }
+          if (timingMeta) {
+            timingMeta.innerHTML = `<span style="color:var(--emerald-accent, #059669); font-weight:700;">&#10003; Move 1 pass day to another available date/slot</span>`;
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("btn-locked");
+            submitBtn.textContent = "Move Selected Day";
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
+          }
+        }
+
+        const loadMonthlyTargetSlots = async () => {
+          const slotsContainer = document.getElementById("edit-slots-container");
+          if (!slotsContainer) return;
+          const slots = await window.api.getSlots(booking.court_id, dateInput.value);
+          slotsContainer.innerHTML = slots.map(s => {
+            if (s.is_past) return `<div class="slot-box past-slot unavailable"><span class="slot-time">${s.start_time}</span><span class="slot-price">Past</span></div>`;
+            if (s.is_unavailable) return `<div class="slot-box blocked-slot unavailable"><span class="slot-time">${s.start_time}</span><span class="slot-price">Blocked</span></div>`;
+            if (s.is_booked) return `<div class="slot-box booked"><span class="slot-time">${s.start_time}</span><span class="slot-price">Booked</span></div>`;
+            const isSelected = s.id === this.activeEditSlotId;
+            return `<div class="slot-box ${isSelected ? "selected" : ""}" data-slot-id="${s.id}"><span class="slot-time">${s.start_time}</span><span class="slot-price">Included</span></div>`;
+          }).join("");
+
+          let selectedSlot = slots.find(s => s.id === this.activeEditSlotId && !s.is_past && !s.is_unavailable && !s.is_booked);
+          if (!selectedSlot) {
+            selectedSlot = slots.find(s => !s.is_past && !s.is_unavailable && !s.is_booked);
+            if (selectedSlot) {
+              this.activeEditSlotId = selectedSlot.id;
+              slotsContainer.querySelectorAll(".slot-box").forEach(b => b.classList.toggle("selected", Number(b.dataset.slotId) === selectedSlot.id));
+            }
+          }
+          slotsContainer.querySelectorAll(".slot-box:not(.booked):not(.unavailable):not(.past-slot)").forEach(box => {
+            box.addEventListener("click", () => {
+              slotsContainer.querySelectorAll(".slot-box").forEach(b => b.classList.remove("selected"));
+              box.classList.add("selected");
+              this.activeEditSlotId = Number(box.dataset.slotId);
+            });
+          });
+        };
+
+        this.activeEditSlotId = booking.slot_id;
+        await loadMonthlyTargetSlots();
+        if (dateInput) dateInput.onchange = async () => await loadMonthlyTargetSlots();
+        return;
+      }
+
+      if (monthlyDayWrap) monthlyDayWrap.classList.add("d-none");
 
       // Check slot change cutoff window (X hours before slot)
       const check = await window.api.checkRescheduleEligibility(booking);
@@ -239,6 +351,18 @@ Object.assign(MobileWireframeApp.prototype, {
       return;
     }
     try {
+      if (this.activeEditBooking?.booking_type === "MONTHLY") {
+        const originalDate = document.getElementById("edit-monthly-day-select")?.value;
+        if (!originalDate) {
+          alert("No pass day selected to move.");
+          return;
+        }
+        await window.api.rescheduleMonthlyDay(this.activeEditBookingId, originalDate, newDate, this.activeEditSlotId);
+        this.closeEditModal();
+        this.showToast("Pass day rescheduled!");
+        await this.renderBookingsList();
+        return;
+      }
       const res = await window.api.updateBooking(this.activeEditBookingId, newDate, this.activeEditSlotId);
       this.currentUser.wallet_balance = res.updatedWallet;
       this.updateUserHeaderPill();

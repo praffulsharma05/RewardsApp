@@ -99,6 +99,64 @@ Object.assign(MobileWireframeApp.prototype, {
     if (courtTitle) courtTitle.textContent = `${this.draft.sportName} - ${this.draft.courtName}`;
     if (datePill) datePill.textContent = dateStr;
 
+    // Monthly Booking Rule Config & Mode Toggle
+    const monthlyCfg = (window.api && window.api.getMonthlyBookingConfig)
+      ? await window.api.getMonthlyBookingConfig()
+      : { enabled: true, discountPercent: 15, daysCount: 30 };
+
+    if (!this.draft.bookingMode || !monthlyCfg.enabled) {
+      this.draft.bookingMode = "DAILY";
+    }
+    const isMonthly = monthlyCfg.enabled && this.draft.bookingMode === "MONTHLY";
+
+    const modeToggleWrap = document.getElementById("slot-booking-mode-toggle");
+    const btnDaily = document.getElementById("btn-mode-daily");
+    const btnMonthly = document.getElementById("btn-mode-monthly");
+    const badgeMonthlyPct = document.getElementById("badge-monthly-discount-pct");
+    const monthlyBanner = document.getElementById("monthly-pass-banner");
+    const helpText = document.getElementById("slot-mode-help-text");
+
+    if (modeToggleWrap) modeToggleWrap.style.display = monthlyCfg.enabled ? "flex" : "none";
+    if (badgeMonthlyPct) badgeMonthlyPct.textContent = `${monthlyCfg.discountPercent}% Off`;
+
+    if (btnDaily && btnMonthly) {
+      btnDaily.classList.toggle("wf-btn-secondary", isMonthly);
+      btnMonthly.classList.toggle("wf-btn-secondary", !isMonthly);
+      btnDaily.onclick = async () => {
+        if (this.draft.bookingMode === "DAILY") return;
+        this.draft.bookingMode = "DAILY";
+        this.draft.selectedSlots = [];
+        await this.renderSlots(courtId, this.draft.date);
+      };
+      btnMonthly.onclick = async () => {
+        if (this.draft.bookingMode === "MONTHLY") return;
+        this.draft.bookingMode = "MONTHLY";
+        this.draft.selectedSlots = [];
+        await this.renderSlots(courtId, this.draft.date);
+      };
+    }
+
+    if (monthlyBanner) {
+      if (isMonthly) {
+        const endDates = window.api._getDateRange(dateStr, monthlyCfg.daysCount);
+        const endStr = endDates[endDates.length - 1];
+        const fmt = (iso) => {
+          const [, m, d] = iso.split("-").map(Number);
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          return `${d} ${months[m - 1] || ""}`;
+        };
+        monthlyBanner.classList.remove("d-none");
+        monthlyBanner.textContent = `Monthly Pass (${monthlyCfg.daysCount}d): ${fmt(dateStr)} – ${fmt(endStr)} • ${monthlyCfg.discountPercent}% Off`;
+      } else {
+        monthlyBanner.classList.add("d-none");
+      }
+    }
+    if (helpText) {
+      helpText.textContent = isMonthly
+        ? `Select slot time(s) to book for ${monthlyCfg.daysCount} consecutive days at a discounted monthly rate.`
+        : "Tap one or more available time slots below, then proceed to checkout.";
+    }
+
     // Date Navigation on Screen 4
     const slotDateInput = document.getElementById("input-slot-screen-date");
     if (slotDateInput) {
@@ -161,7 +219,9 @@ Object.assign(MobileWireframeApp.prototype, {
       return;
     }
 
-    const slots = await window.api.getSlots(courtId, dateStr);
+    const slots = isMonthly
+      ? await window.api.getMonthlySlots(courtId, dateStr)
+      : await window.api.getSlots(courtId, dateStr);
     const availableMap = new Map(
       slots.filter(s => !s.is_booked && !s.is_unavailable && !s.is_past).map(s => [s.id, s])
     );
@@ -177,6 +237,11 @@ Object.assign(MobileWireframeApp.prototype, {
           id: fresh.id,
           time: `${fresh.start_time} - ${fresh.end_time}`,
           price: Number(fresh.price),
+          regularPrice: Number(fresh.regular_price || fresh.price),
+          discountAmount: Number(fresh.discount_amount || 0),
+          discountPercent: Number(fresh.discount_percent || 0),
+          endDate: fresh.end_date || dateStr,
+          daysCount: Number(fresh.days_count || 1),
           courtId: Number(courtId),
           date: dateStr
         };
@@ -204,14 +269,28 @@ Object.assign(MobileWireframeApp.prototype, {
         `;
       }
       if (s.is_booked) {
+        const bookedLabel = isMonthly && s.conflict_days
+          ? `Conflict (${s.conflict_days}d)`
+          : "Booked";
         return `
           <div class="slot-box booked" title="Already booked by another player">
             <span class="slot-time">${s.start_time} - ${s.end_time}</span>
-            <span class="slot-price">Booked</span>
+            <span class="slot-price">${bookedLabel}</span>
           </div>
         `;
       }
       const isSelected = selectedIds.has(Number(s.id));
+      if (isMonthly) {
+        return `
+          <div class="slot-box ${isSelected ? "selected" : ""}" data-slot-id="${s.id}" data-time="${s.start_time} - ${s.end_time}" data-price="${s.price}" data-regular="${s.regular_price}" data-discount-amt="${s.discount_amount}" data-discount-pct="${s.discount_percent}" data-end-date="${s.end_date}" data-days="${s.days_count}">
+            <span class="slot-time">${s.start_time} - ${s.end_time}</span>
+            <span class="slot-price">₹${Number(s.price).toFixed(0)}/mo</span>
+            <small style="display:block; font-size:0.62rem; color:var(--emerald-accent); font-weight:700;">
+              <s style="color:var(--text-muted); font-weight:400;">₹${Number(s.regular_price).toFixed(0)}</s> (${s.discount_percent}% off)
+            </small>
+          </div>
+        `;
+      }
       const dayLabel = s.day_type === "WEEKEND" ? `<span style="font-size:0.65rem; font-weight:700;">(W/E)</span>` : "";
       return `
         <div class="slot-box ${isSelected ? "selected" : ""}" data-slot-id="${s.id}" data-time="${s.start_time} - ${s.end_time}" data-price="${s.price}">
@@ -260,6 +339,11 @@ Object.assign(MobileWireframeApp.prototype, {
             id: slotId,
             time: slotTime,
             price: slotPrice,
+            regularPrice: Number(box.dataset.regular || slotPrice),
+            discountAmount: Number(box.dataset.discountAmt || 0),
+            discountPercent: Number(box.dataset.discountPct || 0),
+            endDate: box.dataset.endDate || dateStr,
+            daysCount: Number(box.dataset.days || 1),
             courtId: Number(courtId),
             date: dateStr
           });
@@ -280,6 +364,10 @@ Object.assign(MobileWireframeApp.prototype, {
         this.draft.slotId = list[0].id;
         this.draft.slotTime = list.map(s => s.time).join(", ");
         this.draft.price = list.reduce((sum, s) => sum + Number(s.price || 0), 0);
+        this.draft.regularPrice = list.reduce((sum, s) => sum + Number(s.regularPrice || s.price || 0), 0);
+        this.draft.monthlyDiscountAmount = list.reduce((sum, s) => sum + Number(s.discountAmount || 0), 0);
+        this.draft.monthlyEndDate = list[0].endDate || dateStr;
+        this.draft.monthlyDays = list[0].daysCount || 30;
         this.navigateTo("screen-checkout");
         await this.renderCheckout();
       };

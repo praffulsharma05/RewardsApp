@@ -1236,18 +1236,18 @@ select.wf-input option {
 }
 
 .app-booking-detail-label {
-  color: var(--glacier-950);
-  font-weight: 700;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .app-booking-detail-val {
   color: var(--glacier-950);
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .app-booking-reward-val {
-  color: var(--glacier-800);
-  font-weight: 500;
+  color: var(--emerald-accent);
+  font-weight: 600;
 }
 
 .past-game-banner {

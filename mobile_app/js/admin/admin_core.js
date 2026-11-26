@@ -13,20 +13,32 @@ class MobileAdminApp {
   }
 
   getRestoredScreen() {
+    const validScreens = [
+      "screen-overview",
+      "screen-games",
+      "screen-pricing",
+      "screen-users",
+      "screen-rewards",
+      "screen-bookings"
+    ];
     try {
       const hash = window.location.hash ? window.location.hash.replace("#", "") : "";
-      const savedScreen = sessionStorage.getItem("admin_active_screen") || localStorage.getItem("admin_active_screen");
-      const validScreens = [
-        "screen-overview",
-        "screen-games",
-        "screen-pricing",
-        "screen-users",
-        "screen-rewards",
-        "screen-bookings"
-      ];
       if (validScreens.includes(hash)) return hash;
       if (validScreens.includes("screen-" + hash)) return "screen-" + hash;
-      if (validScreens.includes(savedScreen)) return savedScreen;
+    } catch (e) {}
+    try {
+      const ss = sessionStorage.getItem("admin_active_screen");
+      if (validScreens.includes(ss)) return ss;
+    } catch (e) {}
+    try {
+      const ls = localStorage.getItem("admin_active_screen");
+      if (validScreens.includes(ls)) return ls;
+    } catch (e) {}
+    try {
+      if (window.name && window.name.startsWith("admin_active_screen:")) {
+        const wn = window.name.slice("admin_active_screen:".length);
+        if (validScreens.includes(wn)) return wn;
+      }
     } catch (e) {}
     return "screen-overview";
   }
@@ -72,13 +84,19 @@ class MobileAdminApp {
     if (target) {
       target.classList.add("active");
       this.currentScreen = screenId;
+      try { sessionStorage.setItem("admin_active_screen", screenId); } catch (e) {}
+      try { localStorage.setItem("admin_active_screen", screenId); } catch (e) {}
+      try { window.name = "admin_active_screen:" + screenId; } catch (e) {}
       try {
-        sessionStorage.setItem("admin_active_screen", screenId);
-        localStorage.setItem("admin_active_screen", screenId);
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, "", "#" + screenId);
         }
-      } catch (e) {}
+        if (window.location.hash !== "#" + screenId) {
+          window.location.hash = "#" + screenId;
+        }
+      } catch (e) {
+        try { window.location.hash = "#" + screenId; } catch (_) {}
+      }
     }
 
     // Update Bottom Navigation Active States

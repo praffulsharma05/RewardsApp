@@ -130,6 +130,24 @@ Object.assign(MobileAdminApp.prototype, {
     const maxDiscountInput = document.getElementById("admin-max-discount-input");
     if (maxDiscountInput) maxDiscountInput.value = maxDiscount;
 
+    if (window.api.getMonthlyBookingConfig) {
+      const mCfg = await window.api.getMonthlyBookingConfig();
+      const mEnabled = document.getElementById("admin-monthly-enabled-toggle");
+      const mDiscount = document.getElementById("admin-monthly-discount-input");
+      const mDays = document.getElementById("admin-monthly-days-input");
+      const mResched = document.getElementById("admin-monthly-reschedule-toggle");
+      const mMaxResched = document.getElementById("admin-monthly-max-resched-input");
+      const mMidCancel = document.getElementById("admin-monthly-midcancel-toggle");
+      const mMidRefund = document.getElementById("admin-monthly-refund-pct-input");
+      if (mEnabled) mEnabled.checked = mCfg.enabled;
+      if (mDiscount) mDiscount.value = mCfg.discountPercent;
+      if (mDays) mDays.value = mCfg.daysCount;
+      if (mResched) mResched.checked = mCfg.allowSingleDayReschedule;
+      if (mMaxResched) mMaxResched.value = mCfg.maxRescheduleDays;
+      if (mMidCancel) mMidCancel.checked = mCfg.allowMidMonthCancel;
+      if (mMidRefund) mMidRefund.value = mCfg.midMonthRefundPercent;
+    }
+
     const adminUpi = await window.api.getAdminUPI();
     const adminUpiInput = document.getElementById("admin-upi-input");
     if (adminUpiInput) adminUpiInput.value = adminUpi;
@@ -197,6 +215,7 @@ Object.assign(MobileAdminApp.prototype, {
                 <span>Booking #${b.id}</span>
                 <span class="wf-meta">&bull;</span>
                 <span>${b.sport_name}</span>
+                ${b.booking_type === "MONTHLY" ? `<span class="header-pill pill-sm" style="background:var(--emerald-bg); color:var(--emerald-accent); border-color:var(--emerald-border);">MONTHLY (${b.duration_days || 30}d)</span>` : ""}
               </div>
             </div>
             <div class="admin-booking-badges">

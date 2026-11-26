@@ -8,6 +8,7 @@ Object.assign(MockAPI.prototype, {
     const booking = await this._get("bookings", Number(bookingId));
     if (!booking) throw new Error("Booking record not found.");
     if (booking.status !== "CONFIRMED") throw new Error("Only confirmed active bookings can be rescheduled.");
+    if (booking.booking_type === "MONTHLY") throw new Error("Monthly Pass bookings cannot be rescheduled to a single day.");
 
     // Enforce Admin Slot Change Cutoff Rule (X hours before slot)
     const eligibility = await this.checkRescheduleEligibility(booking);
@@ -43,9 +44,7 @@ Object.assign(MockAPI.prototype, {
     const conflict = allBookings.find(b => 
       b.id !== Number(bookingId) &&
       b.court_id === booking.court_id && 
-      b.slot_id === Number(newSlotId) && 
-      b.date === newDate && 
-      b.status === "CONFIRMED"
+      this._isBookingActiveOnDate(b, newDate, Number(newSlotId))
     );
     if (conflict) {
       throw new Error("The target slot for this date is already booked. Please choose another.");
@@ -146,6 +145,86 @@ Object.assign(MockAPI.prototype, {
       netPayable, 
       rewardDelta 
     };
+  },
+
+  // Reschedule a Single Day from a Monthly Pass to Another Future Date / Slot
+  async rescheduleMonthlyDay(bookingId, originalDate, newDate, newSlotId) {
+    await this._simulateDelay(120);
+    const booking = await this._get("bookings", Number(bookingId));
+    if (!booking) throw new Error("Booking record not found.");
+    if (booking.status !== "CONFIRMED") throw new Error("Only confirmed active passes can be modified.");
+    if (booking.booking_type !== "MONTHLY") throw new Error("Only Monthly Pass bookings support single-day shifting.");
+
+    const mCfg = await this.getMonthlyBookingConfig();
+    if (!mCfg.allowSingleDayReschedule) {
+      throw new Error("Rescheduling individual days in a Monthly Pass is disabled by Admin.");
+    }
+
+    const currentReschedules = Array.isArray(booking.added_dates) ? booking.added_dates.length : 0;
+    if (mCfg.maxRescheduleDays > 0 && currentReschedules >= mCfg.maxRescheduleDays) {
+      throw new Error(`Monthly Pass reschedule limit reached (max ${mCfg.maxRescheduleDays} day${mCfg.maxRescheduleDays === 1 ? "" : "s"}).`);
+    }
+
+    const newSlot = await this._get("slots", Number(newSlotId));
+    if (!newSlot) throw new Error("Selected replacement slot not found.");
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const currentHourMin = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    if (originalDate < todayStr || (originalDate === todayStr && booking.start_time <= currentHourMin)) {
+      throw new Error(`Cannot move ${originalDate}: That day's slot has already passed.`);
+    }
+    if (newDate < todayStr || (newDate === todayStr && newSlot.start_time <= currentHourMin)) {
+      throw new Error(`Cannot move to ${newDate}: Target slot (${newSlot.start_time} - ${newSlot.end_time}) has already passed.`);
+    }
+
+    const dateClosedCheck = await this.isDateClosed(newDate, newSlot.start_time, newSlot.end_time);
+    if (dateClosedCheck.isClosed) {
+      throw new Error(`Cannot reschedule: Facility is closed on ${newDate} (${dateClosedCheck.reason}).`);
+    }
+
+    const unavail = await this.checkSlotUnavailability(booking.court_id, newDate, newSlot.start_time, newSlot.end_time);
+    if (unavail.isUnavailable) {
+      throw new Error(`Cannot reschedule: ${unavail.reason}`);
+    }
+
+    const allBookings = await this._getAll("bookings");
+    const conflict = allBookings.find(b =>
+      b.court_id === booking.court_id &&
+      this._isBookingActiveOnDate(b, newDate, Number(newSlotId))
+    );
+    if (conflict) {
+      throw new Error("The target slot for this date is already booked. Please choose another.");
+    }
+
+    if (!Array.isArray(booking.skipped_dates)) booking.skipped_dates = [];
+    if (!Array.isArray(booking.added_dates)) booking.added_dates = [];
+
+    const existingAddedIdx = booking.added_dates.findIndex(a => a.date === originalDate);
+    if (existingAddedIdx >= 0) {
+      booking.added_dates[existingAddedIdx] = {
+        date: newDate,
+        slot_id: Number(newSlotId),
+        start_time: newSlot.start_time,
+        end_time: newSlot.end_time,
+        original_date: booking.added_dates[existingAddedIdx].original_date || originalDate
+      };
+    } else {
+      if (!booking.skipped_dates.includes(originalDate)) {
+        booking.skipped_dates.push(originalDate);
+      }
+      booking.added_dates.push({
+        date: newDate,
+        slot_id: Number(newSlotId),
+        start_time: newSlot.start_time,
+        end_time: newSlot.end_time,
+        original_date: originalDate
+      });
+    }
+
+    await this._put("bookings", booking);
+    return { booking };
   },
 
   // Cancel Booking API (Enforces admin cutoff window, reverses reward, marks refund PENDING for manual admin action)

@@ -12,9 +12,11 @@ Object.assign(MobileAdminApp.prototype, {
       const slotVal = document.getElementById("pricing-slot-select")?.value || "18:00-19:00";
       const dayType = document.getElementById("pricing-day-type")?.value || "ALL";
       const price = Number(document.getElementById("price-rate-value").value);
+      const rawMonthly = document.getElementById("price-monthly-rate-value")?.value?.trim();
+      const monthlyPrice = rawMonthly ? Number(rawMonthly) : null;
 
       try {
-        const count = await window.api.updateSlotDayWisePrice(sportId, slotVal, dayType, price);
+        const count = await window.api.updateSlotDayWisePrice(sportId, slotVal, dayType, price, monthlyPrice);
         this.showToast(APP_CONSTANTS.MESSAGES.PRICING_UPDATED(sportName, count, price));
         await this.renderPricingSchedule();
       } catch (err) {
@@ -57,6 +59,63 @@ Object.assign(MobileAdminApp.prototype, {
         const input = document.getElementById("admin-reward-input");
         if (input) input.value = rate;
       });
+    });
+
+    // Monthly Discount & Duration Preset Chips
+    document.querySelectorAll(".btn-monthly-discount-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const disc = btn.dataset.discount;
+        const input = document.getElementById("admin-monthly-discount-input");
+        if (input) input.value = disc;
+      });
+    });
+    document.querySelectorAll(".btn-monthly-days-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const days = btn.dataset.days;
+        const input = document.getElementById("admin-monthly-days-input");
+        if (input) input.value = days;
+      });
+    });
+    document.querySelectorAll(".btn-monthly-max-resched-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const input = document.getElementById("admin-monthly-max-resched-input");
+        if (input) input.value = btn.dataset.days;
+      });
+    });
+    document.querySelectorAll(".btn-monthly-refund-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const input = document.getElementById("admin-monthly-refund-pct-input");
+        if (input) input.value = btn.dataset.pct;
+      });
+    });
+
+    // Monthly Slot Booking Rule Form Submit
+    document.getElementById("form-admin-monthly-rule-config")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enabled = Boolean(document.getElementById("admin-monthly-enabled-toggle")?.checked);
+      const discountPercent = Number(document.getElementById("admin-monthly-discount-input").value);
+      const daysCount = Number(document.getElementById("admin-monthly-days-input").value);
+      const allowSingleDayReschedule = Boolean(document.getElementById("admin-monthly-reschedule-toggle")?.checked);
+      const maxRescheduleDays = Number(document.getElementById("admin-monthly-max-resched-input")?.value ?? 3);
+      const allowMidMonthCancel = Boolean(document.getElementById("admin-monthly-midcancel-toggle")?.checked);
+      const midMonthRefundPercent = Number(document.getElementById("admin-monthly-refund-pct-input")?.value ?? 80);
+      try {
+        const saved = await window.api.setMonthlyBookingConfig({
+          enabled,
+          discountPercent,
+          daysCount,
+          allowSingleDayReschedule,
+          maxRescheduleDays,
+          allowMidMonthCancel,
+          midMonthRefundPercent
+        });
+        const msg = (typeof APP_CONSTANTS !== "undefined" && APP_CONSTANTS.MESSAGES.MONTHLY_RULE_SAVED)
+          ? APP_CONSTANTS.MESSAGES.MONTHLY_RULE_SAVED(saved.enabled, saved.discountPercent, saved.daysCount)
+          : "Monthly rule saved!";
+        this.showToast(msg);
+      } catch (err) {
+        alert(err.message);
+      }
     });
 
     // Rewards Form Submit

@@ -15,6 +15,9 @@ Object.assign(MobileWireframeApp.prototype, {
     }
 
     const bookings = await window.api.getUserBookings(this.currentUser.id);
+    const monthlyCfg = (window.api.getMonthlyBookingConfig)
+      ? await window.api.getMonthlyBookingConfig()
+      : { allowSingleDayReschedule: true, maxRescheduleDays: 3, allowMidMonthCancel: true, midMonthRefundPercent: 80 };
 
     if (bookings.length === 0) {
       container.innerHTML = `
@@ -33,21 +36,52 @@ Object.assign(MobileWireframeApp.prototype, {
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const currentHourMin = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
+    const formatShortDate = (iso) => {
+      if (!iso || !iso.includes("-")) return iso || "";
+      const [y, m, d] = iso.split("-").map(Number);
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${d} ${months[m - 1] || ""}`;
+    };
+
+    const formatBookingDate = (b) => {
+      const isMonthly = b.booking_type === "MONTHLY";
+      if (isMonthly && b.end_date) {
+        const activeDates = (window.api && window.api.getMonthlyActiveDates)
+          ? window.api.getMonthlyActiveDates(b)
+          : [];
+        const effectiveStart = activeDates.length > 0 ? activeDates[0].date : b.date;
+        const effectiveEnd = activeDates.length > 0 ? activeDates[activeDates.length - 1].date : b.end_date;
+        const [sy] = effectiveStart.split("-");
+        const [ey] = effectiveEnd.split("-");
+        const startLbl = sy !== ey ? `${formatShortDate(effectiveStart)} '${sy.slice(2)}` : formatShortDate(effectiveStart);
+        const endLbl = sy !== ey ? `${formatShortDate(effectiveEnd)} '${ey.slice(2)}` : formatShortDate(effectiveEnd);
+        const shiftedCount = Array.isArray(b.added_dates) ? b.added_dates.length : 0;
+        const shiftedNote = shiftedCount > 0 ? ` &bull; ${shiftedCount} shifted` : "";
+        return `${startLbl} – ${endLbl} &bull; ${b.duration_days || 30}d${shiftedNote}`;
+      }
+      const [y] = (b.date || "").split("-");
+      return `${formatShortDate(b.date)} ${y || ""}`.trim();
+    };
+
     container.innerHTML = bookings.map((b, idx) => {
       const isConfirmed = b.status === "CONFIRMED";
-      const isPastGame = isConfirmed && ((b.date < todayStr) || (b.date === todayStr && (b.end_time || b.start_time) <= currentHourMin));
+      const isMonthly = b.booking_type === "MONTHLY";
+      const effectiveEndDate = isMonthly && b.end_date ? b.end_date : b.date;
+      const isPastGame = isConfirmed && ((effectiveEndDate < todayStr) || (effectiveEndDate === todayStr && (b.end_time || b.start_time) <= currentHourMin));
 
       let statusBadge = `<span class="wf-pill ${isConfirmed ? "" : "cancelled"}">${b.status}</span>`;
       if (isPastGame) {
         statusBadge = `<span class="wf-pill" style="background:var(--glacier-100); color:var(--glacier-800); border-color:var(--glacier-200);">COMPLETED</span>`;
       }
 
+      const dateDisplay = formatBookingDate(b);
+
       return `
         <div class="wf-card ${isConfirmed ? "" : "highlight"} booking-accordion-card" data-booking-id="${b.id}">
           <div class="booking-collapse-header" title="Tap to expand or collapse details">
             <div>
-              <strong style="font-size:0.88rem; color:var(--glacier-950);">${b.sport_name}</strong>
-              <small class="wf-meta" style="display:block;">${b.date}</small>
+              <strong style="font-size:0.88rem; color:var(--glacier-950);">${b.sport_name} ${isMonthly ? `<span class="wf-pill" style="font-size:0.62rem; background:var(--emerald-bg); color:var(--emerald-accent); border-color:var(--emerald-border);">MONTHLY</span>` : ""}</strong>
+              <small class="wf-meta" style="display:block;">${dateDisplay}</small>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               ${statusBadge}
@@ -72,6 +106,11 @@ Object.assign(MobileWireframeApp.prototype, {
                 <small style="color:var(--text-muted); font-weight:600;">Paid with Wallet: -₹${b.wallet_applied.toFixed(2)}</small>
                 <span><span class="app-booking-detail-label">Net Paid:</span> <strong class="app-booking-detail-val">₹${b.net_paid.toFixed(2)}</strong></span>
               </div>` : ''}
+              ${isMonthly && Array.isArray(b.added_dates) && b.added_dates.length > 0 ? `
+              <div class="app-booking-detail-row" style="margin-top:6px; display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:0.72rem;">
+                <span class="app-booking-detail-label" style="margin-right:2px;">Shifted:</span>
+                ${b.added_dates.map(a => `<span style="display:inline-flex; align-items:center; white-space:nowrap; background:var(--emerald-bg); color:var(--emerald-accent); border:1px solid var(--emerald-border); border-radius:999px; padding:2px 8px; font-weight:600;">${formatShortDate(a.original_date)} &rarr; ${formatShortDate(a.date)} (${a.start_time})</span>`).join("")}
+              </div>` : ''}
             </div>
 
             ${isConfirmed ? (isPastGame ? `
@@ -80,11 +119,9 @@ Object.assign(MobileWireframeApp.prototype, {
               </div>
             ` : `
               <div style="display:flex; gap:6px; margin-top:8px;">
-                <button class="wf-btn wf-btn-secondary wf-btn-sm btn-edit-booking" data-id="${b.id}" style="flex:1;">
-                  Edit / Reschedule
-                </button>
+                ${(!isMonthly || monthlyCfg.allowSingleDayReschedule) ? `<button class="wf-btn wf-btn-secondary wf-btn-sm btn-edit-booking" data-id="${b.id}" style="flex:1;">${isMonthly ? "Reschedule Day" : "Edit / Reschedule"}</button>` : ""}
                 <button class="wf-btn wf-btn-danger wf-btn-sm btn-cancel-booking" data-id="${b.id}" style="flex:1;">
-                  Cancel Slot
+                  Cancel ${isMonthly ? "Pass" : "Slot"}
                 </button>
               </div>
             `) : `
@@ -97,7 +134,7 @@ Object.assign(MobileWireframeApp.prototype, {
                 </div>
                 ${b.refund_status === 'REFUNDED' 
                   ? `<div style="color:var(--text-muted);">${b.admin_refund_note ? `Admin Note: "${b.admin_refund_note}"` : ''}</div>` 
-                  : `<div style="color:var(--text-muted);">Slot cancelled ${b.hours_before_slot != null ? `(${b.hours_before_slot}h before slot)` : ''}. Admin will manually review & disburse refund.</div>`}
+                  : `<div style="color:var(--text-muted);">Cancelled${b.hours_before_slot != null ? ` ${b.hours_before_slot >= 24 ? Math.floor(b.hours_before_slot / 24) + 'd' + (b.hours_before_slot % 24 ? ' ' + (b.hours_before_slot % 24) + 'h' : '') : (b.hours_before_slot < 1 ? '< 1h' : b.hours_before_slot + 'h')} before slot` : ''}${b.booking_type === 'MONTHLY' ? ' • Pro-rata refund applicable' : ''} · Refund pending admin review</div>`}
               </div>
             `}
           </div>
@@ -170,7 +207,9 @@ Object.assign(MobileWireframeApp.prototype, {
         noticeBox.style.background = "#f0fdf4";
       }
       if (timingMeta) {
-        timingMeta.innerHTML = `<span style="color:var(--emerald-accent, #059669); font-weight:700;">&#10003; Eligible for Cancellation</span>`;
+        timingMeta.innerHTML = check.isMonthly
+          ? `<span style="color:var(--emerald-accent, #059669); font-weight:700;">&#10003; ${check.reason}</span>`
+          : `<span style="color:var(--emerald-accent, #059669); font-weight:700;">&#10003; Eligible for Cancellation</span>`;
       }
       if (refundEl) {
         refundEl.textContent = `+₹${check.estimatedRefund.toFixed(2)}`;
