@@ -72,6 +72,7 @@ class MobileWireframeApp {
         "screen-sports",
         "screen-courts",
         "screen-slots",
+        "screen-terms",
         "screen-checkout",
         "screen-success",
         "screen-bookings",
@@ -88,6 +89,8 @@ class MobileWireframeApp {
         await this.renderCourts(this.draft.sportId);
       } else if (targetScreen === "screen-slots") {
         await this.renderSlots(this.draft.courtId, this.draft.date);
+      } else if (targetScreen === "screen-terms") {
+        await this.renderTermsAndConditions();
       } else if (targetScreen === "screen-checkout") {
         await this.renderCheckout();
       } else {
@@ -168,6 +171,7 @@ class MobileWireframeApp {
       "screen-sports": "Sports",
       "screen-courts": "Select Table",
       "screen-slots": "Select Slot",
+      "screen-terms": "Terms & Conditions",
       "screen-checkout": "Confirm Booking",
       "screen-success": "Digital Pass",
       "screen-bookings": "My Bookings",

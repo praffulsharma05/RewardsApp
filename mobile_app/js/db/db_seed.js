@@ -129,14 +129,17 @@ Object.assign(MockAPI.prototype, {
       ];
       for (const c of courts) await this._put("courts", c);
 
-      // 5. Daily Slots Template per Court
+      // 5. Daily Slots Template per Court (8 AM to 11 PM)
       let slotIdCounter = 1;
       const times = [
         { start: "08:00", end: "09:00", price: 20 },
         { start: "09:00", end: "10:00", price: 20 },
         { start: "10:00", end: "11:00", price: 25 },
         { start: "11:00", end: "12:00", price: 25 },
+        { start: "12:00", end: "13:00", price: 25 },
+        { start: "13:00", end: "14:00", price: 25 },
         { start: "14:00", end: "15:00", price: 25 },
+        { start: "15:00", end: "16:00", price: 25 },
         { start: "16:00", end: "17:00", price: 30 },
         { start: "17:00", end: "18:00", price: 35 },
         { start: "18:00", end: "19:00", price: 35 },

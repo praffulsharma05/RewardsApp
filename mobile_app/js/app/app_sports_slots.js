@@ -368,8 +368,8 @@ Object.assign(MobileWireframeApp.prototype, {
         this.draft.monthlyDiscountAmount = list.reduce((sum, s) => sum + Number(s.discountAmount || 0), 0);
         this.draft.monthlyEndDate = list[0].endDate || dateStr;
         this.draft.monthlyDays = list[0].daysCount || 30;
-        this.navigateTo("screen-checkout");
-        await this.renderCheckout();
+        this.navigateTo("screen-terms");
+        await this.renderTermsAndConditions();
       };
     }
   }

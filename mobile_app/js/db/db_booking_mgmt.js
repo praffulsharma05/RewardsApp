@@ -56,7 +56,7 @@ Object.assign(MockAPI.prototype, {
     // Current DB admin reward rate & wallet upgrade ratio
     const rewardPercent = await this.getRewardRate();
     const walletUpgradeRatio = await this.getWalletUpgradeRatio();
-    const newPrice = Number(newSlot.price);
+    const { price: newPrice } = this._resolveSlotDailyPrice(newSlot, newDate);
     const newReward = Number(((newPrice * rewardPercent) / 100).toFixed(2));
     const priceDelta = Number((newPrice - oldPrice).toFixed(2));
 

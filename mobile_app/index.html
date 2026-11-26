@@ -284,6 +284,54 @@
           </div>
         </div>
       </section>
+      <!-- SCREEN 4B: TERMS & CONDITIONS BEFORE PAYMENT -->
+      <section class="wireframe-screen" id="screen-terms">
+        <div class="wf-card highlight">
+          <div class="wf-card-header">
+            <div>
+              <span class="wf-title-sm">Safety &amp; Facility Guidelines</span>
+              <small class="wf-meta" style="display:block;" id="tc-sport-subtitle">Mandatory precautions before payment</small>
+            </div>
+            <span class="wf-pill" id="tc-sport-badge">Sport</span>
+          </div>
+        </div>
+
+        <div class="wf-card" style="padding:12px;">
+          <strong class="wf-title-sm" style="display:block; margin-bottom:6px;">1. Dress Code &amp; Footwear</strong>
+          <p class="wf-meta" id="tc-dress-code-text" style="margin:0; line-height:1.45;"></p>
+        </div>
+
+        <div class="wf-card" style="padding:12px;">
+          <strong class="wf-title-sm" style="display:block; margin-bottom:6px;">2. Facility Conduct &amp; Activities</strong>
+          <ul class="wf-meta" style="margin:0; padding-left:16px; line-height:1.5;">
+            <li>No outside food, sugary drinks, chewing gum, smoking, or alcohol inside the playing arena.</li>
+            <li>Arrive at least 10 minutes prior to your slot; vacate promptly when your slot ends.</li>
+            <li>Unauthorized commercial coaching, filming, or disruptive behavior may lead to slot termination without refund.</li>
+          </ul>
+        </div>
+
+        <div class="wf-card" style="padding:12px; border-color:var(--rose-border); background:var(--rose-bg);">
+          <strong class="wf-title-sm" style="display:block; margin-bottom:6px; color:var(--rose-accent);">3. Damage Fines &amp; Liability</strong>
+          <ul class="wf-meta" style="margin:0; padding-left:16px; line-height:1.5; color:var(--glacier-900);">
+            <li>Any damage to courts, tables, nets, glass walls, lighting, or rental gear due to misuse will incur the <strong>respective repair/replacement &amp; penalty amount charged by the Admin</strong>.</li>
+            <li>Entering indoor courts with muddy or marking-sole shoes will incur the <strong>respective cleaning/maintenance fine charged by the Admin</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="wf-card" style="padding:12px;">
+          <label class="wf-checkbox-label" style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; margin:0;">
+            <input type="checkbox" id="chk-accept-booking-tc" style="margin-top:3px;">
+            <span style="font-size:0.78rem; line-height:1.4; color:var(--glacier-950); font-weight:600;">
+              I have read and accept all Dress Code, Footwear, Conduct &amp; Damage Fine Terms &amp; Conditions.
+            </span>
+          </label>
+        </div>
+
+        <button type="button" class="wf-btn" id="btn-accept-tc-proceed" disabled style="opacity:0.5; cursor:not-allowed;">
+          Accept All T&amp;C &amp; Proceed to Payment &rarr;
+        </button>
+      </section>
+
       <!-- SCREEN 5: BOOKING CHECKOUT & REWARD SUMMARY -->
       <section class="wireframe-screen" id="screen-checkout">
         <div class="wf-card checkout-summary-card">

@@ -78,51 +78,67 @@ Object.assign(MobileAdminApp.prototype, {
     }
 
     if (tiers.length === 0) {
-      container.innerHTML = `<div class="wf-card"><p class="wf-meta">No slots configured for ${sportTitle}. Use "Set Game &amp; Slot Rate" above to add slots.</p></div>`;
+      container.innerHTML = `
+        <div class="wf-card" style="text-align:center; padding:14px;">
+          <p class="wf-meta" style="margin-bottom:10px;">No slots configured for ${sportTitle}. Use "Set Game &amp; Slot Rate" above or restore standard 8 AM – 11 PM slots.</p>
+          <button type="button" class="wf-btn wf-btn-sm" id="btn-restore-default-slots" style="width:auto;">+ Restore 8 AM – 11 PM Slots (₹500/₹600)</button>
+        </div>
+      `;
+      document.getElementById("btn-restore-default-slots")?.addEventListener("click", async () => {
+        await window.api.updateSlotDayWisePrice(this.selectedPricingSportId, "all-slots", "WEEKDAY", 500, null);
+        await window.api.updateSlotDayWisePrice(this.selectedPricingSportId, "all-slots", "WEEKEND", 600, null);
+        this.showToast(`Restored 8 AM – 11 PM slots for ${sportTitle}!`);
+        await this.renderPricingSchedule();
+      });
       return;
     }
 
     // 4. Render slot schedule list (Per-Day + Discounted Monthly Rate)
     const mDays = Number(monthlyCfg.daysCount || 30);
     const mDisc = Number(monthlyCfg.discountPercent ?? 15);
+    const nowDt = new Date();
+    const todayIso = `${nowDt.getFullYear()}-${String(nowDt.getMonth() + 1).padStart(2, "0")}-${String(nowDt.getDate()).padStart(2, "0")}`;
     container.innerHTML = tiers.map(t => {
       const isPeak = t.start >= "18:00" && t.start < "23:00";
       const wdPrice = Number(t.weekday_price ?? t.price);
       const wePrice = Number(t.weekend_price ?? Math.round(Number(t.price) * 1.3));
       const hasDiffDayPrices = wdPrice !== wePrice;
-      const regMonthly = Number(t.price) * mDays;
+      const pricingPreview = (window.api && window.api._calculateMonthlySlotPricing)
+        ? window.api._calculateMonthlySlotPricing({ price: t.price, weekday_price: wdPrice, weekend_price: wePrice, monthly_price: t.monthly_price }, todayIso, monthlyCfg)
+        : null;
+      const regMonthly = pricingPreview ? pricingPreview.regularPrice : Number(t.price) * mDays;
       const hasCustomMonthly = t.monthly_price != null && Number(t.monthly_price) > 0;
-      const effMonthly = hasCustomMonthly
-        ? Number(t.monthly_price)
-        : Number((regMonthly * (1 - mDisc / 100)).toFixed(2));
-      const effDiscPct = regMonthly > 0
-        ? Math.max(0, Math.round(((regMonthly - effMonthly) / regMonthly) * 100))
-        : 0;
+      const effMonthly = pricingPreview
+        ? pricingPreview.discountedPrice
+        : (hasCustomMonthly ? Number(t.monthly_price) : Number((regMonthly * (1 - mDisc / 100)).toFixed(2)));
+      const effDiscPct = pricingPreview
+        ? pricingPreview.discountPercent
+        : (regMonthly > 0 ? Math.max(0, Math.round(((regMonthly - effMonthly) / regMonthly) * 100)) : 0);
 
-      const priceLabel = hasDiffDayPrices
-        ? `<span style="font-size:0.72rem; display:flex; flex-direction:column; align-items:flex-end; gap:1px;">
-             <span style="color:var(--glacier-800); font-weight:700;">Weekday ₹${wdPrice.toFixed(0)}</span>
-             <span style="color:var(--rose-accent); font-weight:700;">Weekend ₹${wePrice.toFixed(0)}</span>
-           </span>`
-        : `<span class="user-balance-pill" style="font-size:0.82rem;">₹${Number(t.price).toFixed(2)}/d</span>`;
+      const dayPriceBadges = hasDiffDayPrices
+        ? `<span style="display:inline-flex; align-items:center; white-space:nowrap; font-size:0.72rem; font-weight:700; color:var(--glacier-900); background:var(--glacier-100); border:1px solid var(--glacier-200); border-radius:999px; padding:2px 8px;">Weekday ₹${wdPrice.toFixed(0)}</span>
+           <span style="display:inline-flex; align-items:center; white-space:nowrap; font-size:0.72rem; font-weight:700; color:var(--rose-accent); background:var(--rose-bg); border:1px solid var(--rose-border); border-radius:999px; padding:2px 8px;">Weekend ₹${wePrice.toFixed(0)}</span>`
+        : `<span class="user-balance-pill" style="font-size:0.74rem; white-space:nowrap; padding:2px 8px;">₹${Number(t.price).toFixed(2)}/d</span>`;
 
       return `
-        <div class="wf-card ${isPeak ? "highlight" : ""}" style="padding: 8px 10px; margin-bottom: 6px;">
-          <div class="wf-card-header">
-            <div>
-              <strong style="font-size:0.86rem;">${t.start} - ${t.end}</strong>
+        <div class="wf-card ${isPeak ? "highlight" : ""}" style="padding: 10px 12px; margin-bottom: 8px;">
+          <div class="wf-card-header" style="gap: 8px; flex-wrap: nowrap;">
+            <div style="min-width: 0;">
+              <strong style="font-size:0.88rem; display:block;">${t.start} - ${t.end}</strong>
               <small class="wf-meta" style="display:block;">${sportTitle} &bull; ${isPeak ? "Peak Slot" : "Standard Slot"}</small>
-              <small class="wf-meta" style="display:block; color:var(--emerald-accent); font-weight:600;">
-                Monthly (${mDays}d): ₹${effMonthly.toFixed(0)} ${effDiscPct > 0 ? `(${effDiscPct}% off)` : ""} ${hasCustomMonthly ? "• Custom" : ""}
-              </small>
             </div>
-            <div style="display:flex; align-items:center; gap:5px;">
-              ${priceLabel}
-              <button type="button" class="header-btn btn-edit-single-tier" data-start="${t.start}" data-end="${t.end}" data-price="${t.price}" data-weekday="${wdPrice}" data-weekend="${wePrice}" data-monthly="${hasCustomMonthly ? effMonthly : ""}" style="font-size:0.68rem;">Edit</button>
-              <button type="button" class="header-btn btn-delete-single-tier" data-start="${t.start}" data-end="${t.end}" style="font-size:0.68rem; color:var(--rose-accent); border-color:var(--rose-border);">
-                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+              <button type="button" class="header-btn btn-edit-single-tier" data-start="${t.start}" data-end="${t.end}" data-price="${t.price}" data-weekday="${wdPrice}" data-weekend="${wePrice}" data-monthly="${hasCustomMonthly ? effMonthly : ""}" style="font-size:0.7rem; padding:4px 10px;">Edit</button>
+              <button type="button" class="header-btn btn-delete-single-tier" data-start="${t.start}" data-end="${t.end}" style="font-size:0.7rem; padding:4px 8px; color:var(--rose-accent); border-color:var(--rose-border);">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
             </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--glacier-200);">
+            ${dayPriceBadges}
+            <span style="display:inline-flex; align-items:center; white-space:nowrap; font-size:0.72rem; font-weight:600; color:var(--emerald-accent); background:var(--emerald-bg); border:1px solid var(--emerald-border); border-radius:999px; padding:2px 8px;">
+              Monthly (${mDays}d): ₹${effMonthly.toFixed(0)}${effDiscPct > 0 ? ` (${effDiscPct}% off)` : ""}${hasCustomMonthly ? " • Custom" : ""}
+            </span>
           </div>
         </div>
       `;

@@ -53,11 +53,7 @@ Object.assign(MockAPI.prototype, {
     }
 
     // Day-Wise Pricing (Weekday vs Weekend)
-    const dayOfWeek = new Date(date).getDay();
-    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-    const slotBasePrice = isWeekend 
-      ? (slot.weekend_price != null ? Number(slot.weekend_price) : Math.round(Number(slot.price) * 1.3))
-      : (slot.weekday_price != null ? Number(slot.weekday_price) : Number(slot.price));
+    const { price: slotBasePrice, isWeekend } = this._resolveSlotDailyPrice(slot, date);
 
     // Highest Limit of Discount / Reward Points Redemption (e.g. 30% Cap set by Admin)
     const maxDiscountCap = await this.getMaxDiscountPercent();
@@ -176,6 +172,10 @@ Object.assign(MockAPI.prototype, {
       const conflict = courtBookings.find(b => this._isBookingActiveOnDate(b, d, Number(slotId)));
       if (conflict) {
         throw new Error(`Monthly conflict: ${slot.start_time} - ${slot.end_time} is already booked on ${d}.`);
+      }
+      const dateClosed = await this.isDateClosed(d, slot.start_time, slot.end_time);
+      if (dateClosed.isClosed) {
+        throw new Error(`Monthly conflict on ${d}: Facility Closed (${dateClosed.reason})`);
       }
       const unavail = await this.checkSlotUnavailability(courtId, d, slot.start_time, slot.end_time);
       if (unavail.isUnavailable) {

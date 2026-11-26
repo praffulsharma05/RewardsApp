@@ -110,27 +110,24 @@ Object.assign(MockAPI.prototype, {
 
     // Create missing slots on target courts if they don't exist yet (e.g. after deletion or adding new time)
     let nextId = allSlots.reduce((max, s) => Math.max(max, Number(s.id) || 0), 0) + 1;
+    const existingCourtSlotKeys = new Set(
+      allSlots.map(s => `${s.court_id}|${s.start_time}-${s.end_time}`)
+    );
+    const buildHourlyRange = (fromHr, toHr) => {
+      const list = [];
+      for (let h = fromHr; h < toHr; h++) {
+        list.push({
+          start: `${String(h).padStart(2, "0")}:00`,
+          end: `${String(h + 1).padStart(2, "0")}:00`
+        });
+      }
+      return list;
+    };
     const bulkWindows = slotVal === "peak"
-      ? [
-          { start: "18:00", end: "19:00" }, { start: "19:00", end: "20:00" },
-          { start: "20:00", end: "21:00" }, { start: "21:00", end: "22:00" },
-          { start: "22:00", end: "23:00" }
-        ]
+      ? buildHourlyRange(18, 23)
       : slotVal === "day"
-        ? [
-            { start: "08:00", end: "09:00" }, { start: "09:00", end: "10:00" },
-            { start: "10:00", end: "11:00" }, { start: "11:00", end: "12:00" },
-            { start: "14:00", end: "15:00" }, { start: "16:00", end: "17:00" },
-            { start: "17:00", end: "18:00" }
-          ]
-        : [
-            { start: "08:00", end: "09:00" }, { start: "09:00", end: "10:00" },
-            { start: "10:00", end: "11:00" }, { start: "11:00", end: "12:00" },
-            { start: "14:00", end: "15:00" }, { start: "16:00", end: "17:00" },
-            { start: "17:00", end: "18:00" }, { start: "18:00", end: "19:00" },
-            { start: "19:00", end: "20:00" }, { start: "20:00", end: "21:00" },
-            { start: "21:00", end: "22:00" }, { start: "22:00", end: "23:00" }
-          ];
+        ? buildHourlyRange(8, 18)
+        : buildHourlyRange(8, 23);
 
     if (!isBulkPreset) {
       const [st, et] = slotVal.split("-");
@@ -146,11 +143,13 @@ Object.assign(MockAPI.prototype, {
       }
     } else {
       for (const c of targetCourts) {
-        if (!matchedCourtIds.has(c.id)) {
-          for (const w of bulkWindows) {
+        for (const w of bulkWindows) {
+          const key = `${c.id}|${w.start}-${w.end}`;
+          if (!existingCourtSlotKeys.has(key)) {
             const newSlot = { id: nextId++, court_id: c.id, start_time: w.start, end_time: w.end, price };
             applyRates(newSlot);
             await this._put("slots", newSlot);
+            existingCourtSlotKeys.add(key);
             count++;
           }
         }

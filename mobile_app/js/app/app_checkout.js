@@ -3,6 +3,52 @@
  */
 Object.assign(MobileWireframeApp.prototype, {
   // ==========================================
+  // SCREEN 4B: TERMS & CONDITIONS BEFORE PAYMENT
+  // ==========================================
+  async renderTermsAndConditions() {
+    const sportName = this.draft.sportName || "Selected Sport";
+    const badgeEl = document.getElementById("tc-sport-badge");
+    const subEl = document.getElementById("tc-sport-subtitle");
+    const dressEl = document.getElementById("tc-dress-code-text");
+    const chkEl = document.getElementById("chk-accept-booking-tc");
+    const btnEl = document.getElementById("btn-accept-tc-proceed");
+
+    if (badgeEl) badgeEl.textContent = sportName;
+    if (subEl) subEl.textContent = `${sportName} • ${this.draft.courtName || "Court"}`;
+
+    const lower = sportName.toLowerCase();
+    let dressText = `Wear proper athletic sportswear (shorts/track pants and breathable jersey). Clean sports shoes with non-marking soles are required.`;
+    if (lower.includes("badminton") || lower.includes("squash") || lower.includes("table tennis")) {
+      dressText = `<strong>${sportName} (Indoor):</strong> Mandatory <strong>non-marking gum/rubber-sole indoor court shoes</strong> and proper athletic attire (t-shirt & shorts/track pants). Street shoes, black-sole sneakers, sandals, or barefoot play are strictly prohibited.`;
+    } else if (lower.includes("football")) {
+      dressText = `<strong>${sportName} (Turf/Ground):</strong> Wear <strong>turf trainers or rubber studs (AG/TF)</strong>, jersey, shorts, and shin guards. Metal studs/spikes and formal/casual footwear are strictly prohibited.`;
+    } else if (lower.includes("tennis")) {
+      dressText = `<strong>${sportName} (Court):</strong> Wear <strong>non-marking tennis court shoes</strong> and athletic sportswear. Running spikes, heels, or sandals are not permitted on court.`;
+    }
+    if (dressEl) dressEl.innerHTML = dressText;
+
+    if (chkEl && btnEl) {
+      chkEl.checked = false;
+      const syncBtn = () => {
+        const ok = chkEl.checked;
+        btnEl.disabled = !ok;
+        btnEl.style.opacity = ok ? "1" : "0.5";
+        btnEl.style.cursor = ok ? "pointer" : "not-allowed";
+      };
+      syncBtn();
+      chkEl.onchange = syncBtn;
+      btnEl.onclick = async () => {
+        if (!chkEl.checked) {
+          this.showToast("Please accept all Terms & Conditions first.");
+          return;
+        }
+        this.navigateTo("screen-checkout");
+        await this.renderCheckout();
+      };
+    }
+  },
+
+  // ==========================================
   // SCREEN 5: CHECKOUT & DYNAMIC REWARD CALCULATION
   // ==========================================
   async renderCheckout() {
