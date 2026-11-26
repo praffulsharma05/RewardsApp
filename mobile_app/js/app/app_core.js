@@ -184,7 +184,7 @@ class MobileWireframeApp {
     // Hide bottom navigation bar on auth screen for clean login experience
     const bottomNav = document.querySelector(".mobile-bottom-nav");
     if (bottomNav) {
-      bottomNav.style.display = (screenId === "screen-auth") ? "none" : "flex";
+      bottomNav.classList.toggle("d-none", screenId === "screen-auth");
     }
 
     // Update Bottom Tab Active States

@@ -165,34 +165,16 @@ Object.assign(MobileWireframeApp.prototype, {
     optUPI?.addEventListener("click", (e) => { if (!e.target.closest("a, button")) switchMethod("UPI"); });
     optCOD?.addEventListener("click", () => switchMethod("COD"));
 
-    const triggerUPIIntent = () => {
+    const copyUPIOnly = () => {
       try { navigator.clipboard?.writeText(adminUPI); } catch (_) {}
       this.showToast("UPI ID copied!");
-      setTimeout(() => { try { window.location.href = upiURL; } catch (_) {} }, 300);
     };
 
     document.getElementById("btn-copy-upi")?.addEventListener("click", (e) => {
       e.stopPropagation();
-      try { navigator.clipboard?.writeText(adminUPI); } catch (_) {}
-      this.showToast("UPI ID copied!");
+      copyUPIOnly();
     });
-    document.getElementById("btn-upi-id-badge")?.addEventListener("click", () => triggerUPIIntent());
-
-    // Standard NPCI intent for all app triggers
-    const setupAppBtn = (id) => {
-      const btn = document.getElementById(id);
-      if (btn) {
-        btn.setAttribute("href", upiURL);
-        btn.onclick = (e) => {
-          try { navigator.clipboard?.writeText(adminUPI); } catch (_) {}
-          this.showToast("UPI ID copied!");
-        };
-      }
-    };
-    setupAppBtn("btn-upi-gpay");
-    setupAppBtn("btn-upi-phonepe");
-    setupAppBtn("btn-upi-paytm");
-    setupAppBtn("btn-upi-generic");
+    document.getElementById("btn-upi-id-badge")?.addEventListener("click", () => copyUPIOnly());
   },
 
   // Handle Checkout Confirmation
